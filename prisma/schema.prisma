@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model admin {
+  id         String   @id @default(cuid())
+  email      String
+  password   String
+  status     Boolean  @default(false)
+  lastLogin  DateTime @default(now())
+  lastLogout DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model users {
+  id              String            @id @default(cuid())
+  phoneNumber     String
+  password        String
+  name            String
+  birthDate       String
+  gender          String
+  status          Boolean
+  bank            String            @default("")
+  accountNumber   String            @default("")
+  accountHolder   String            @default("")
+  balance         Int               @default(0)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  lastLogin       DateTime          @default(now())
+  lastLogout      DateTime          @default(now())
+  lastDevice      String            @db.LongText
+  lastIpAddress   String            @default("")
+  referrerId      String?
+  activity_log    activity_log[]
+  deposit_log     deposit_log[]
+  inquiry_log     inquiry_log[]
+  reservation_log reservation_log[]
+  review_log      review_log[]
+  series_log      series_log[]
+  referrer        users?            @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade, map: "Users_referrerId_fkey")
+  referredUsers   users[]           @relation("Referrer")
+  withdrawal_log  withdrawal_log[]
+
+  @@index([id, name, phoneNumber], map: "Users_id_name_phoneNumber_fkey")
+  @@index([referrerId], map: "Users_referrerId_fkey")
+}
+
+model deposit_log {
+  id        String             @id @default(cuid())
+  userId    String
+  amount    Int
+  status    transaction_status @default(PENDING)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  user      users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Deposit_Log_userId_fkey")
+
+  @@index([userId], map: "Deposit_Log_userId_fkey")
+}
+
+model withdrawal_log {
+  id        String             @id @default(cuid())
+  userId    String
+  amount    Int
+  status    transaction_status @default(PENDING)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  user      users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Withdrawal_Log_userId_fkey")
+
+  @@index([userId], map: "Withdrawal_Log_userId_fkey")
+}
+
+model reservation_log {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Reservation_userId_fkey")
+
+  @@index([userId], map: "Reservation_userId_fkey")
+}
+
+model inquiry_log {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  reply     String
+  isReplied Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Inquiries_userId_fkey")
+
+  @@index([userId], map: "Inquiries_userId_fkey")
+}
+
+model review_log {
+  id             String             @id @default(cuid())
+  userId         String
+  rating         Int
+  series         Int
+  review         String
+  investedAmount Int
+  profit         Int
+  status         transaction_status @default(PENDING)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  user           users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Review_Log_userId_fkey")
+
+  @@index([userId], map: "Review_Log_userId_fkey")
+}
+
+model series_log {
+  id        String             @id @default(cuid())
+  userId    String
+  seriesId  String
+  amount    Int
+  status    transaction_status @default(PENDING)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  series    series             @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Series_Log_seriesId_fkey")
+  user      users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Series_Log_userId_fkey")
+
+  @@index([seriesId], map: "Series_Log_seriesId_fkey")
+  @@index([userId], map: "Series_Log_userId_fkey")
+}
+
+model series {
+  id         String           @id @default(cuid())
+  seriesId   Int
+  name       String
+  region     String
+  minAmount  Int
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  series_log series_log[]
+  periods    series_periods[]
+  rate       series_rate?
+}
+
+model series_periods {
+  id        String   @id @default(cuid())
+  seriesId  String
+  period    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  series    series   @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Series_Periods_seriesId_fkey")
+
+  @@index([seriesId], map: "Series_Periods_seriesId_fkey")
+}
+
+model series_rate {
+  id        String   @id @default(cuid())
+  seriesId  String   @unique
+  minRate   Float
+  maxRate   Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  series    series   @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Series_Rate_seriesId_fkey")
+}
+
+model notices {
+  id           String   @id @default(cuid())
+  noticeNumber Int      @unique @default(autoincrement())
+  title        String
+  content      String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model activity_log {
+  id        String   @id @default(cuid())
+  userId    String
+  ipAddress String
+  activity  String
+  device    String   @db.LongText
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Activity_Log_userId_fkey")
+
+  @@index([userId], map: "Activity_Log_userId_fkey")
+}
+
+enum transaction_status {
+  COMPLETED
+  PENDING
+  FAILED
+}
