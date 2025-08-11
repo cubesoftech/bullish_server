@@ -73,6 +73,6 @@ export default async function login(req: Request, res: Response) {
         });
     } catch (error) {
         console.error("Error logging in user:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

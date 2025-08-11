@@ -26,6 +26,6 @@ export default async function approveUserRequest(req: Request, res: Response) {
         return res.status(200).json({ message: "Users approved successfully" });
     } catch (error) {
         console.error("Error approving users:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

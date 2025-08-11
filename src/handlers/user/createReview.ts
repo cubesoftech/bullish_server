@@ -54,6 +54,6 @@ export default async function createReview(req: Request, res: Response) {
         return res.status(200).json({ message: "Review created successfully" });
     } catch (error) {
         console.error("Error during create review: ", error);
-        return res.status(500).json({ message: "Failed to create review" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

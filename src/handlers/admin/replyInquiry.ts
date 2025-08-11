@@ -35,6 +35,6 @@ export default async function replyInquiry(req: Request, res: Response) {
         return res.status(200).json({ message: "Inquiry replied successfully" });
     } catch (error) {
         console.error("Error replying to inquiry: ", error);
-        return res.status(500).json({ message: "Failed to reply to inquiry" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

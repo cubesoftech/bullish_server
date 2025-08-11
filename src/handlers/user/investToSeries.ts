@@ -78,6 +78,6 @@ export default async function investToSeries(req: Request, res: Response) {
         return res.status(200).json({ message: "Investment processed successfully" });
     } catch (e) {
         console.error("Error investing to series:", e);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

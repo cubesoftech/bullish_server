@@ -11,6 +11,7 @@ import logout from "../handlers/user/logout";
 import getReviews from "../handlers/user/getReviews";
 import getSeriesData from "../handlers/user/getSeriesData";
 import getInquiries from "../handlers/user/getInquiries";
+import getTopInvestor from "../handlers/user/getTopInvestor";
 
 
 // ---------- POST HANDLERS ---------- //
@@ -38,6 +39,7 @@ router.get('/logout', authenticate, logout);
 router.get('/getReviews', getReviews);
 router.get('/getSeriesData', getSeriesData);
 router.get('/getInquiries', authenticate, getInquiries);
+router.get('/getTopInvestor', getTopInvestor);
 
 
 // ---------- POST REQUESTS ---------- //

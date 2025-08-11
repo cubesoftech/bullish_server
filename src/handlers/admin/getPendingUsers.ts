@@ -36,6 +36,6 @@ export default async function getPendingUsers(req: Request, res: Response) {
         return res.status(200).json({ data: pendingUsers, total: totalPendingUsers });
     } catch (error) {
         console.error("Error fetching pending users: ", error);
-        return res.status(500).json({ message: "Failed to fetch pending users" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

@@ -40,6 +40,6 @@ export default async function getSeriesData(req: Request, res: Response) {
         return res.status(200).json({ data: { series1, series2, series3, series4, series5 } })
     } catch (error) {
         console.error("Error fetching series data:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

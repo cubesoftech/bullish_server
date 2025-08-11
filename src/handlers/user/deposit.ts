@@ -44,6 +44,6 @@ export default async function deposit(req: Request, res: Response) {
         return res.status(200).json({ message: "Deposit processed successfully" });
     } catch (error) {
         console.error("Error logging in deposit:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

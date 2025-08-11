@@ -73,6 +73,6 @@ export default async function getDashboardStats(req: Request, res: Response) {
 
     } catch (error) {
         console.error("Error fetching dashboard stats:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

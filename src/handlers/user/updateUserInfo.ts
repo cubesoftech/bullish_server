@@ -69,6 +69,6 @@ export default async function updateUserInfo(req: Request, res: Response) {
         return res.status(200).json({ message: "User information updated successfully" });
     } catch (error) {
         console.error("Error updating user info:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

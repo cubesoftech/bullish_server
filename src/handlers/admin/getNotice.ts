@@ -30,6 +30,6 @@ export default async function getNotice(req: Request, res: Response) {
         return res.status(200).json({ data: notices, total: totalNotices });
     } catch (error) {
         console.error("Error fetching notices: ", error);
-        return res.status(500).json({ message: "Failed to fetch notices" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

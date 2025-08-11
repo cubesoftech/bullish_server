@@ -48,6 +48,6 @@ export default async function applyConsultation(req: Request, res: Response) {
         return res.status(201).json({ message: "Consultation applied successfully" });
     } catch (error) {
         console.error("Error applying for consultation:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

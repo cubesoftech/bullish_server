@@ -92,6 +92,6 @@ export default async function generateSeries(req: Request, res: Response) {
         return res.status(200).json({ message: "Series created successfully" });
     } catch (err) {
         console.error("Error creating series:", err);
-        return res.status(500).json({ error: "Failed to create series" });
+        return res.status(500).json({ error: "Internal server error." });
     }
 }

@@ -21,6 +21,6 @@ export default async function userInfo(req: Request, res: Response) {
         return res.status(200).json({ data: userInfo });
     } catch (error) {
         console.error("Error fetching user info:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

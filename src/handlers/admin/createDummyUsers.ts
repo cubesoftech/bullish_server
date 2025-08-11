@@ -28,6 +28,6 @@ export default async function createDummyUsers(req: Request, res: Response) {
         return res.status(200).json({ message: "Dummy users created successfully" });
     } catch (error) {
         console.error("Error creating dummy users: ", error);
-        return res.status(500).json({ message: "Failed to create dummy users" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

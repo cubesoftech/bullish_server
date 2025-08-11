@@ -3,6 +3,7 @@ import { Router } from "express";
 // ---------- MIDDLEWARES ---------- //
 import authenticate from "../middlewares/authenticate";
 
+
 // ---------- HANDLERS ---------- //
 // ---------- GET HANDLERS ---------- //
 import getUsers from "../handlers/admin/getUsers";
@@ -14,6 +15,7 @@ import getActivityLog from "../handlers/admin/getActivityLog";
 import getInquiry from "../handlers/admin/getInquiry";
 import getInvestmentLog from "../handlers/admin/getInvestmentLog";
 import getDashboardStats from "../handlers/admin/getDashboardStats";
+import getSuggestedUsers from "../handlers/admin/searchUser";
 import generateSeries from "../handlers/admin/generateSeries";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -57,6 +59,7 @@ router.get("/getInquiry", authenticate, getInquiry);
 router.get("/getReferrers", authenticate, getReferrers);
 router.get("/getInvestmentLog", authenticate, getInvestmentLog);
 router.get("/getDashboardStats", authenticate, getDashboardStats);
+router.get("/getSuggestedUsers", authenticate, getSuggestedUsers);
 
 
 

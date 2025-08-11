@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma"
 
 export default async function getInvestmentLog(req: Request, res: Response) {
-    const { page, limit, search, seriesId, type } = req.query;
+    const { page, limit, search, seriesId, type, sort } = req.query;
 
     const processedPage = parseInt(page as string) || 1;
     const processedLimit = parseInt(limit as string) || 10;
@@ -18,6 +18,11 @@ export default async function getInvestmentLog(req: Request, res: Response) {
     let acceptedTypes = ["log", "details"]
     if (!type || !acceptedTypes.includes(type as string)) {
         return res.status(400).json({ message: "Invalid type filter" });
+    }
+
+    let acceptedSort = ["asc", "desc"]
+    if (!sort || !acceptedSort.includes(sort as string)) {
+        return res.status(400).json({ message: "Invalid sort filter" });
     }
 
     let where: any = {};
@@ -67,7 +72,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
             skip: (processedPage - 1) * processedLimit,
             take: processedLimit,
             orderBy: {
-                createdAt: 'desc'
+                createdAt: sort as 'asc' | 'desc'
             },
             include: {
                 user: true,
@@ -84,6 +89,6 @@ export default async function getInvestmentLog(req: Request, res: Response) {
         return res.status(200).json({ data: seriesLog, total: totalSeriesLog });
     } catch (error) {
         console.error("Error fetching series log: ", error);
-        return res.status(500).json({ message: "Failed to fetch series log" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }

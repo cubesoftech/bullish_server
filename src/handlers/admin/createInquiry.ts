@@ -39,6 +39,6 @@ export default async function createInquiry(req: Request, res: Response) {
         return res.status(201).json({ message: "Inquiry created successfully" });
     } catch (error) {
         console.error("Error creating inquiry: ", error);
-        return res.status(500).json({ message: "Failed to create inquiry" });
+        return res.status(500).json({ message: "Internal server error." });
     }
 }
