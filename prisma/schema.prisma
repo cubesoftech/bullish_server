@@ -46,6 +46,8 @@ model users {
   referrer        users?            @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade, map: "Users_referrerId_fkey")
   referredUsers   users[]           @relation("Referrer")
   withdrawal_log  withdrawal_log[]
+  direct_inquiry  direct_inquiry?
+  otp             otp?
 
   @@index([id, name, phoneNumber], map: "Users_id_name_phoneNumber_fkey")
   @@index([referrerId], map: "Users_referrerId_fkey")
@@ -185,6 +187,44 @@ model activity_log {
   user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Activity_Log_userId_fkey")
 
   @@index([userId], map: "Activity_Log_userId_fkey")
+}
+
+model direct_inquiry {
+  id                    String                    @id @default(cuid())
+  userId                String                    @unique
+  isUserReplied         Boolean                   @default(false)
+  isAdminReplied        Boolean                   @default(false)
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+  user                  users                     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Direct_Inquiry_userId_fkey")
+  directInquiryMessages direct_inquiry_messages[]
+
+  @@index([userId], map: "Direct_Inquiry_userId_fkey")
+}
+
+model direct_inquiry_messages {
+  id              String         @id @default(cuid())
+  directInquiryId String
+  senderId        String?
+  receiverId      String?
+  content         String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  directInquiry   direct_inquiry @relation(fields: [directInquiryId], references: [id], onDelete: Cascade, map: "Direct_Inquiry_Messages_directInquiryId_fkey")
+
+  @@index([directInquiryId], map: "Direct_Inquiry_Messages_directInquiryId_fkey")
+  @@index([senderId], map: "Direct_Inquiry_Messages_senderId_fkey")
+  @@index([receiverId], map: "Direct_Inquiry_Messages_receiverId_fkey")
+}
+
+model otp {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  otp       String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Otp_userId_fkey")
 }
 
 enum transaction_status {

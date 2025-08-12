@@ -63,13 +63,20 @@ export default async function login(req: Request, res: Response) {
         })
 
         const accessToken = signAccessToken({ id: user.id })
+        const unreadMessages = await prisma.direct_inquiry.count({
+            where: {
+                userId: user.id,
+                isUserReplied: false,
+            }
+        })
 
         return res.status(200).json({
             message: "Login successful",
             data: {
                 ...user,
                 data: accessToken,
-            }
+            },
+            unreadMessages,
         });
     } catch (error) {
         console.error("Error logging in user:", error);

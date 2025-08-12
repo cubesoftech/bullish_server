@@ -16,6 +16,8 @@ import getInquiry from "../handlers/admin/getInquiry";
 import getInvestmentLog from "../handlers/admin/getInvestmentLog";
 import getDashboardStats from "../handlers/admin/getDashboardStats";
 import getSuggestedUsers from "../handlers/admin/searchUser";
+import getDirectInquiryLog from "../handlers/admin/getDirectInquiryLog";
+import getDirectInquiryMessages from "../handlers/admin/getDirectInquiryMessage";
 import generateSeries from "../handlers/admin/generateSeries";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -37,6 +39,7 @@ import replyInquiry from "../handlers/admin/replyInquiry";
 import deleteInquiry from "../handlers/admin/deleteInquiry";
 import getReferrers from "../handlers/admin/getReferrers";
 import updateInvestmentStatus from "../handlers/admin/updateInvestmentStatus";
+import replyDirectInquiry from "../handlers/admin/replyDirectInquiry";
 
 
 // ---------- ROUTER ---------- //
@@ -60,6 +63,8 @@ router.get("/getReferrers", authenticate, getReferrers);
 router.get("/getInvestmentLog", authenticate, getInvestmentLog);
 router.get("/getDashboardStats", authenticate, getDashboardStats);
 router.get("/getSuggestedUsers", authenticate, getSuggestedUsers);
+router.get("/getDirectInquiryLog", authenticate, getDirectInquiryLog);
+router.get("/getDirectInquiryMessages", authenticate, getDirectInquiryMessages);
 
 
 
@@ -87,3 +92,4 @@ router.post('/createInquiry', authenticate, createInquiry);
 router.post('/replyInquiry', authenticate, replyInquiry);
 router.post('/deleteInquiry', authenticate, deleteInquiry);
 router.post('/updateInvestmentStatus', authenticate, updateInvestmentStatus);
+router.post('/replyDirectInquiry', authenticate, replyDirectInquiry);

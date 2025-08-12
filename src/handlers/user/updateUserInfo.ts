@@ -9,6 +9,7 @@ interface UpdateUserInfoPayload {
     bank: string;
     accountNumber: string;
     accountHolder: string;
+    email: string;
 }
 
 export default async function updateUserInfo(req: Request, res: Response) {
