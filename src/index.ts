@@ -5,10 +5,12 @@ import { Server } from "socket.io";
 
 import UserRoute from './routes/user';
 import AdminRoute from './routes/admin';
+import Redis from 'ioredis';
 
 const port = process.env.PORT ?? 8010;
 const app = express();
 const server = createServer(app);
+const redis = new Redis();
 
 app.use(cors());
 app.use(express.json());
@@ -21,17 +23,6 @@ const io = new Server(server, {
         methods: ["GET", "POST"],
     },
 });
-
-export const notifyOnlineUsers = (userId: string) => {
-    const socketId = onlineUsers.get(userId);
-    console.log("user: ", userId)
-    if (socketId) {
-        io.to(socketId).emit("new_message", {
-            message: "You have a new message",
-        });
-        console.log(`Message Notification sent to user ${userId} with socket ID: ${socketId}`);
-    }
-}
 
 io.on("connection", (socket) => {
     socket.on("login", (userId: string) => {
@@ -60,3 +51,15 @@ server.listen(port, () => {
     console.log(`Time started: ${new Date().toISOString()}`);
     console.log(`Server running on http://localhost:${port}`);
 })
+
+// ---------- REAL-TIME NOTIFICATION ----------
+export const notifyOnlineUsers = (userId: string) => {
+    const socketId = onlineUsers.get(userId);
+    console.log("user: ", userId)
+    if (socketId) {
+        io.to(socketId).emit("new_message", {
+            message: "You have a new message",
+        });
+        console.log(`Message Notification sent to user ${userId} with socket ID: ${socketId}`);
+    }
+}
