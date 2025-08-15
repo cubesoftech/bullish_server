@@ -1,6 +1,12 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma"
 
+interface EstimatedValues {
+    duration: string;
+    value: number;
+    afterTax: number;
+}
+
 export default async function getInvestmentLog(req: Request, res: Response) {
     const { page, limit, search, seriesId, type, sort, investmentDate } = req.query;
 
@@ -108,10 +114,10 @@ export default async function getInvestmentLog(req: Request, res: Response) {
             let season = "peak"
 
             const minRate = (log.series.rate?.minRate || 0) / 100; //convert minrate
-            const baseRate = minRate * (season === "peak" ? 1.2 : 0.8)
+            const settlementRate = minRate * (season === "peak" ? 1.2 : 0.8)
 
-            const monthly = Math.round(log.amount * baseRate)
-            const estimatedValues: { duration: string; value: number; afterTax: number; }[]
+            const monthly = Math.round(log.amount * settlementRate)
+            const estimatedValues: EstimatedValues[]
                 = log.series.periods.map(period => {
                     const value = monthly * period.period
                     return {
@@ -123,6 +129,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
             return {
                 ...log,
                 monthly,
+                settlementRate,
                 estimatedValues
             }
         })

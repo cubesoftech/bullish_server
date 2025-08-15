@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { generateRandomString } from "../../utils";
-import { notifyOnlineUsers } from "../..";
+import { notifyOnlineUsers } from "../core/socketConnection";
 
 interface ReplyDirectInquiryPayload {
     inquiryId: string;

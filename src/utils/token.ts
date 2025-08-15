@@ -1,6 +1,4 @@
 import jwt from "jsonwebtoken"
-import crypto from "crypto"
-import { prisma } from "./prisma"
 import ms from "ms"
 import { AuthPayload } from "./interface"
 
