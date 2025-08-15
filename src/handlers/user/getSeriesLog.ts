@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import findUser from "../../utils/findUser";
 
-export default async function getInvestmentLogs(req: Request, res: Response) {
+export default async function getSeriesLog(req: Request, res: Response) {
     const { user } = req;
     if (!user) {
         return res.status(401).json({ message: "Unauthorized" });

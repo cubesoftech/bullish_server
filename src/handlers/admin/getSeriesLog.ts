@@ -7,7 +7,7 @@ interface EstimatedValues {
     afterTax: number;
 }
 
-export default async function getInvestmentLog(req: Request, res: Response) {
+export default async function getSeriesLog(req: Request, res: Response) {
     const { page, limit, search, seriesId, type, sort, investmentDate } = req.query;
 
     // default parameters
@@ -129,7 +129,14 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                         value,
                         afterTax: Math.round(value * (1 - 0.154)),
                     }
-                })
+                });
+            const lastPeriod = log.series.periods[log.series.periods.length - 1].period;
+            // last month = maturity date?
+            const lastMonth = new Date(
+                new Date(log.createdAt).setUTCMonth(
+                    new Date(log.createdAt).getUTCMonth() + lastPeriod
+                )
+            ).toLocaleDateString();
             return {
                 ...log,
                 monthly,

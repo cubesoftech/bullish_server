@@ -15,7 +15,7 @@ import getTopInvestor from "../handlers/user/getTopInvestor";
 import getDirectInquiryMessages from "../handlers/user/getDirectInquiryMessages";
 import getNotices from "../handlers/user/getNotices";
 import getDashboardStats from "../handlers/user/getDashboardStats";
-import getInvestmentLogs from "../handlers/user/getInvestmentLogs";
+import getSeriesLog from "../handlers/user/getSeriesLog";
 
 
 // ---------- POST HANDLERS ---------- //
@@ -52,7 +52,7 @@ router.get('/logout', authenticate, logout);
 router.get('/getInquiries', authenticate, getInquiries);
 router.get('/getDirectInquiryMessages', authenticate, getDirectInquiryMessages);
 router.get('/getDashboardStats', authenticate, getDashboardStats);
-router.get('/getInvestmentLogs', authenticate, getInvestmentLogs);
+router.get('/getSeriesLog', authenticate, getSeriesLog);
 
 
 // ---------- POST REQUESTS ---------- //

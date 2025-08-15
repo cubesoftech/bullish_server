@@ -6,7 +6,7 @@ interface UpdateInvestmentPayload {
     status: string;
 }
 
-export default async function updateInvestmentStatus(req: Request, res: Response) {
+export default async function updateSeriesStatus(req: Request, res: Response) {
     const { seriesId, status } = req.body as UpdateInvestmentPayload;
 
     const acceptedStatus = ["COMPLETED", "FAILED"];
