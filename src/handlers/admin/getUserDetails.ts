@@ -11,7 +11,15 @@ export default async function getUserDetails(req: Request, res: Response) {
     }
 
     try {
-        const user = await findUser(id)
+        const user = await prisma.users.findFirst({
+            where: {
+                id: id
+            },
+            include: {
+                referrer: true,
+                referredUsers: true,
+            }
+        })
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }

@@ -103,7 +103,11 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                 user: true,
                 series: {
                     include: {
-                        periods: true,
+                        periods: {
+                            orderBy: {
+                                period: "asc"
+                            }
+                        },
                         rate: true,
                     }
                 },
