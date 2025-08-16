@@ -31,6 +31,7 @@ import investToSeries from "../handlers/user/investToSeries";
 import replyDirectInquiry from "../handlers/user/replyDirectInquiry";
 import sendOTP from "../handlers/user/sendOTP";
 import loginUsingOTP from "../handlers/user/loginUsingOTP";
+import deleteAccount from "../handlers/user/deleteAccount";
 
 // ---------- ROUTER ---------- //
 const router = Router();
@@ -70,3 +71,4 @@ router.post('/createInquiry', authenticate, createInquiry)
 router.post('/createReview', authenticate, createReview)
 router.post('/investToSeries', authenticate, investToSeries)
 router.post('/replyDirectInquiry', authenticate, replyDirectInquiry)
+router.post('/deleteAccount', authenticate, deleteAccount)
