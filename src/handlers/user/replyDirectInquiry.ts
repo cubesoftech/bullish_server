@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
-import findUser from "../../utils/findUser";
+import { findUser } from "../../utils";
 import { generateRandomString } from "../../utils";
 import { notifyOnlineUsers } from "../core/socketConnection";
 

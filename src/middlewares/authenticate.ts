@@ -12,12 +12,7 @@ export default function authenticate(req: Request, res: Response, next: NextFunc
 
     jwt.verify(token, process.env.JWT_ACCESS_SECRET!, (err, user) => {
         if (err) {
-            if (err.name === 'TokenExpiredError') {
-                res.status(401).json({ message: "Token Expired." })
-                return;
-            }
-            res.status(401).json({ message: "Unauthorized" })
-            return;
+            return res.status(401).json({ message: "Unauthorized" })
         }
         req.user = user as AuthPayload
         next();

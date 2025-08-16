@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma"
-import findUser from "../../utils/findUser";
 
 
 export default async function getUserDetails(req: Request, res: Response) {

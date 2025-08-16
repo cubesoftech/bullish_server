@@ -8,11 +8,12 @@ interface RegisterPayload {
     name: string;
     birthDate: string;
     gender: string;
+    email?: string;
     referralCode?: string;
 }
 
 export default async function register(req: Request, res: Response) {
-    const { phoneNumber, password, name, birthDate, gender, referralCode } = req.body as RegisterPayload;
+    const { phoneNumber, password, name, birthDate, gender, email, referralCode } = req.body as RegisterPayload;
 
     // Validate required fields
     const validateFields = !(
@@ -52,6 +53,17 @@ export default async function register(req: Request, res: Response) {
             }
         }
 
+        if (email) {
+            const existingEmail = await prisma.users.findFirst({
+                where: {
+                    email
+                }
+            })
+            if (existingEmail) {
+                return res.status(400).json({ message: "Email already in use" });
+            }
+        }
+
         await prisma.users.create({
             data: {
                 id: generateRandomString(7),
@@ -60,6 +72,7 @@ export default async function register(req: Request, res: Response) {
                 name,
                 birthDate,
                 gender,
+                email: email ?? "",
                 referrerId: referrer ? referrer.id : null,
                 status: false,
                 createdAt: new Date(),

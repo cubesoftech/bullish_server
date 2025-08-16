@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { generateRandomString } from "../../utils";
 import { TransactionPayload } from "../../utils/interface";
-import findUser from "../../utils/findUser";
+import { findUser } from "../../utils";
 
 export default async function withdrawal(req: Request, res: Response) {
     const { user } = req;

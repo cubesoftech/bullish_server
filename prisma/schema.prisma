@@ -26,6 +26,7 @@ model users {
   birthDate       String
   gender          String
   status          Boolean
+  email           String            @default("")
   bank            String            @default("")
   accountNumber   String            @default("")
   accountHolder   String            @default("")

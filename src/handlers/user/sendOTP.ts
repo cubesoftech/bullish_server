@@ -1,8 +1,8 @@
 import { Response, Request } from "express";
 import { prisma } from "../../utils/prisma";
-import transporter from "../../utils/nodeMailer";
+import transporter from "../../utils/nodemailer";
 import { generateRandomString } from "../../utils";
-import maskEmail from "../../utils/maskEmail";
+import { maskEmail } from "../../utils";
 
 interface SendOTPPayload {
     phoneNumber: string;

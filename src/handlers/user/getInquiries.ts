@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
-import findUser from "../../utils/findUser";
+import { findUser } from "../../utils";
 
 export default async function getInquiries(req: Request, res: Response) {
     const { user } = req;

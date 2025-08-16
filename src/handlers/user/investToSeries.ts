@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { generateRandomString } from "../../utils";
-import findUser from "../../utils/findUser";
+import { findUser } from "../../utils";
 
 interface InvestToSeriesPayload {
     amount: number;
