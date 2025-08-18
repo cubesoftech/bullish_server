@@ -69,6 +69,9 @@ router.get("/getDirectInquiryMessages", authenticate, getDirectInquiryMessages);
 
 // commented out for now, as it is not used in the current context
 // use only to generate series data
+// ---------- NOTE ---------- //
+// ---------- DONT USE THIS API ENDPOINT TO ADD NEW SERIES ---------- //
+// ---------- IF YOU WANT TO ADD NEW SERIES, PLEASE USE THE ADMIN PANEL ---------- //
 router.get('/generateSeriesData', authenticate, generateSeriesData)
 
 // commented out for now, as it is not used in the current context

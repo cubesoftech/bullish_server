@@ -5,11 +5,14 @@ const generateRandomString = (length: number): string => {
     return Math.random().toString(36).slice(2, 2 + length);
 }
 
+// ---------- NOTE ---------- //
+// ---------- DONT USE THIS API ENDPOINT TO ADD NEW SERIES ---------- //
+// ---------- IF YOU WANT TO ADD NEW SERIES, PLEASE USE THE ADMIN PANEL ---------- //
+
+
 export default async function generateSeriesData(req: Request, res: Response) {
     // change this data when the series data on frontend changes
-    // after changing, delete the old series data and use this endpoint to generate new series data
     // this endpoint is only for generating series data, not for updating existing series
-    // after regenerating series channge the acceptedSeries on admin/getPendingInvestment.ts
     const seriesData = [
         {
             seriesId: 1,
