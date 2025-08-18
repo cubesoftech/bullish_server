@@ -73,7 +73,7 @@ export function getInvestmentAdditionalData(investment: InvestmentWIthAdditional
         new Date(investment.createdAt).setMonth(
             new Date(investment.createdAt).getMonth() + lastPeriod
         )
-    ).toLocaleDateString();
+    );
     const totalEstimatedProfit = monthlyProfit * lastPeriod
 
     return {
