@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma"
+import { getInvestmentAdditionalData } from "../../utils";
 
 interface EstimatedValues {
     duration: string;
@@ -115,33 +116,19 @@ export default async function getSeriesLog(req: Request, res: Response) {
         })
 
         const processedSeriesLog = seriesLog.map(log => {
-            let season = "peak"
-
-            const minRate = (log.series.rate?.minRate || 0) / 100; //convert minrate
-            const settlementRate = minRate * (season === "peak" ? 1.2 : 0.8)
-
-            const monthly = Math.round(log.amount * settlementRate)
-            const estimatedValues: EstimatedValues[]
-                = log.series.periods.map(period => {
-                    const value = monthly * period.period
-                    return {
-                        duration: period.period + "개월",
-                        value,
-                        afterTax: Math.round(value * (1 - 0.154)),
-                    }
-                });
-            const lastPeriod = log.series.periods[log.series.periods.length - 1].period;
-            // last month = maturity date?
-            const lastMonth = new Date(
-                new Date(log.createdAt).setUTCMonth(
-                    new Date(log.createdAt).getUTCMonth() + lastPeriod
-                )
-            ).toLocaleDateString();
+            const { monthly, settlementRate, estimatedValues } = getInvestmentAdditionalData({
+                amount: log.amount,
+                createdAt: log.createdAt,
+                series: {
+                    periods: log.series.periods,
+                    rate: log.series.rate
+                }
+            })
             return {
                 ...log,
                 monthly,
-                settlementRate,
-                estimatedValues
+                settlementRate: settlementRate * 100, //convert from decimal to percent
+                estimatedValues,
             }
         })
 

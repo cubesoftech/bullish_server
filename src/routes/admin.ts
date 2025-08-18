@@ -18,7 +18,7 @@ import getDashboardStats from "../handlers/admin/getDashboardStats";
 import getSuggestedUsers from "../handlers/admin/searchUser";
 import getDirectInquiryLog from "../handlers/admin/getDirectInquiryLog";
 import getDirectInquiryMessages from "../handlers/admin/getDirectInquiryMessage";
-import generateSeries from "../handlers/admin/generateSeries";
+import generateSeriesData from "../handlers/admin/generateSeriesData";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
 
@@ -67,10 +67,9 @@ router.get("/getDirectInquiryLog", authenticate, getDirectInquiryLog);
 router.get("/getDirectInquiryMessages", authenticate, getDirectInquiryMessages);
 
 
-
 // commented out for now, as it is not used in the current context
 // use only to generate series data
-// router.get('/generateSeries', authenticate, generateSeries)
+router.get('/generateSeriesData', authenticate, generateSeriesData)
 
 // commented out for now, as it is not used in the current context
 // use only to generate dummy users

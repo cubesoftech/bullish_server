@@ -19,36 +19,39 @@ model admin {
 }
 
 model users {
-  id              String            @id @default(cuid())
-  phoneNumber     String
-  password        String
-  name            String
-  birthDate       String
-  gender          String
-  status          Boolean
-  email           String            @default("")
-  bank            String            @default("")
-  accountNumber   String            @default("")
-  accountHolder   String            @default("")
-  balance         Int               @default(0)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  lastLogin       DateTime          @default(now())
-  lastLogout      DateTime          @default(now())
-  lastDevice      String            @db.LongText
-  lastIpAddress   String            @default("")
-  referrerId      String?
-  activity_log    activity_log[]
-  deposit_log     deposit_log[]
-  inquiry_log     inquiry_log[]
-  reservation_log reservation_log[]
-  review_log      review_log[]
-  series_log      series_log[]
-  referrer        users?            @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade, map: "Users_referrerId_fkey")
-  referredUsers   users[]           @relation("Referrer")
-  withdrawal_log  withdrawal_log[]
-  direct_inquiry  direct_inquiry?
-  otp             otp?
+  id                 String               @id @default(cuid())
+  phoneNumber        String
+  password           String
+  name               String
+  birthDate          String
+  gender             String
+  status             Boolean
+  email              String               @default("")
+  bank               String               @default("")
+  accountNumber      String               @default("")
+  accountHolder      String               @default("")
+  balance            Int                  @default(0)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  lastLogin          DateTime             @default(now())
+  lastLogout         DateTime             @default(now())
+  lastDevice         String               @db.LongText
+  lastIpAddress      String               @default("")
+  referrerId         String?
+  activity_log       activity_log[]
+  deposit_log        deposit_log[]
+  inquiry_log        inquiry_log[]
+  reservation_log    reservation_log[]
+  review_log         review_log[]
+  series_log         series_log[]
+  referrer           users?               @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade, map: "Users_referrerId_fkey")
+  referredUsers      users[]              @relation("Referrer")
+  withdrawal_log     withdrawal_log[]
+  direct_inquiry     direct_inquiry?
+  otp                otp?
+  investment_log     investment_log[]
+  profit_log         profit_log[]
+  monthly_profit_log monthly_profit_log[]
 
   @@index([id, name, phoneNumber], map: "Users_id_name_phoneNumber_fkey")
   @@index([referrerId], map: "Users_referrerId_fkey")
@@ -120,31 +123,35 @@ model review_log {
 }
 
 model series_log {
-  id        String             @id @default(cuid())
-  userId    String
-  seriesId  String
-  amount    Int
-  status    transaction_status @default(PENDING)
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-  series    series             @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Series_Log_seriesId_fkey")
-  user      users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Series_Log_userId_fkey")
+  id             String             @id @default(cuid())
+  userId         String
+  seriesId       String
+  amount         Int
+  status         transaction_status @default(PENDING)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  series         series             @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Series_Log_seriesId_fkey")
+  user           users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Series_Log_userId_fkey")
+  investment_log investment_log?
 
   @@index([seriesId], map: "Series_Log_seriesId_fkey")
   @@index([userId], map: "Series_Log_userId_fkey")
 }
 
 model series {
-  id         String           @id @default(cuid())
-  seriesId   Int
-  name       String
-  region     String
-  minAmount  Int
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-  series_log series_log[]
-  periods    series_periods[]
-  rate       series_rate?
+  id             String              @id @default(cuid())
+  seriesId       Int
+  name           String
+  region         String
+  minAmount      Int
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  series_log     series_log[]
+  periods        series_periods[]
+  rate           series_rate?
+  peakSeason     series_peak_season?
+  profit_log     profit_log[]
+  investment_log investment_log[]
 }
 
 model series_periods {
@@ -166,6 +173,16 @@ model series_rate {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   series    series   @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Series_Rate_seriesId_fkey")
+}
+
+model series_peak_season {
+  id                   String   @id @default(cuid())
+  seriesID             String   @unique
+  peakSeasonStartMonth Int
+  peakSeasonEndMonth   Int
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  series               series   @relation(fields: [seriesID], references: [id], onDelete: Cascade, map: "Series_Peak_Season_seriesID_fkey")
 }
 
 model notices {
@@ -226,6 +243,50 @@ model otp {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Otp_userId_fkey")
+}
+
+// dito papasok lahat ng mga approved investments
+model investment_log {
+  id                  String             @id @default(cuid())
+  userId              String
+  seriesLogId         String             @unique
+  seriesId            String
+  amount              Int
+  monthly             Float
+  settlementRate      Float
+  maturityDate        DateTime
+  totalProfit         Int                @default(0)
+  totalExpectedProfit Int                @default(0)
+  status              transaction_status @default(PENDING)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  user                users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Investment_Log_userId_fkey")
+  seriesLog           series_log         @relation(fields: [seriesLogId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesLogId_fkey")
+  series              series             @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesId_fkey")
+  profit_log          profit_log[]
+}
+
+model profit_log {
+  id              String         @id @default(cuid())
+  userId          String
+  investmentLogId String
+  seriesId        String
+  profit          Float
+  settlementRate  Float
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  user            users          @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Profit_Log_userId_fkey")
+  investmentLog   investment_log @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Profit_Log_investmentLogId_fkey")
+  series          series         @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Profit_Log_seriesId_fkey")
+}
+
+model monthly_profit_log {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Monthly_Profit_Log_userId_fkey")
 }
 
 enum transaction_status {

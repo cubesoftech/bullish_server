@@ -5,7 +5,7 @@ const generateRandomString = (length: number): string => {
     return Math.random().toString(36).slice(2, 2 + length);
 }
 
-export default async function generateSeries(req: Request, res: Response) {
+export default async function generateSeriesData(req: Request, res: Response) {
     // change this data when the series data on frontend changes
     // after changing, delete the old series data and use this endpoint to generate new series data
     // this endpoint is only for generating series data, not for updating existing series
@@ -80,6 +80,15 @@ export default async function generateSeries(req: Request, res: Response) {
                             id: generateRandomString(7),
                             minRate: series.rate.minRate,
                             maxRate: series.rate.maxRate,
+                            createdAt: new Date(),
+                            updatedAt: new Date()
+                        }
+                    },
+                    peakSeason: {
+                        create: {
+                            id: generateRandomString(7),
+                            peakSeasonStartMonth: 1,
+                            peakSeasonEndMonth: 12,
                             createdAt: new Date(),
                             updatedAt: new Date()
                         }

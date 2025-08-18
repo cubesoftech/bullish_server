@@ -16,6 +16,11 @@ import getDirectInquiryMessages from "../handlers/user/getDirectInquiryMessages"
 import getNotices from "../handlers/user/getNotices";
 import getDashboardStats from "../handlers/user/getDashboardStats";
 import getSeriesLog from "../handlers/user/getSeriesLog";
+import getOngoingInvestment from "../handlers/user/getOngoingInvestment";
+import getEndingInvestments from "../handlers/user/getEndingInvestments";
+import getProfitLog from "../handlers/user/getProfitLog";
+import getUserInvestmentSummary from "../handlers/user/getUserInvestmentSummary";
+import getLatestMonthlyProfit from "../handlers/user/getLatestMonthlyProfit";
 
 
 // ---------- POST HANDLERS ---------- //
@@ -45,6 +50,7 @@ router.get('/', (req, res) => {
 });
 router.get('/getReviews', getReviews);
 router.get('/getSeriesData', getSeriesData);
+// TODO: fix this api and make it available on frontend
 router.get('/getTopInvestor', getTopInvestor);
 router.get('/getNotices', getNotices);
 // ---------- SECURED GET REQUESTS ---------- //
@@ -54,6 +60,11 @@ router.get('/getInquiries', authenticate, getInquiries);
 router.get('/getDirectInquiryMessages', authenticate, getDirectInquiryMessages);
 router.get('/getDashboardStats', authenticate, getDashboardStats);
 router.get('/getSeriesLog', authenticate, getSeriesLog);
+router.get('/getOngoingInvestment', authenticate, getOngoingInvestment);
+router.get('/getEndingInvestments', authenticate, getEndingInvestments);
+router.get('/getProfitLog', authenticate, getProfitLog);
+router.get('/getUserInvestmentSummary', authenticate, getUserInvestmentSummary);
+router.get('/getLatestMonthlyProfit', authenticate, getLatestMonthlyProfit);
 
 
 // ---------- POST REQUESTS ---------- //

@@ -3,6 +3,7 @@ import { redisOptions } from "./redis"
 
 export const workerNames = {
     distributeInvestmentProfit: "Distribute Investment Profit",
+    updateUserMonthlyProfit: "Update User Monthly Profit"
 }
 export const bullMqConnectionOptions: QueueBaseOptions = {
     connection: redisOptions
@@ -27,7 +28,7 @@ export const createWorker = (
             }
             : {
                 ...bullMqConnectionOptions,
-                concurrency: 10,
+                concurrency: 1,
                 removeOnComplete: {
                     age: 1000 * 60 * 60 * 24, // 1 day,
                     count: 1000, // keep last 1000 completed jobs

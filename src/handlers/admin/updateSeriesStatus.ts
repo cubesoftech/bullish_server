@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
+import { distributeInvestmentProfitQueueUpsertJobScheduler } from "../../services/distributeInvestmentProfit";
+import { generateRandomString, getInvestmentAdditionalData } from "../../utils";
 
 interface UpdateInvestmentPayload {
     seriesId: string;
@@ -23,6 +25,19 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
             where: {
                 id: seriesId,
                 status: "PENDING",
+            },
+            include: {
+                user: true,
+                series: {
+                    include: {
+                        periods: {
+                            orderBy: {
+                                period: "desc"
+                            }
+                        },
+                        rate: true,
+                    }
+                },
             }
         })
         if (!series) {
@@ -51,6 +66,32 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                     updatedAt: new Date(),
                 }
             })
+        }
+
+        if (status === "COMPLETED") {
+            const { monthly, settlementRate, maturityDate, totalEstimatedProfit } = getInvestmentAdditionalData({
+                amount: series.amount,
+                createdAt: new Date(),
+                series: {
+                    periods: series.series.periods,
+                    rate: series.series.rate,
+                }
+            })
+            const investment = await prisma.investment_log.create({
+                data: {
+                    id: generateRandomString(7),
+                    userId: series.userId,
+                    seriesLogId: series.id,
+                    seriesId: series.seriesId,
+                    amount: series.amount,
+                    monthly,
+                    settlementRate,
+                    maturityDate,
+                    totalExpectedProfit: totalEstimatedProfit,
+                }
+            })
+            // add the user on the job if the investment gets approved
+            await distributeInvestmentProfitQueueUpsertJobScheduler(investment);
         }
         return res.status(200).json({ message: "Investment status updated successfully" });
     } catch (error) {

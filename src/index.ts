@@ -10,6 +10,7 @@ import AdminRoute from './routes/admin';
 
 import { bullMqExpressAdapter } from './routes/workers';
 import { initDistributeInvestmentProfit } from './services/distributeInvestmentProfit';
+import { initUpdateUserMonthlyProfit } from './services/updateUserMonthyProfit';
 
 const port = process.env.PORT ?? 8010;
 const app = express();
@@ -31,10 +32,11 @@ app.get('/', (req, res) => {
 
 app.use('/user', UserRoute);
 app.use('/admin', AdminRoute);
-// app.use("/workers", bullMqExpressAdapter.getRouter())
+app.use("/workers", bullMqExpressAdapter.getRouter())
 
 redis.on("connect", () => {
-    // initDistributeInvestmentProfit();
+    initDistributeInvestmentProfit();
+    // initUpdateUserMonthlyProfit();
     console.log("Redis: Connected!")
 })
 redis.on("error", (err) => {
