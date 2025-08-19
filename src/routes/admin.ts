@@ -18,6 +18,9 @@ import getDashboardStats from "../handlers/admin/getDashboardStats";
 import getSuggestedUsers from "../handlers/admin/searchUser";
 import getDirectInquiryLog from "../handlers/admin/getDirectInquiryLog";
 import getDirectInquiryMessages from "../handlers/admin/getDirectInquiryMessage";
+import getSeriesPeakSeason from "../handlers/admin/getSeriesPeakSeason";
+import getInvestmentLog from "../handlers/admin/getInvestmentLog";
+import getProfitLog from "../handlers/admin/getProfitLog";
 import generateSeriesData from "../handlers/admin/generateSeriesData";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -40,6 +43,7 @@ import deleteInquiry from "../handlers/admin/deleteInquiry";
 import getReferrers from "../handlers/admin/getReferrers";
 import updateSeriesStatus from "../handlers/admin/updateSeriesStatus";
 import replyDirectInquiry from "../handlers/admin/replyDirectInquiry";
+import updateSeriesPeakSeason from "../handlers/admin/updateSeriesPeakSeason";
 
 
 // ---------- ROUTER ---------- //
@@ -65,6 +69,9 @@ router.get("/getDashboardStats", authenticate, getDashboardStats);
 router.get("/getSuggestedUsers", authenticate, getSuggestedUsers);
 router.get("/getDirectInquiryLog", authenticate, getDirectInquiryLog);
 router.get("/getDirectInquiryMessages", authenticate, getDirectInquiryMessages);
+router.get("/getSeriesPeakSeason", authenticate, getSeriesPeakSeason);
+router.get("/getInvestmentLog", authenticate, getInvestmentLog);
+router.get("/getProfitLog", authenticate, getProfitLog);
 
 
 // commented out for now, as it is not used in the current context
@@ -72,7 +79,7 @@ router.get("/getDirectInquiryMessages", authenticate, getDirectInquiryMessages);
 // ---------- NOTE ---------- //
 // ---------- DONT USE THIS API ENDPOINT TO ADD NEW SERIES ---------- //
 // ---------- IF YOU WANT TO ADD NEW SERIES, PLEASE USE THE ADMIN PANEL ---------- //
-router.get('/generateSeriesData', authenticate, generateSeriesData)
+// router.get('/generateSeriesData', authenticate, generateSeriesData)
 
 // commented out for now, as it is not used in the current context
 // use only to generate dummy users
@@ -95,3 +102,4 @@ router.post('/replyInquiry', authenticate, replyInquiry);
 router.post('/deleteInquiry', authenticate, deleteInquiry);
 router.post('/updateSeriesStatus', authenticate, updateSeriesStatus);
 router.post('/replyDirectInquiry', authenticate, replyDirectInquiry);
+router.post('/updateSeriesPeakSeason', authenticate, updateSeriesPeakSeason);

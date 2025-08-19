@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
+import { serializeJsonQuery } from "@prisma/client/runtime/library";
 
 export default async function getDashboardStats(req: Request, res: Response) {
     try {
@@ -56,14 +57,63 @@ export default async function getDashboardStats(req: Request, res: Response) {
             take: 5,
         });
 
+        const series = await prisma.series.findMany({
+            orderBy: {
+                seriesId: "asc"
+            }
+        })
+        const settlementProfits = await Promise.all(
+            series.map(async (s) => {
+                const totalSettlementProfit = await prisma.profit_log.aggregate({
+                    where: {
+                        seriesId: s.id
+                    },
+                    _sum: {
+                        profit: true
+                    }
+                })
+                return {
+                    id: s.id,
+                    seriesId: s.seriesId,
+                    name: s.name,
+                    totalSettlementProfit: totalSettlementProfit._sum.profit || 0,
+                }
+            })
+        )
+
+        const now = new Date()
+        const expiringInvestments = await prisma.investment_log.findMany({
+            where: {
+                status: "PENDING",
+                maturityDate: {
+                    lte: new Date(now.getFullYear(), now.getMonth() + 3, now.getDate())
+                }
+            },
+            orderBy: {
+                maturityDate: "desc"
+            },
+            include: {
+                user: true,
+                series: {
+                    include: {
+                        periods: true,
+                        rate: true,
+                        peakSeason: true,
+                    }
+                }
+            }
+        })
+
         return res.status(200).json({
             data: {
                 totalUsers,
                 totalDepositAmount: totalDepositAmount._sum.amount || 0,
                 totalWithdrawalAmount: totalWithdrawalAmount._sum.amount || 0,
                 signedUpToday,
+                settlementProfits,
                 totalDepositRequests,
                 totalWithdrawalRequests,
+                expiringInvestments,
                 totalPendingUsers,
                 newInquiries,
                 recentNotices,

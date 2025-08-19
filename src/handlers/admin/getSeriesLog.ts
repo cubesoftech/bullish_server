@@ -2,12 +2,6 @@ import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma"
 import { getInvestmentAdditionalData } from "../../utils";
 
-interface EstimatedValues {
-    duration: string;
-    value: number;
-    afterTax: number;
-}
-
 export default async function getSeriesLog(req: Request, res: Response) {
     const { page, limit, search, seriesId, type, sort, investmentDate } = req.query;
 
