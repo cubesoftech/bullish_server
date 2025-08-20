@@ -83,11 +83,14 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
         return job.log(`Removing Investment with id ${investmentId} in job scheduler since it's not found or maybe it's already completed.`);
     }
 
+    const now = new Date();
+
     const { series } = investment
-    const { periods, rate, peakSeason } = series
+    const { periods, peakSeason, payoutSchedule } = series
     const { peakSeasonStartMonth, peakSeasonEndMonth } = peakSeason!
 
     const lastPeriod = periods[0].period; // get the last period
+    // get the profit logs on this investment
     const profitLogs = await prisma.profit_log.findMany({
         where: {
             investmentLogId: investment.id
@@ -98,8 +101,35 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
         }
     })
 
-    // if the profit logs are greater than or equal to the last period, mark the investment as completed
-    if (profitLogs.length >= lastPeriod) {
+    // list of months for quarterly
+    const quarterMonths = [3, 6, 9, 12];
+    // expected profit distribution count
+    let expectedProfitDistributionCount = 0
+    // set expected profit distribution count based on the payout schedule of profit
+    if (payoutSchedule === "WEEKLY") {
+        expectedProfitDistributionCount = lastPeriod * 4;
+        // weekly schedule must run every friday
+        if (now.getDay() !== 5) {
+            return job.log(`Cancelling job since it's not friday.`);
+        }
+    } else if (payoutSchedule === "MONTHLY") {
+        expectedProfitDistributionCount = lastPeriod;
+        // monthy schedule must run every 1st day of the month
+        if (now.getDate() !== 1) {
+            return job.log(`Cancelling job since it's not the first day of the month.`);
+        }
+    } else if (payoutSchedule === "QUARTERLY") {
+        expectedProfitDistributionCount = lastPeriod / 3;
+        // quarterly schedule must run every 1st day of the quarter
+        job.log(`now: ${now}, month now: ${now.getMonth()}`)
+        if (!quarterMonths.includes(now.getMonth() + 1) || now.getDate() !== 1) {
+            return job.log(`Cancelling job since it's not quarter year and 1st day of the month.`);
+        }
+    }
+
+    // check if the scheduler already distributed all the profit
+    // if already distributed and still on pending then update the status
+    if (profitLogs.length >= expectedProfitDistributionCount) {
         // update the investment status to completed
         await prisma.investment_log.update({
             where: {
@@ -113,47 +143,70 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
         return job.log(`Investment ${investment.id} has already received all profit.`);
     }
 
+    // predict the investment status on next run of the job
     const nextMonthInvestmentStatus: investment_log["status"] =
-        profitLogs.length + 1 === lastPeriod
+        profitLogs.length + 1 === expectedProfitDistributionCount
             ? "COMPLETED"
             : "PENDING";
 
-    // get the current date but add 1 day
-    const now = new Date();
+
+    // add 1 day to the current date to check if today is the distribution day
+    now.setDate(now.getDate() + 1); // add 1 day to the current date
     const currentMonth = now.getMonth() + 1; // add 1 since getMonth is zero based
 
+    // get the monthsary of createdAt of investment
     const monthsary = new Date(
         new Date(investment.createdAt)
             .setMonth(
                 new Date(investment.createdAt).getMonth() + 1
             )
     );
-    now.setDate(now.getDate() + 1); // add 1 day to the current date
-    // check if today is monthsary
+    // check if the investment is approved a month ago
     if (now < monthsary) {
-        return job.log(`Investment ${investment.id} is not yet eligible for profit distribution. Next schedule for profit distribution: ${monthsary.toLocaleDateString()}`);
+        return job.log(`Investment ${investment.id} is not yet eligible for profit distribution, now: ${now}, monthsary: ${monthsary}`);
     }
 
-    // check if the profit is already distributed this month
+
+    // check if the profit is already distributed based on the scheduled profit distribution
     if (profitLogs.length > 0) {
-        const lastProfitLogCreatedMonth = new Date(profitLogs[0].createdAt).getMonth() + 1;
-        if (lastProfitLogCreatedMonth === currentMonth) {
+        let lastProfitLogCreated = new Date(profitLogs[0].createdAt);
+        // check if the last created profit logs is less that 7 days
+        if (payoutSchedule === "WEEKLY" && now.getDate() - lastProfitLogCreated.getDate() < 7) {
+            return job.log(`Investment ${investment.id} has already distributed profit for this week`);
+        }
+        // check if the last profit distribution is this month
+        if (payoutSchedule === "MONTHLY" && lastProfitLogCreated.getMonth() + 1 === currentMonth) {
             return job.log(`Investment ${investment.id} has already distributed profit for this month.`);
+        }
+        // check if the last profit distribution is this quarter
+        if (payoutSchedule === "QUARTERLY" && currentMonth - (lastProfitLogCreated.getMonth() + 1) < 3) {
+            return job.log(`Investment ${investment.id} has already distributed profit for this quarter.`);
         }
     }
 
     let isOnPeakSeason: boolean = false;
+    let settlementRate: number = 0;
 
     // check if the current month is within the peak season
     if (currentMonth >= peakSeasonStartMonth && currentMonth <= peakSeasonEndMonth) {
         isOnPeakSeason = true;
+        settlementRate = investment.peakSettlementRate; //stored as decimal already
     } else {
         isOnPeakSeason = false;
+        settlementRate = investment.leanSettlementRate; //stored as decimal already
     }
 
-    const minRate = (rate?.minRate || 0) / 100; // convert minRate to decimal
-    const settlementRate = minRate * (isOnPeakSeason ? 1.2 : 0.8);
-    const monthlyProfit = Math.round(investment.amount * settlementRate)
+    const monthlyProfit = investment.amount * settlementRate
+    let profit: number = 0
+
+    // adjust the profit based on payout schedule
+    if (payoutSchedule === "WEEKLY") {
+        profit = monthlyProfit / 4;
+    } else if (payoutSchedule === "MONTHLY") {
+        profit = monthlyProfit;
+    } else if (payoutSchedule === "QUARTERLY") {
+        profit = monthlyProfit * 3;
+    }
 
     await new Promise(resolve => setTimeout(resolve, 1000)); // simulate an async job to prevent rate-limiting
 
@@ -165,7 +218,7 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
                     userId: investment.userId,
                     investmentLogId: investment.id,
                     seriesId: investment.seriesId,
-                    profit: monthlyProfit,
+                    profit: profit,
                     settlementRate,
                     createdAt: new Date(),
                     updatedAt: new Date(),
@@ -178,9 +231,8 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
                 data: {
                     status: nextMonthInvestmentStatus,
                     totalProfit: {
-                        increment: monthlyProfit
+                        increment: profit
                     },
-
                 }
             })
             await tx.users.update({
@@ -189,7 +241,7 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
                 },
                 data: {
                     balance: {
-                        increment: monthlyProfit
+                        increment: profit
                     }
                 }
             })
@@ -198,13 +250,12 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
             investment id: ${investment.id},
             last period: ${lastPeriod},
             created at: ${new Date(investment.createdAt).toLocaleDateString()},
-            investment status next month: ${nextMonthInvestmentStatus},
+            investment status next payout: ${nextMonthInvestmentStatus},
             investment monthsary: ${monthsary.toLocaleDateString()},
             last distributed profit id: ${profitLogs[0]?.id || "N/A"}
             is on peak season: ${isOnPeakSeason},
-            min rate: ${minRate},
             settlement rate: ${settlementRate},
-            profit for this month: ${monthlyProfit.toLocaleString()}
+            profit for this payout: ${profit.toLocaleString()}
         `)
     } catch (error) {
         job.log(`Error occurred while distributing profit for investment ${investment.id}: ${error}`);

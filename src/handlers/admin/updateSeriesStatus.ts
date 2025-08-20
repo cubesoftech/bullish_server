@@ -1,15 +1,18 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { distributeInvestmentProfitQueueUpsertJobScheduler } from "../../services/distributeInvestmentProfit";
+import { updateUserMonthlyProfitQueueUpsertJobScheduler } from "../../services/updateUserMonthyProfit";
 import { generateRandomString, getInvestmentAdditionalData } from "../../utils";
 
 interface UpdateInvestmentPayload {
     seriesId: string;
     status: string;
+    peakSettlementRate: number;
+    leanSettlementRate: number;
 }
 
 export default async function updateSeriesStatus(req: Request, res: Response) {
-    const { seriesId, status } = req.body as UpdateInvestmentPayload;
+    const { seriesId, status, peakSettlementRate, leanSettlementRate } = req.body as UpdateInvestmentPayload;
 
     const acceptedStatus = ["COMPLETED", "FAILED"];
 
@@ -18,6 +21,15 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
         !acceptedStatus.includes(status)
     ) {
         return res.status(400).json({ message: "Invalid investment and/or status." });
+    }
+    if (
+        (!peakSettlementRate || peakSettlementRate <= 0)
+        || (!leanSettlementRate || leanSettlementRate <= 0)
+    ) {
+        return res.status(400).json({ message: "Invalid settlement rates." });
+    }
+    if (peakSettlementRate < leanSettlementRate) {
+        return res.status(400).json({ message: "Peak settlement rate must be greater than lean settlement rate." });
     }
 
     try {
@@ -77,6 +89,8 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                     rate: series.series.rate,
                 }
             })
+            const processedPeakSettlementRate = peakSettlementRate / 100; // convert from percent to decimal
+            const processedLeanSettlementRate = leanSettlementRate / 100; // convert from percent to decimal
             const investment = await prisma.investment_log.create({
                 data: {
                     id: generateRandomString(7),
@@ -86,12 +100,15 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                     amount: series.amount,
                     monthly,
                     settlementRate,
+                    peakSettlementRate: processedPeakSettlementRate,
+                    leanSettlementRate: processedLeanSettlementRate,
                     maturityDate,
                     totalExpectedProfit: totalEstimatedProfit,
                 }
             })
-            // add the user on the job if the investment gets approved
+            // add the user on the jobs if the investment gets approved
             await distributeInvestmentProfitQueueUpsertJobScheduler(investment);
+            await updateUserMonthlyProfitQueueUpsertJobScheduler(series.user)
         }
         return res.status(200).json({ message: "Investment status updated successfully" });
     } catch (error) {
