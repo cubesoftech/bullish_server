@@ -3,7 +3,7 @@ import { redisOptions } from "./redis"
 
 export const workerNames = {
     distributeInvestmentProfit: "Distribute Investment Profit",
-    updateUserMonthlyProfit: "Update User Monthly Profit"
+    distributeMonthlyReferrerReward: "Distribute Monthly Referrer Reward"
 }
 export const bullMqConnectionOptions: QueueBaseOptions = {
     connection: redisOptions

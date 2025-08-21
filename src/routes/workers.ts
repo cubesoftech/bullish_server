@@ -4,7 +4,7 @@ import { ExpressAdapter } from "@bull-board/express";
 
 // ----------- QUEUES ---------- //
 import { distributeInvestmentProfitQueue } from "../services/distributeInvestmentProfit";
-import { updateUserMonthlyProfitQueue } from "../services/updateUserMonthyProfit";
+import { distributeMonthlyReferrerRewardQueue } from "../services/distributeMonthyReferrerReward";
 
 export const bullMqExpressAdapter = new ExpressAdapter();
 
@@ -13,7 +13,7 @@ bullMqExpressAdapter.setBasePath("/workers");
 createBullBoard({
     queues: [
         new BullMQAdapter(distributeInvestmentProfitQueue),
-        new BullMQAdapter(updateUserMonthlyProfitQueue),
+        new BullMQAdapter(distributeMonthlyReferrerRewardQueue),
     ],
     serverAdapter: bullMqExpressAdapter
 })

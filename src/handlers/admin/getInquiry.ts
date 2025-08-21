@@ -32,7 +32,15 @@ export default async function getInquiry(req: Request, res: Response) {
         })
         const totalInquiries = await prisma.inquiry_log.count({ where })
 
-        return res.status(200).json({ data: inquiries, total: totalInquiries });
+        const processedInquiries = inquiries.map(inquiry => ({
+            ...inquiry,
+            user: {
+                ...inquiry.user,
+                referrerPoints: Number(inquiry.user.referrerPoints),
+            }
+        }))
+
+        return res.status(200).json({ data: processedInquiries, total: totalInquiries });
     } catch (error) {
         console.error("Error fetching inquiries: ", error);
         return res.status(500).json({ message: "Internal server error." });

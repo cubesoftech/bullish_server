@@ -32,6 +32,9 @@ export default async function login(req: Request, res: Response) {
             where: {
                 ...body,
                 status: true,
+            },
+            omit: {
+                referrerPoints: true
             }
         })
         if (!user) {

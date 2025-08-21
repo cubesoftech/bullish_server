@@ -19,42 +19,49 @@ model admin {
 }
 
 model users {
-  id                 String               @id @default(cuid())
-  phoneNumber        String
-  password           String
-  name               String
-  birthDate          String
-  gender             String
-  status             Boolean
-  email              String               @default("")
-  bank               String               @default("")
-  accountNumber      String               @default("")
-  accountHolder      String               @default("")
-  balance            Int                  @default(0)
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  lastLogin          DateTime             @default(now())
-  lastLogout         DateTime             @default(now())
-  lastDevice         String               @db.LongText
-  lastIpAddress      String               @default("")
-  referrerId         String?
-  activity_log       activity_log[]
-  deposit_log        deposit_log[]
-  inquiry_log        inquiry_log[]
-  reservation_log    reservation_log[]
-  review_log         review_log[]
-  series_log         series_log[]
-  referrer           users?               @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade, map: "Users_referrerId_fkey")
-  referredUsers      users[]              @relation("Referrer")
-  withdrawal_log     withdrawal_log[]
-  direct_inquiry     direct_inquiry?
-  otp                otp?
-  investment_log     investment_log[]
-  profit_log         profit_log[]
-  monthly_profit_log monthly_profit_log[]
+  id                          String                        @id @default(cuid())
+  phoneNumber                 String
+  password                    String
+  name                        String
+  birthDate                   String
+  gender                      String
+  status                      Boolean
+  email                       String                        @default("")
+  bank                        String                        @default("")
+  accountNumber               String                        @default("")
+  accountHolder               String                        @default("")
+  balance                     Int                           @default(0)
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @updatedAt
+  lastLogin                   DateTime                      @default(now())
+  lastLogout                  DateTime                      @default(now())
+  lastDevice                  String                        @db.LongText
+  lastIpAddress               String                        @default("")
+  referrerId                  String?
+  referrer                    users?                        @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade, map: "Users_referrerId_fkey")
+  referredUsers               users[]                       @relation("Referrer")
+  baseSettlementRate          Float                         @default(0)
+  referrerPoints              BigInt                        @default(0)
+  investorReferrerId          String?
+  investorReferrer            users?                        @relation("InvestorReferrer", fields: [investorReferrerId], references: [id], onDelete: Cascade, map: "Users_investorReferrerId_fkey")
+  referredInvestors           users[]                       @relation("InvestorReferrer")
+  activity_log                activity_log[]
+  deposit_log                 deposit_log[]
+  inquiry_log                 inquiry_log[]
+  reservation_log             reservation_log[]
+  review_log                  review_log[]
+  series_log                  series_log[]
+  withdrawal_log              withdrawal_log[]
+  direct_inquiry              direct_inquiry?
+  otp                         otp?
+  investment_log              investment_log[]
+  profit_log                  profit_log[]
+  monthly_profit_log          monthly_profit_log[]
+  monthly_referrer_profit_log monthly_referrer_profit_log[]
 
   @@index([id, name, phoneNumber], map: "Users_id_name_phoneNumber_fkey")
   @@index([referrerId], map: "Users_referrerId_fkey")
+  @@index([investorReferrerId], map: "Users_investorReferrerId_fkey")
 }
 
 model deposit_log {
@@ -296,6 +303,16 @@ model monthly_profit_log {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Monthly_Profit_Log_userId_fkey")
+}
+
+model monthly_referrer_profit_log {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  type      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Monthly_Referrer_Profit_Log_userId_fkey")
 }
 
 enum transaction_status {

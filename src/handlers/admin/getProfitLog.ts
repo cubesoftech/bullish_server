@@ -104,6 +104,10 @@ export default async function getProfitLog(req: Request, res: Response) {
             return {
                 ...log,
                 settlementRate: log.settlementRate * 100, //convert from decimal to percent
+                user: {
+                    ...log.user,
+                    referrerPoints: Number(log.user.referrerPoints),
+                }
             }
         })
 

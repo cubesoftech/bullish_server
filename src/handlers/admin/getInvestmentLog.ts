@@ -71,7 +71,15 @@ export default async function getInvestmentLog(req: Request, res: Response) {
         })
         const totalInvestmentLog = await prisma.investment_log.count({ where })
 
-        return res.status(200).json({ data: investmentLog, total: totalInvestmentLog });
+        const processedInvestmentLogs = investmentLog.map(investment => ({
+            ...investment,
+            user: {
+                ...investment.user,
+                referrerPoints: Number(investment.user.referrerPoints),
+            }
+        }))
+
+        return res.status(200).json({ data: processedInvestmentLogs, total: totalInvestmentLog });
     } catch (error) {
         console.error("Error fetching investment log: ", error);
         return res.status(500).json({ message: "Internal server error." });

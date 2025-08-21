@@ -34,7 +34,18 @@ export default async function getUsers(req: Request, res: Response) {
         })
         const totalUsers = await prisma.users.count({ where })
 
-        return res.status(200).json({ data: users, total: totalUsers });
+        const processedUsers = users.map(user => {
+            return {
+                ...user,
+                referrerPoints: Number(user.referrerPoints),
+                referrer: {
+                    ...user.referrer,
+                    referrerPoints: Number(user.referrer?.referrerPoints),
+                }
+            }
+        })
+
+        return res.status(200).json({ data: processedUsers, total: totalUsers });
     } catch (error) {
         console.error("Error fetching users: ", error);
         return res.status(500).json({ message: "Internal server error." });

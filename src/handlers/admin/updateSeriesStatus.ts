@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { distributeInvestmentProfitQueueUpsertJobScheduler } from "../../services/distributeInvestmentProfit";
-import { updateUserMonthlyProfitQueueUpsertJobScheduler } from "../../services/updateUserMonthyProfit";
 import { generateRandomString, getInvestmentAdditionalData } from "../../utils";
+import { distributeMonthlyReferrerRewardQueueUpsertJobScheduler } from "../../services/distributeMonthyReferrerReward";
 
 interface UpdateInvestmentPayload {
     seriesId: string;
@@ -56,6 +56,15 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
             return res.status(404).json({ message: "Investment not found or already processed" });
         }
 
+        const user = await prisma.users.findUnique({
+            where: {
+                id: series.userId
+            }
+        })
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
         await prisma.series_log.update({
             where: {
                 id: seriesId
@@ -106,9 +115,63 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                     totalExpectedProfit: totalEstimatedProfit,
                 }
             })
+
+            const { investorReferrerId, referrerId } = user
+            if (!investorReferrerId && referrerId) {
+                // if hindi pa naka set and investorReferrerId then set it 
+                await prisma.users.update({
+                    where: {
+                        id: user.id
+                    },
+                    data: {
+                        investorReferrerId: referrerId,
+                        updatedAt: new Date()
+                    }
+                })
+                // get the referrer info
+                const referrer = await prisma.users.findUnique({
+                    where: {
+                        id: referrerId
+                    },
+                    include: {
+                        referredInvestors: true
+                    }
+                })
+                // if referrer exist
+                if (referrer) {
+                    // adding 0.1% to baseSettlementRate will only run if the referred investor is < 20
+                    if (referrer.referredInvestors.length <= 20) {
+                        await prisma.$transaction(async (tx) => {
+                            await tx.users.update({
+                                where: {
+                                    id: referrer.id
+                                },
+                                data: {
+                                    baseSettlementRate: {
+                                        increment: 0.1 / 100 // store as decimal
+                                    }
+                                }
+                            });
+                            await tx.monthly_referrer_profit_log.create({
+                                data: {
+                                    id: generateRandomString(7),
+                                    amount: 0.1 / 100,
+                                    userId: referrer.id,
+                                    type: "REFERRER1",
+                                    createdAt: new Date(),
+                                    updatedAt: new Date(),
+                                }
+                            })
+                        })
+                    } else {
+                        // add to the job the referrer if the referrerd user exist 20
+                        await distributeMonthlyReferrerRewardQueueUpsertJobScheduler(referrer)
+                    }
+                }
+            }
+
             // add the user on the jobs if the investment gets approved
             await distributeInvestmentProfitQueueUpsertJobScheduler(investment);
-            await updateUserMonthlyProfitQueueUpsertJobScheduler(series.user)
         }
         return res.status(200).json({ message: "Investment status updated successfully" });
     } catch (error) {

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
+import { distributeMonthlyReferrerRewardQueueUpsertJobScheduler } from "../../services/distributeMonthyReferrerReward";
 
 interface ApproveUserRequestPayload {
     ids: string[];
@@ -23,6 +24,7 @@ export default async function approveUserRequest(req: Request, res: Response) {
                 status: true
             }
         });
+
         return res.status(200).json({ message: "Users approved successfully" });
     } catch (error) {
         console.error("Error approving users:", error);

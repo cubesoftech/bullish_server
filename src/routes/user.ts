@@ -54,8 +54,8 @@ router.get('/getSeriesData', getSeriesData);
 router.get('/getTopInvestor', getTopInvestor);
 router.get('/getNotices', getNotices);
 // ---------- SECURED GET REQUESTS ---------- //
-router.get('/userInfo', authenticate, userInfo)
 router.get('/logout', authenticate, logout);
+router.get('/userInfo', authenticate, userInfo)
 router.get('/getInquiries', authenticate, getInquiries);
 router.get('/getDirectInquiryMessages', authenticate, getDirectInquiryMessages);
 router.get('/getDashboardStats', authenticate, getDashboardStats);

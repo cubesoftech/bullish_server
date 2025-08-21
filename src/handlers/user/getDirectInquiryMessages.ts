@@ -51,6 +51,13 @@ export default async function getDirectInquiryMessages(req: Request, res: Respon
         const processedDirectInquiries = directInquiry.map(inquiry => ({
             ...inquiry,
             isFromUser: inquiry.senderId === userInfo.id,
+            directInquiry: {
+                ...inquiry.directInquiry,
+                user: {
+                    ...inquiry.directInquiry.user,
+                    referrerPoints: Number(inquiry.directInquiry.user.referrerPoints)
+                }
+            }
         }))
 
         return res.status(200).json({ data: processedDirectInquiries, total: totalDirectInquiry });

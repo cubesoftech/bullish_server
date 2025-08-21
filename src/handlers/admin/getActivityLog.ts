@@ -41,7 +41,15 @@ export default async function getActivityLog(req: Request, res: Response) {
         })
         const totalActivityLog = await prisma.activity_log.count({ where })
 
-        return res.status(200).json({ data: activityLog, total: totalActivityLog });
+        const processedActivityLogs = activityLog.map(log => ({
+            ...log,
+            user: {
+                ...log.user,
+                referrerPoints: Number(log.user.referrerPoints),
+            }
+        }))
+
+        return res.status(200).json({ data: processedActivityLogs, total: totalActivityLog });
     } catch (error) {
         console.error("Error fetching activity log: ", error);
         return res.status(500).json({ message: "Internal server error." });

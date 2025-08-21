@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
-import { serializeJsonQuery } from "@prisma/client/runtime/library";
 
 export default async function getDashboardStats(req: Request, res: Response) {
     try {
@@ -52,7 +51,11 @@ export default async function getDashboardStats(req: Request, res: Response) {
                 createdAt: "desc",
             },
             include: {
-                user: true,
+                user: {
+                    omit: {
+                        referrerPoints: true,
+                    }
+                },
             },
             take: 5,
         });
@@ -93,7 +96,11 @@ export default async function getDashboardStats(req: Request, res: Response) {
                 maturityDate: "desc"
             },
             include: {
-                user: true,
+                user: {
+                    omit: {
+                        referrerPoints: true
+                    }
+                },
                 series: {
                     include: {
                         periods: true,

@@ -121,10 +121,15 @@ export default async function getSeriesLog(req: Request, res: Response) {
             return {
                 ...log,
                 monthly,
-                settlementRate: settlementRate * 100, //convert from decimal to percent
-                peakSettlementRate: peakSettlementRate * 100, //convert from decimal to percent
-                leanSettlementRate: leanSettlementRate * 100, //convert from decimal to percent
+                settlementRate: (settlementRate + log.user.baseSettlementRate) * 100, //convert from decimal to percent
+                peakSettlementRate: (peakSettlementRate + log.user.baseSettlementRate) * 100, //convert from decimal to percent
+                leanSettlementRate: (leanSettlementRate + log.user.baseSettlementRate) * 100, //convert from decimal to percent
                 estimatedValues,
+                user: {
+                    ...log.user,
+                    baseSettlementRate: log.user.baseSettlementRate * 100, //convert from decimal to percent
+                    referrerPoints: Number(log.user.referrerPoints),
+                }
             }
         })
 

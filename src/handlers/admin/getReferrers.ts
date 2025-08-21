@@ -37,7 +37,16 @@ export default async function getReferrers(req: Request, res: Response) {
         })
         const totalReferrers = await prisma.users.count({ where })
 
-        return res.status(200).json({ data: referrers, total: totalReferrers });
+        const processedReferrers = referrers.map(referrer => ({
+            ...referrer,
+            referrerPoints: Number(referrer.referrerPoints),
+            referredUsers: referrer.referredUsers.map(user => ({
+                ...user,
+                referrerPoints: Number(user.referrerPoints),
+            }))
+        }))
+
+        return res.status(200).json({ data: processedReferrers, total: totalReferrers });
     } catch (error) {
         console.error("Error fetching referrers: ", error);
         return res.status(500).json({ message: "Internal server error." });

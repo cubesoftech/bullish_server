@@ -55,23 +55,23 @@ export default router;
 router.get('/', (req, res) => {
     res.send('Admin...');
 });
+router.get("/getDashboardStats", authenticate, getDashboardStats);
 router.get("/getUsers", authenticate, getUsers);
 router.get("/getUserDetails", authenticate, getUserDetails);
 router.get("/getPendingUsers", authenticate, getPendingUsers);
 router.get("/getDepositRequests", authenticate, getDepositRequests);
 router.get("/getWithdrawalRequests", authenticate, getWithdrawalRequests);
-router.get("/getNotice", authenticate, getNotice);
-router.get("/getActivityLog", authenticate, getActivityLog);
-router.get("/getInquiry", authenticate, getInquiry);
-router.get("/getReferrers", authenticate, getReferrers);
 router.get("/getSeriesLog", authenticate, getSeriesLog);
-router.get("/getDashboardStats", authenticate, getDashboardStats);
-router.get("/getSuggestedUsers", authenticate, getSuggestedUsers);
-router.get("/getDirectInquiryLog", authenticate, getDirectInquiryLog);
-router.get("/getDirectInquiryMessages", authenticate, getDirectInquiryMessages);
+router.get("/getNotice", authenticate, getNotice);
 router.get("/getSeriesPeakSeason", authenticate, getSeriesPeakSeason);
 router.get("/getInvestmentLog", authenticate, getInvestmentLog);
 router.get("/getProfitLog", authenticate, getProfitLog);
+router.get("/getActivityLog", authenticate, getActivityLog);
+router.get("/getReferrers", authenticate, getReferrers);
+router.get("/getInquiry", authenticate, getInquiry);
+router.get("/getDirectInquiryLog", authenticate, getDirectInquiryLog);
+router.get("/getDirectInquiryMessages", authenticate, getDirectInquiryMessages);
+router.get("/getSuggestedUsers", authenticate, getSuggestedUsers);
 
 
 // commented out for now, as it is not used in the current context

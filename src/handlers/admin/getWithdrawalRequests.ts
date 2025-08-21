@@ -32,7 +32,15 @@ export default async function getWithdrawalRequests(req: Request, res: Response)
         })
         const totalWithdrawals = await prisma.withdrawal_log.count({ where })
 
-        return res.status(200).json({ data: withdrawals, total: totalWithdrawals });
+        const processedWithdrawals = withdrawals.map(withdrawal => ({
+            ...withdrawal,
+            user: {
+                ...withdrawal.user,
+                referrerPoints: Number(withdrawal.user?.referrerPoints),
+            }
+        }))
+
+        return res.status(200).json({ data: processedWithdrawals, total: totalWithdrawals });
     } catch (error) {
         console.error("Error fetching withdrawal requests: ", error);
         return res.status(500).json({ message: "Internal server error." });

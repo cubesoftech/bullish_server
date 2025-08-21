@@ -27,6 +27,9 @@ export default async function getSuggestedUsers(req: Request, res: Response) {
         const users = await prisma.users.findMany({
             where,
             take: 5,
+            omit: {
+                referrerPoints: true,
+            },
             distinct: ["name"]
         })
 
