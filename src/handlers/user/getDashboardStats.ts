@@ -14,20 +14,125 @@ export default async function getDashboardStats(req: Request, res: Response) {
             return res.status(404).json({ message: "User not found." });
         }
 
-        const totalInvestments = await prisma.series_log.aggregate({
+        const totalParticipationAmount = await prisma.investment_log.aggregate({
             where: {
-                userId: user.id,
-                status: {
-                    not: "FAILED"
-                },
+                userId: userInfo.id,
             },
             _sum: {
                 amount: true
             }
-        });
+        })
+        const profitLogs = await prisma.profit_log.aggregate({
+            where: {
+                userId: userInfo.id,
+            },
+            _sum: {
+                profit: true
+            },
+            _avg: {
+                settlementRate: true
+            }
+        })
 
+        const monthlySettlementRate = await prisma.monthly_referrer_profit_log.findMany({
+            where: {
+                userId: user.id,
+                type: "REFERRER1"
+            },
+            orderBy: {
+                createdAt: "asc"
+            },
+            take: 6
+        })
+
+        const startMonth = new Date(
+            new Date().setMonth(
+                new Date().getMonth() - 6
+            )
+        );
+        startMonth.setDate(1); // Set to the first day of the month
+
+        const cumulativeProfit = await Promise.all(
+            [1, 2, 3, 4, 5, 6].map(async (month) => {
+                const targetMonth = new Date(
+                    startMonth.getFullYear(),
+                    startMonth.getMonth() + month,
+                    startMonth.getDate()
+                );
+                const beginningOfThisMonth = new Date(
+                    targetMonth.getFullYear(),
+                    targetMonth.getMonth() - 1,
+                    1
+                )
+                const data = await prisma.profit_log.aggregate({
+                    where: {
+                        userId: user.id,
+                        createdAt: {
+                            gte: startMonth,
+                            lt: targetMonth
+                        }
+                    },
+                    _count: {
+                        _all: true
+                    },
+                    _sum: {
+                        profit: true
+                    }
+                })
+                const monthlyProfit = await prisma.profit_log.aggregate({
+                    where: {
+                        userId: user.id,
+                        createdAt: {
+                            gt: beginningOfThisMonth,
+                            lte: targetMonth
+                        }
+                    },
+                    _sum: {
+                        profit: true
+                    }
+                })
+                return {
+                    month: targetMonth,
+                    count: data._count._all,
+                    profit: monthlyProfit._sum.profit ?? 0,
+                    total: data._sum.profit ?? 0
+                }
+            })
+        )
+
+        const series = await prisma.series.findMany({
+            orderBy: {
+                seriesId: "asc"
+            }
+        })
+
+        const totalInvestmentEachSeries = await Promise.all(
+            series.map(async (s) => {
+                const count = await prisma.investment_log.count({
+                    where: {
+                        userId: user.id,
+                        seriesId: s.id
+                    }
+                })
+
+                return {
+                    name: s.name,
+                    count
+                }
+            })
+
+        )
+
+        const summary = {
+            totalParticipationAmount: totalParticipationAmount._sum.amount,
+            totalProfit: profitLogs._sum.profit ?? 0,
+            averageSettlementRate: (profitLogs._avg.settlementRate ?? 0) * 100, //convert from decimal to percent
+        }
         const data = {
-            totalInvestments
+            summary,
+            monthlySettlementRate,
+            cumulativeProfit,
+            totalInvestmentEachSeries
         }
 
         return res.status(200).json({ data })

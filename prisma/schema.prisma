@@ -308,7 +308,7 @@ model monthly_profit_log {
 model monthly_referrer_profit_log {
   id        String   @id @default(cuid())
   userId    String
-  amount    Int
+  amount    Float
   type      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

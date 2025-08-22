@@ -33,6 +33,7 @@ export default async function getProfitLog(req: Request, res: Response) {
             take: processedLimit,
             include: {
                 series: true,
+                investmentLog: true,
             }
         });
         const totalProfitLog = await prisma.profit_log.count({ where })
@@ -41,6 +42,10 @@ export default async function getProfitLog(req: Request, res: Response) {
             return {
                 ...log,
                 settlementRate: log.settlementRate * 100, //convert from decimal to percent
+                investmentLog: {
+                    ...log.investmentLog,
+                    settlementRate: log.investmentLog.settlementRate * 100, //convert from decimal to percent
+                }
             }
         })
 

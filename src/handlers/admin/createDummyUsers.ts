@@ -5,27 +5,36 @@ import { series_log, users } from "@prisma/client";
 
 export default async function createDummyUsers(req: Request, res: Response) {
     const ids = [
-        "0173e6a", "047d689", "0b49e5e", "0d1598d", "124dbf0", "173fe1a", "2298767", "27f45ab", "29fed16", "35dc037",
-        "4dba989", "6f63cc7", "769d5fd", "7c02c5c", "82ea20b", "88903b9", "88a5ce8", "89c28b0", "8c7a4ca", "9b8fe47",
-        "a278323", "a9167fb", "b0b40dd"
+        "3e31277", "9b62c01", "8dde0ed", "664b339", "5ea2159", "e78960c", "a9db7f6", "80f7afb", "a242dbb", "1c3ee1b",
+        "11ad89d", "ff9bda6", "c525e86", "2ebeee4", "7875472", "9f73cc1", "47c517c", "c5a16fe", "54b6551", "688490d",
+        "add4772", "a6a8bf2", "6270266"
     ]
     try {
-        const datas: series_log[] = ids.map(id => {
-            return {
-                id: generateRandomString(7),
-                userId: id,
-                seriesId: "i9pml4k",
-                amount: 1_000_000,
-                status: "PENDING",
-                createdAt: new Date(),
-                updatedAt: new Date(),
+        const users = await prisma.users.findMany({
+            where: {
+                id: {
+                    in: ids
+                }
+            },
+            orderBy: {
+                createdAt: "desc"
             }
         })
 
-        await prisma.series_log.createMany({
-            data: datas
+        const seriesData: series_log[] = users.map(user => ({
+            id: generateRandomString(7),
+            userId: user.id,
+            seriesId: "i9pml4k",
+            amount: 1_000_000,
+            status: "PENDING",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        }))
+
+        const series = await prisma.series_log.createMany({
+            data: seriesData
         })
-        return res.status(200).json({ message: "Dummy users created successfully" });
+        return res.status(200).json({ data: series });
     } catch (error) {
         console.error("Error creating dummy users: ", error);
         return res.status(500).json({ message: "Internal server error." });

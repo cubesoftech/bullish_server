@@ -3,6 +3,7 @@ import { prisma } from "../../utils/prisma";
 import { distributeInvestmentProfitQueueUpsertJobScheduler } from "../../services/distributeInvestmentProfit";
 import { generateRandomString, getInvestmentAdditionalData } from "../../utils";
 import { distributeMonthlyReferrerRewardQueueUpsertJobScheduler } from "../../services/distributeMonthyReferrerReward";
+import { distributeMonthlySettlementRateQueueUpsertJobScheduler } from "../../services/distributeMonthlySettlementRate";
 
 interface UpdateInvestmentPayload {
     seriesId: string;
@@ -138,35 +139,9 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                     }
                 })
                 // if referrer exist
-                if (referrer) {
-                    // adding 0.1% to baseSettlementRate will only run if the referred investor is < 20
-                    if (referrer.referredInvestors.length <= 20) {
-                        await prisma.$transaction(async (tx) => {
-                            await tx.users.update({
-                                where: {
-                                    id: referrer.id
-                                },
-                                data: {
-                                    baseSettlementRate: {
-                                        increment: 0.1 / 100 // store as decimal
-                                    }
-                                }
-                            });
-                            await tx.monthly_referrer_profit_log.create({
-                                data: {
-                                    id: generateRandomString(7),
-                                    amount: 0.1 / 100,
-                                    userId: referrer.id,
-                                    type: "REFERRER1",
-                                    createdAt: new Date(),
-                                    updatedAt: new Date(),
-                                }
-                            })
-                        })
-                    } else {
-                        // add to the job the referrer if the referrerd user exist 20
-                        await distributeMonthlyReferrerRewardQueueUpsertJobScheduler(referrer)
-                    }
+                if (referrer && referrer.referredInvestors.length <= 20) {
+                    // add to the monthly settlement rate distribution the referrer it the referred investor is less than or equal 20
+                    await distributeMonthlySettlementRateQueueUpsertJobScheduler(referrer)
                 }
             }
 
