@@ -11,7 +11,6 @@ import logout from "../handlers/user/logout";
 import getReviews from "../handlers/user/getReviews";
 import getSeriesData from "../handlers/user/getSeriesData";
 import getInquiries from "../handlers/user/getInquiries";
-import getTopInvestor from "../handlers/user/getTopInvestor";
 import getDirectInquiryMessages from "../handlers/user/getDirectInquiryMessages";
 import getNotices from "../handlers/user/getNotices";
 import getDashboardStats from "../handlers/user/getDashboardStats";
@@ -21,6 +20,8 @@ import getEndingInvestments from "../handlers/user/getEndingInvestments";
 import getProfitLog from "../handlers/user/getProfitLog";
 import getUserInvestmentSummary from "../handlers/user/getUserInvestmentSummary";
 import getLatestMonthlyProfit from "../handlers/user/getLatestMonthlyProfit";
+import getReferrerPointLog from "../handlers/user/getReferrerPointLog";
+import getReferrerPointConversionLog from "../handlers/user/getReferrerPointConversionLog";
 
 
 // ---------- POST HANDLERS ---------- //
@@ -37,6 +38,7 @@ import replyDirectInquiry from "../handlers/user/replyDirectInquiry";
 import sendOTP from "../handlers/user/sendOTP";
 import loginUsingOTP from "../handlers/user/loginUsingOTP";
 import deleteAccount from "../handlers/user/deleteAccount";
+import applyForReferrerPointConversion from "../handlers/user/applyForReferrerPointConversion";
 
 // ---------- ROUTER ---------- //
 const router = Router();
@@ -50,8 +52,6 @@ router.get('/', (req, res) => {
 });
 router.get('/getReviews', getReviews);
 router.get('/getSeriesData', getSeriesData);
-// TODO: fix this api and make it available on frontend
-router.get('/getTopInvestor', getTopInvestor);
 router.get('/getNotices', getNotices);
 // ---------- SECURED GET REQUESTS ---------- //
 router.get('/logout', authenticate, logout);
@@ -65,6 +65,8 @@ router.get('/getEndingInvestments', authenticate, getEndingInvestments);
 router.get('/getProfitLog', authenticate, getProfitLog);
 router.get('/getUserInvestmentSummary', authenticate, getUserInvestmentSummary);
 router.get('/getLatestMonthlyProfit', authenticate, getLatestMonthlyProfit);
+router.get('/getReferrerPointLog', authenticate, getReferrerPointLog);
+router.get('/getReferrerPointConversionLog', authenticate, getReferrerPointConversionLog);
 
 
 // ---------- POST REQUESTS ---------- //
@@ -83,3 +85,4 @@ router.post('/createReview', authenticate, createReview)
 router.post('/investToSeries', authenticate, investToSeries)
 router.post('/replyDirectInquiry', authenticate, replyDirectInquiry)
 router.post('/deleteAccount', authenticate, deleteAccount)
+router.post('/applyForReferrerPointConversion', authenticate, applyForReferrerPointConversion)

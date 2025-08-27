@@ -3,7 +3,7 @@ import { prisma } from "../../utils/prisma";
 import { findUser } from "../../utils";
 import { Prisma } from "@prisma/client";
 
-export default async function getOngoingInvestment(req: Request, res: Response) {
+export default async function getReferrerPointLog(req: Request, res: Response) {
     const { user } = req
     if (!user) {
         return res.status(401).json({ message: "Unauthorized." });
@@ -20,12 +20,12 @@ export default async function getOngoingInvestment(req: Request, res: Response) 
             return res.status(404).json({ message: "User not found." })
         }
 
-        const where: Prisma.investment_logWhereInput = {
+        const where: Prisma.monthly_referrer_profit_logWhereInput = {
             userId: user.id,
-            status: "PENDING"
+            type: "REFERRER2"
         }
 
-        const ongoingInvestments = await prisma.investment_log.findMany({
+        const referrerPointLog = await prisma.monthly_referrer_profit_log.findMany({
             where,
             orderBy: {
                 createdAt: "desc"
@@ -33,20 +33,23 @@ export default async function getOngoingInvestment(req: Request, res: Response) 
             skip: (processedPage - 1) * processedLimit,
             take: processedLimit,
             include: {
-                series: true
+                user: true
             }
         });
-        const totalOngoingInvestments = await prisma.investment_log.count({ where })
+        const totalReferrerPointLog = await prisma.monthly_referrer_profit_log.count({ where })
 
-        const processedOngoingInvestments = ongoingInvestments.map(investment => ({
-            ...investment,
-            peakSettlementRate: investment.peakSettlementRate * 100,
-            leanSettlementRate: investment.leanSettlementRate * 100,
+        const processedReferrerPointLog = referrerPointLog.map(log => ({
+            ...log,
+            user: {
+                ...log.user,
+                baseSettlementRate: Number(log.user.baseSettlementRate) * 100,
+                referrerPoints: Number(log.user.referrerPoints)
+            }
         }))
 
-        return res.status(200).json({ data: processedOngoingInvestments, total: totalOngoingInvestments })
+        return res.status(200).json({ data: processedReferrerPointLog, total: totalReferrerPointLog })
     } catch (error) {
-        console.log("Error on getOngoingInvestment: ", error)
+        console.log("Error on getReferrerPointLog: ", error)
         return res.status(500).json({ message: "Internal server error" });
     }
 }

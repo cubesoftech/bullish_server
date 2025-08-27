@@ -3,6 +3,83 @@ import { prisma } from "../../utils/prisma";
 
 export default async function getSeriesData(req: Request, res: Response) {
     try {
+        // TOP INVESTORS
+        const topInvestors = await prisma.investment_log.groupBy({
+            by: "userId",
+            _sum: {
+                amount: true,
+            },
+            _count: {
+                _all: true,
+            },
+            orderBy: {
+                _sum: {
+                    amount: "desc"
+                }
+            },
+            take: 10
+        })
+
+        const users = await prisma.users.findMany({
+            where: {
+                id: {
+                    in: topInvestors.map(investor => investor.userId)
+                }
+            },
+            select: {
+                id: true,
+                name: true,
+            }
+        })
+
+        const userMap = new Map(users.map(user => [user.id, user.name]));
+
+        const processedTopInvestors = topInvestors.map(investor => ({
+            name: userMap.get(investor.userId) || "",
+            total: investor._sum.amount || 0,
+            count: investor._count._all || 0,
+        }));
+
+
+        // TOP EARNERS
+        const topEarners = await prisma.investment_log.groupBy({
+            by: "userId",
+            _sum: {
+                totalProfit: true,
+            },
+            _count: {
+                _all: true,
+            },
+            orderBy: {
+                _sum: {
+                    totalProfit: "desc"
+                }
+            },
+            take: 10
+        })
+
+        const users2 = await prisma.users.findMany({
+            where: {
+                id: {
+                    in: topEarners.map(investor => investor.userId)
+                }
+            },
+            select: {
+                id: true,
+                name: true,
+            }
+        })
+
+        const userMap2 = new Map(users2.map(user => [user.id, user.name]));
+
+        const processedTopEarners = topEarners.map(investor => ({
+            name: userMap2.get(investor.userId) || "",
+            total: investor._sum.totalProfit || 0,
+            count: investor._count._all || 0,
+        }));
+
+
+        // SERIES DATA
         const seriesList = await prisma.series.findMany({
             orderBy: {
                 seriesId: "asc"
@@ -12,32 +89,31 @@ export default async function getSeriesData(req: Request, res: Response) {
             }
         })
 
-        const series1 = await prisma.series_log.count({
+        const seriesCount = await prisma.series_log.groupBy({
+            by: "seriesId",
+            _count: {
+                _all: true
+            },
             where: {
-                seriesId: seriesList[0].id
+                seriesId: {
+                    in: seriesList.map(s => s.id)
+                }
             }
         })
-        const series2 = await prisma.series_log.count({
-            where: {
-                seriesId: seriesList[1].id
+        const seriesData: Record<string, number> = {}
+
+        seriesList.forEach((series, index) => {
+            const count = seriesCount.find(s => s.seriesId === series.id)?._count._all || 0
+            seriesData[`series${index + 1}`] = count
+        })
+
+        return res.status(200).json({
+            data: {
+                topInvestors: processedTopInvestors,
+                topEarners: processedTopEarners,
+                seriesData
             }
         })
-        const series3 = await prisma.series_log.count({
-            where: {
-                seriesId: seriesList[2].id
-            }
-        })
-        const series4 = await prisma.series_log.count({
-            where: {
-                seriesId: seriesList[3].id
-            }
-        })
-        const series5 = await prisma.series_log.count({
-            where: {
-                seriesId: seriesList[4].id
-            }
-        })
-        return res.status(200).json({ data: { series1, series2, series3, series4, series5 } })
     } catch (error) {
         console.error("Error fetching series data:", error);
         return res.status(500).json({ message: "Internal server error." });

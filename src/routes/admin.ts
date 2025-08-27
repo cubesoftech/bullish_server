@@ -21,6 +21,8 @@ import getDirectInquiryMessages from "../handlers/admin/getDirectInquiryMessage"
 import getSeriesPeakSeason from "../handlers/admin/getSeriesPeakSeason";
 import getInvestmentLog from "../handlers/admin/getInvestmentLog";
 import getProfitLog from "../handlers/admin/getProfitLog";
+import getReviewLog from "../handlers/admin/getReviewLog";
+import getReferrerPointConversionLog from "../handlers/admin/getReferrerPointConversionLog";
 import generateSeriesData from "../handlers/admin/generateSeriesData";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -44,6 +46,8 @@ import getReferrers from "../handlers/admin/getReferrers";
 import updateSeriesStatus from "../handlers/admin/updateSeriesStatus";
 import replyDirectInquiry from "../handlers/admin/replyDirectInquiry";
 import updateSeriesPeakSeason from "../handlers/admin/updateSeriesPeakSeason";
+import updateReviewStatus from "../handlers/admin/updateReviewStatus";
+import updateReferrerPointConversion from "../handlers/admin/updateReferrerPointConversion";
 
 
 // ---------- ROUTER ---------- //
@@ -72,6 +76,8 @@ router.get("/getInquiry", authenticate, getInquiry);
 router.get("/getDirectInquiryLog", authenticate, getDirectInquiryLog);
 router.get("/getDirectInquiryMessages", authenticate, getDirectInquiryMessages);
 router.get("/getSuggestedUsers", authenticate, getSuggestedUsers);
+router.get("/getReviewLog", authenticate, getReviewLog);
+router.get("/getReferrerPointConversionLog", authenticate, getReferrerPointConversionLog);
 
 
 // commented out for now, as it is not used in the current context
@@ -103,3 +109,5 @@ router.post('/deleteInquiry', authenticate, deleteInquiry);
 router.post('/updateSeriesStatus', authenticate, updateSeriesStatus);
 router.post('/replyDirectInquiry', authenticate, replyDirectInquiry);
 router.post('/updateSeriesPeakSeason', authenticate, updateSeriesPeakSeason);
+router.post('/updateReviewStatus', authenticate, updateReviewStatus);
+router.post('/updateReferrerPointConversion', authenticate, updateReferrerPointConversion);
