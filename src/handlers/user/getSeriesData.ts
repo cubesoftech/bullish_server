@@ -72,11 +72,13 @@ export default async function getSeriesData(req: Request, res: Response) {
 
         const userMap2 = new Map(users2.map(user => [user.id, user.name]));
 
-        const processedTopEarners = topEarners.map(investor => ({
-            name: userMap2.get(investor.userId) || "",
-            total: investor._sum.totalProfit || 0,
-            count: investor._count._all || 0,
-        }));
+        const processedTopEarners = topEarners
+            .filter(investor => (investor._sum.totalProfit || 0) > 0) // Filter out users with zero totalProfit
+            .map(investor => ({
+                name: userMap2.get(investor.userId) || "",
+                total: investor._sum.totalProfit || 0,
+                count: investor._count._all || 0,
+            }));
 
 
         // SERIES DATA
