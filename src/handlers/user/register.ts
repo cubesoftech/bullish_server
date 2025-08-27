@@ -8,12 +8,15 @@ interface RegisterPayload {
     name: string;
     birthDate: string;
     gender: string;
+    bank: string;
+    accountNumber: string;
+    accountHolder: string;
     email?: string;
     referralCode?: string;
 }
 
 export default async function register(req: Request, res: Response) {
-    const { phoneNumber, password, name, birthDate, gender, email, referralCode } = req.body as RegisterPayload;
+    const { phoneNumber, password, name, birthDate, gender, bank, accountNumber, accountHolder, email, referralCode } = req.body as RegisterPayload;
 
     // Validate required fields
     const validateFields = !(
@@ -22,11 +25,13 @@ export default async function register(req: Request, res: Response) {
         || name.trim() === ""
         || birthDate.trim() === ""
         || gender.trim() === ""
+        || bank.trim() === ""
+        || accountNumber.trim() === ""
+        || accountHolder.trim() === ""
     )
     if (!validateFields) {
-        return res.status(400).json({ message: "All fields are required" });
+        return res.status(400).json({ message: "Insufficient information." });
     }
-
 
     try {
         const isExistingUser = await prisma.users.findFirst({
@@ -75,6 +80,9 @@ export default async function register(req: Request, res: Response) {
                 email: email ?? "",
                 referrerId: referrer ? referrer.id : null,
                 status: false,
+                bank,
+                accountNumber,
+                accountHolder,
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 lastLogin: new Date(),
