@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 
 export default async function getDashboardStats(req: Request, res: Response) {
+    const { user } = req
+    if (!user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
     try {
         const totalUsers = await prisma.users.count();
         const totalDepositAmount = await prisma.deposit_log.aggregate({
@@ -34,6 +38,19 @@ export default async function getDashboardStats(req: Request, res: Response) {
             where: {
                 status: false,
             },
+        });
+        const recentReviews = await prisma.review_log.findMany({
+            orderBy: {
+                createdAt: "desc",
+            },
+            include: {
+                user: {
+                    omit: {
+                        referrerPoints: true,
+                    }
+                }
+            },
+            take: 5,
         });
         const newInquiries = await prisma.inquiry_log.count({
             where: {
@@ -111,6 +128,16 @@ export default async function getDashboardStats(req: Request, res: Response) {
             }
         })
 
+        const admin = await prisma.admin.findUnique({
+            where: {
+                id: user.id
+            },
+            select: {
+                note: true,
+                summary: true,
+            }
+        })
+
         return res.status(200).json({
             data: {
                 totalUsers,
@@ -125,6 +152,9 @@ export default async function getDashboardStats(req: Request, res: Response) {
                 newInquiries,
                 recentNotices,
                 recentActivityLogs,
+                recentReviews,
+                summary: admin?.summary || "",
+                note: admin?.note || "",
             }
         })
 

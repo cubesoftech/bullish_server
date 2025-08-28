@@ -48,6 +48,8 @@ import replyDirectInquiry from "../handlers/admin/replyDirectInquiry";
 import updateSeriesPeakSeason from "../handlers/admin/updateSeriesPeakSeason";
 import updateReviewStatus from "../handlers/admin/updateReviewStatus";
 import updateReferrerPointConversion from "../handlers/admin/updateReferrerPointConversion";
+import updateAdminNote from "../handlers/admin/updateAdminNote";
+import updateAdminSummary from "../handlers/admin/updateAdminSummary";
 
 
 // ---------- ROUTER ---------- //
@@ -111,3 +113,5 @@ router.post('/replyDirectInquiry', authenticate, replyDirectInquiry);
 router.post('/updateSeriesPeakSeason', authenticate, updateSeriesPeakSeason);
 router.post('/updateReviewStatus', authenticate, updateReviewStatus);
 router.post('/updateReferrerPointConversion', authenticate, updateReferrerPointConversion);
+router.post('/updateAdminNote', authenticate, updateAdminNote);
+router.post('/updateAdminSummary', authenticate, updateAdminSummary);
