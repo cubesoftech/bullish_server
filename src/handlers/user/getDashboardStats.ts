@@ -124,7 +124,7 @@ export default async function getDashboardStats(req: Request, res: Response) {
         )
 
         const summary = {
-            totalParticipationAmount: totalParticipationAmount._sum.amount,
+            totalParticipationAmount: totalParticipationAmount._sum.amount ?? 0,
             totalProfit: profitLogs._sum.profit ?? 0,
             averageSettlementRate: (profitLogs._avg.settlementRate ?? 0) * 100, //convert from decimal to percent
         }

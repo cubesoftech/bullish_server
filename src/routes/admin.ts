@@ -24,6 +24,7 @@ import getProfitLog from "../handlers/admin/getProfitLog";
 import getReviewLog from "../handlers/admin/getReviewLog";
 import getReferrerPointConversionLog from "../handlers/admin/getReferrerPointConversionLog";
 import getAgents from "../handlers/admin/getAgents";
+import getReferralProfitLog from "../handlers/admin/getReferralProfitLog";
 import generateSeriesData from "../handlers/admin/generateSeriesData";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -85,6 +86,7 @@ router.get("/getSuggestedUsers", authenticate, getSuggestedUsers);
 router.get("/getReviewLog", authenticate, getReviewLog);
 router.get("/getReferrerPointConversionLog", authenticate, getReferrerPointConversionLog);
 router.get("/getAgents", authenticate, getAgents);
+router.get("/getReferralProfitLog", authenticate, getReferralProfitLog);
 
 
 // commented out for now, as it is not used in the current context

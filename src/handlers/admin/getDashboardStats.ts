@@ -6,8 +6,95 @@ export default async function getDashboardStats(req: Request, res: Response) {
     if (!user) {
         return res.status(401).json({ message: "Unauthorized" });
     }
+
+    const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
+    const endOfToday = new Date(new Date().setHours(23, 59, 59, 999));
+
+    const startOfThisMonth = new Date(new Date().setDate(1));
+    const endOfThisMonth = new Date(new Date().setMonth(new Date().getMonth() + 1, 0));
     try {
         const totalUsers = await prisma.users.count();
+        const signedUpToday = await prisma.users.count({
+            where: {
+                createdAt: {
+                    gte: startOfToday,
+                    lt: endOfToday,
+                },
+            },
+        });
+        // daily basis
+        const depositToday = await prisma.deposit_log.aggregate({
+            where: {
+                createdAt: {
+                    gte: startOfToday,
+                    lt: endOfToday,
+                },
+                status: "COMPLETED"
+            },
+            _sum: {
+                amount: true,
+            }
+        })
+        const withdrawalToday = await prisma.withdrawal_log.aggregate({
+            where: {
+                createdAt: {
+                    gte: startOfToday,
+                    lt: endOfToday,
+                },
+                status: "COMPLETED"
+            },
+            _sum: {
+                amount: true,
+            }
+        })
+        const settlementProfitToday = await prisma.profit_log.aggregate({
+            where: {
+                createdAt: {
+                    gte: startOfToday,
+                    lt: endOfToday,
+                },
+            },
+            _sum: {
+                profit: true,
+            }
+        })
+        // monthly basis
+        const depositThisMonth = await prisma.deposit_log.aggregate({
+            where: {
+                createdAt: {
+                    gte: startOfThisMonth,
+                    lt: endOfThisMonth,
+                },
+                status: "COMPLETED"
+            },
+            _sum: {
+                amount: true,
+            }
+        })
+        const withdrawalThisMonth = await prisma.withdrawal_log.aggregate({
+            where: {
+                createdAt: {
+                    gte: startOfThisMonth,
+                    lt: endOfThisMonth,
+                },
+                status: "COMPLETED"
+            },
+            _sum: {
+                amount: true,
+            }
+        })
+        const settlementProfitThisMonth = await prisma.profit_log.aggregate({
+            where: {
+                createdAt: {
+                    gte: startOfThisMonth,
+                    lt: endOfThisMonth,
+                },
+            },
+            _sum: {
+                profit: true,
+            }
+        })
+        // all time total
         const totalDepositAmount = await prisma.deposit_log.aggregate({
             where: {
                 status: "COMPLETED",
@@ -24,14 +111,11 @@ export default async function getDashboardStats(req: Request, res: Response) {
                 amount: true,
             },
         });
-        const signedUpToday = await prisma.users.count({
-            where: {
-                createdAt: {
-                    gte: new Date(new Date().setHours(0, 0, 0, 0)),
-                    lt: new Date(new Date().setHours(23, 59, 59, 999)),
-                },
+        const totalSettlementProfit = await prisma.profit_log.aggregate({
+            _sum: {
+                profit: true,
             },
-        });
+        })
         const totalDepositRequests = await prisma.deposit_log.count()
         const totalWithdrawalRequests = await prisma.withdrawal_log.count();
         const totalPendingUsers = await prisma.users.count({
