@@ -29,6 +29,7 @@ export default async function getPendingUsers(req: Request, res: Response) {
             },
             include: {
                 referrer: true,
+                referrerAgent: true
             }
         })
         const totalPendingUsers = await prisma.users.count({ where })
@@ -36,6 +37,7 @@ export default async function getPendingUsers(req: Request, res: Response) {
         const processedPendingUsers = pendingUsers.map(user => ({
             ...user,
             referrerPoints: Number(user.referrerPoints),
+            isReferreredByAgent: user.referrerAgentId !== null,
             referrer: {
                 ...user.referrer,
                 referrerPoints: Number(user.referrer?.referrerPoints),

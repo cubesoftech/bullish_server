@@ -17,6 +17,7 @@ export default async function getUserDetails(req: Request, res: Response) {
             include: {
                 referrer: true,
                 referredUsers: true,
+                referrerAgent: true,
             }
         })
         if (!user) {
@@ -26,6 +27,7 @@ export default async function getUserDetails(req: Request, res: Response) {
         const processedUser = {
             ...user,
             referrerPoints: Number(user.referrerPoints),
+            isReferreredByAgent: user.referrerAgentId !== null,
             referrer: {
                 ...user.referrer,
                 referrerPoints: Number(user.referrer?.referrerPoints),

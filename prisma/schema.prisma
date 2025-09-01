@@ -20,6 +20,19 @@ model admin {
   summary    String   @default("")
 }
 
+model agents {
+  id                 String   @id @default(cuid())
+  name               String
+  commissionRate     Float    @default(0)
+  subCommissionLimit Float    @default(0)
+  settlementCycle    String //weekly or monthly
+  totalCommission    Int      @default(0)
+  note               String   @default("")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  referredUsers      users[]
+}
+
 model users {
   id                            String                          @id @default(cuid())
   phoneNumber                   String
@@ -40,13 +53,15 @@ model users {
   lastDevice                    String                          @db.LongText
   lastIpAddress                 String                          @default("")
   referrerId                    String?
-  referrer                      users?                          @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade, map: "Users_referrerId_fkey")
+  referrer                      users?                          @relation("Referrer", fields: [referrerId], references: [id], map: "Users_referrerId_fkey")
   referredUsers                 users[]                         @relation("Referrer")
   baseSettlementRate            Float                           @default(0)
   referrerPoints                BigInt                          @default(0)
   investorReferrerId            String?
-  investorReferrer              users?                          @relation("InvestorReferrer", fields: [investorReferrerId], references: [id], onDelete: Cascade, map: "Users_investorReferrerId_fkey")
+  investorReferrer              users?                          @relation("InvestorReferrer", fields: [investorReferrerId], references: [id], map: "Users_investorReferrerId_fkey")
   referredInvestors             users[]                         @relation("InvestorReferrer")
+  referrerAgentId               String?
+  referrerAgent                 agents?                         @relation(fields: [referrerAgentId], references: [id], map: "Users_referrerAgentId_fkey")
   activity_log                  activity_log[]
   deposit_log                   deposit_log[]
   inquiry_log                   inquiry_log[]

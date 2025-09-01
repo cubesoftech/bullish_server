@@ -23,6 +23,7 @@ import getInvestmentLog from "../handlers/admin/getInvestmentLog";
 import getProfitLog from "../handlers/admin/getProfitLog";
 import getReviewLog from "../handlers/admin/getReviewLog";
 import getReferrerPointConversionLog from "../handlers/admin/getReferrerPointConversionLog";
+import getAgents from "../handlers/admin/getAgents";
 import generateSeriesData from "../handlers/admin/generateSeriesData";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -50,6 +51,9 @@ import updateReviewStatus from "../handlers/admin/updateReviewStatus";
 import updateReferrerPointConversion from "../handlers/admin/updateReferrerPointConversion";
 import updateAdminNote from "../handlers/admin/updateAdminNote";
 import updateAdminSummary from "../handlers/admin/updateAdminSummary";
+import createAgent from "../handlers/admin/createAgent";
+import updateAgent from "../handlers/admin/updateAgent";
+import deleteAgent from "../handlers/admin/deleteAgent";
 
 
 // ---------- ROUTER ---------- //
@@ -80,6 +84,7 @@ router.get("/getDirectInquiryMessages", authenticate, getDirectInquiryMessages);
 router.get("/getSuggestedUsers", authenticate, getSuggestedUsers);
 router.get("/getReviewLog", authenticate, getReviewLog);
 router.get("/getReferrerPointConversionLog", authenticate, getReferrerPointConversionLog);
+router.get("/getAgents", authenticate, getAgents);
 
 
 // commented out for now, as it is not used in the current context
@@ -115,3 +120,6 @@ router.post('/updateReviewStatus', authenticate, updateReviewStatus);
 router.post('/updateReferrerPointConversion', authenticate, updateReferrerPointConversion);
 router.post('/updateAdminNote', authenticate, updateAdminNote);
 router.post('/updateAdminSummary', authenticate, updateAdminSummary);
+router.post('/createAgent', authenticate, createAgent);
+router.post('/updateAgent', authenticate, updateAgent);
+router.post('/deleteAgent', authenticate, deleteAgent);

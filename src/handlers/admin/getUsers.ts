@@ -30,6 +30,7 @@ export default async function getUsers(req: Request, res: Response) {
             },
             include: {
                 referrer: true,
+                referrerAgent: true,
             }
         })
         const totalUsers = await prisma.users.count({ where })
@@ -38,6 +39,7 @@ export default async function getUsers(req: Request, res: Response) {
             return {
                 ...user,
                 referrerPoints: Number(user.referrerPoints),
+                isReferreredByAgent: user.referrerAgentId !== null,
                 referrer: {
                     ...user.referrer,
                     referrerPoints: Number(user.referrer?.referrerPoints),

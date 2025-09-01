@@ -46,15 +46,31 @@ export default async function register(req: Request, res: Response) {
 
         // verify referral code if provided
         let referrer: any | null = null
+        let referrerType: "user" | "agent" | null = null
         if (referralCode) {
-            referrer = await prisma.users.findFirst({
+            const referrerUser = await prisma.users.findFirst({
                 where: {
                     id: referralCode,
                     status: true,
                 }
             })
-            if (!referrer) {
-                return res.status(400).json({ message: "Invalid referral code" });
+
+            // assign referrer
+            if (referrerUser) {
+                referrer = referrerUser
+                referrerType = "user"
+            } else {
+                const referrerAgent = await prisma.agents.findFirst({
+                    where: {
+                        id: referralCode
+                    }
+                })
+                if (referrerAgent) {
+                    referrer = referrerAgent
+                    referrerType = "agent"
+                } else {
+                    return res.status(400).json({ message: "Invalid referral code." });
+                }
             }
         }
 
@@ -78,7 +94,18 @@ export default async function register(req: Request, res: Response) {
                 birthDate,
                 gender,
                 email: email ?? "",
-                referrerId: referrer ? referrer.id : null,
+                // if the referrer type is user then store the referrer id to referrerId
+                referrerId: referrerType === "user"
+                    ? referrer
+                        ? referrer.id
+                        : null
+                    : null,
+                // if the referrer type is agent then store the referrer id to referrerAgentId
+                referrerAgentId: referrerType === "agent"
+                    ? referrer
+                        ? referrer.id
+                        : null
+                    : null,
                 status: false,
                 bank,
                 accountNumber,
