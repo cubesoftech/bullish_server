@@ -225,8 +225,6 @@ export default async function getDashboardStats(req: Request, res: Response) {
         return res.status(200).json({
             data: {
                 totalUsers,
-                totalDepositAmount: totalDepositAmount._sum.amount || 0,
-                totalWithdrawalAmount: totalWithdrawalAmount._sum.amount || 0,
                 signedUpToday,
                 settlementProfits,
                 totalDepositRequests,
@@ -239,6 +237,18 @@ export default async function getDashboardStats(req: Request, res: Response) {
                 recentReviews,
                 summary: admin?.summary || "",
                 note: admin?.note || "",
+                // daily
+                depositToday: depositToday._sum.amount || 0,
+                withdrawalToday: withdrawalToday._sum.amount || 0,
+                settlementProfitToday: settlementProfitToday._sum.profit || 0,
+                // monthly
+                depositThisMonth: depositThisMonth._sum.amount || 0,
+                withdrawalThisMonth: withdrawalThisMonth._sum.amount || 0,
+                settlementProfitThisMonth: settlementProfitThisMonth._sum.profit || 0,
+                // total 
+                totalDepositAmount: totalDepositAmount._sum.amount || 0,
+                totalWithdrawalAmount: totalWithdrawalAmount._sum.amount || 0,
+                totalSettlementProfit: totalSettlementProfit._sum.profit || 0,
             }
         })
 
