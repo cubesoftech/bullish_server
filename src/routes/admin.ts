@@ -25,6 +25,9 @@ import getReviewLog from "../handlers/admin/getReviewLog";
 import getReferrerPointConversionLog from "../handlers/admin/getReferrerPointConversionLog";
 import getAgents from "../handlers/admin/getAgents";
 import getReferralProfitLog from "../handlers/admin/getReferralProfitLog";
+import getMonthlyDeposit from "../handlers/admin/getMonthlyDeposit";
+import getMonthlyWithdrawals from "../handlers/admin/getMonthlyWithdrawal";
+import getMonthlySettlementProfit from "../handlers/admin/getMonthlySettlementProfit";
 import generateSeriesData from "../handlers/admin/generateSeriesData";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -87,6 +90,9 @@ router.get("/getReviewLog", authenticate, getReviewLog);
 router.get("/getReferrerPointConversionLog", authenticate, getReferrerPointConversionLog);
 router.get("/getAgents", authenticate, getAgents);
 router.get("/getReferralProfitLog", authenticate, getReferralProfitLog);
+router.get("/getMonthlyDeposits", authenticate, getMonthlyDeposit);
+router.get("/getMonthlyWithdrawals", authenticate, getMonthlyWithdrawals);
+router.get("/getMonthlySettlementProfit", authenticate, getMonthlySettlementProfit);
 
 
 // commented out for now, as it is not used in the current context
