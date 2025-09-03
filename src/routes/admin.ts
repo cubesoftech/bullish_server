@@ -58,6 +58,7 @@ import updateAdminSummary from "../handlers/admin/updateAdminSummary";
 import createAgent from "../handlers/admin/createAgent";
 import updateAgent from "../handlers/admin/updateAgent";
 import deleteAgent from "../handlers/admin/deleteAgent";
+import updateUserPayoutSchedule from "../handlers/admin/updateUserPayoutScedule";
 
 
 // ---------- ROUTER ---------- //
@@ -131,3 +132,4 @@ router.post('/updateAdminSummary', authenticate, updateAdminSummary);
 router.post('/createAgent', authenticate, createAgent);
 router.post('/updateAgent', authenticate, updateAgent);
 router.post('/deleteAgent', authenticate, deleteAgent);
+router.post('/updateUserPayoutSchedule', authenticate, updateUserPayoutSchedule);

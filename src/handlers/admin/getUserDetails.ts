@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma"
+import { getInvestmentAdditionalData } from "../../utils";
+import { series_periods } from "@prisma/client";
 
 
 export default async function getUserDetails(req: Request, res: Response) {
@@ -24,10 +26,35 @@ export default async function getUserDetails(req: Request, res: Response) {
             return res.status(404).json({ message: "User not found" });
         }
 
+        const totalInvestmentAmount = await prisma.investment_log.aggregate({
+            where: {
+                userId: user.id,
+            },
+            _sum: {
+                amount: true,
+            }
+        })
+
+        const { settlementRate } = getInvestmentAdditionalData({
+            // amount is the user's total investment
+            userTotalInvestmentAmount: totalInvestmentAmount._sum.amount || 0,
+            amount: 0,
+            createdAt: new Date(),
+            series: {
+                periods: [
+                    { id: "", createdAt: new Date, period: 1, seriesId: "", updatedAt: new Date() }
+                ] as series_periods[],
+                rate: null
+            }
+        })
+
         const processedUser = {
             ...user,
+            totalInvestmentAmount: totalInvestmentAmount._sum.amount || 0,
             referrerPoints: Number(user.referrerPoints),
             isReferreredByAgent: user.referrerAgentId !== null,
+            baseSettlementRate: user.baseSettlementRate * 100, //convert from decimal to percent
+            settlementRate: settlementRate * 100, //convert from decimal to percent
             referrer: {
                 ...user.referrer,
                 referrerPoints: Number(user.referrer?.referrerPoints),

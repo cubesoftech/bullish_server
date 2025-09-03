@@ -25,6 +25,7 @@ export default async function updateWithdrawalRequestStatus(req: Request, res: R
             },
             data: {
                 status: status as any,
+                updatedAt: new Date()
             }
         });
 
@@ -36,7 +37,8 @@ export default async function updateWithdrawalRequestStatus(req: Request, res: R
                 data: {
                     balance: {
                         decrement: request.amount,
-                    }
+                    },
+                    updatedAt: new Date()
                 }
             })
         }

@@ -62,6 +62,7 @@ model users {
   referredInvestors             users[]                         @relation("InvestorReferrer")
   referrerAgentId               String?
   referrerAgent                 agents?                         @relation(fields: [referrerAgentId], references: [id], map: "Users_referrerAgentId_fkey")
+  payoutSchedule                series_payout_schedule          @default(MONTHLY)
   activity_log                  activity_log[]
   deposit_log                   deposit_log[]
   inquiry_log                   inquiry_log[]

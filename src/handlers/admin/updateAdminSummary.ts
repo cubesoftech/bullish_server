@@ -32,7 +32,8 @@ export default async function updateAdminSummary(req: Request, res: Response) {
                 id: admin.id
             },
             data: {
-                summary
+                summary,
+                updatedAt: new Date(),
             }
         })
 

@@ -38,7 +38,7 @@ export async function initDistributeInvestmentProfit() {
 };
 
 // ---------- UPSERT JOB QUEUE HELPER ---------- //
-export const distributeInvestmentProfitQueueUpsertJobScheduler = async (investment: investment_log) => {
+export async function distributeInvestmentProfitQueueUpsertJobScheduler(investment: investment_log) {
     return await distributeInvestmentProfitQueue.upsertJobScheduler(`distributeInvestmentProfit:${investment.id}`, {
         pattern: '0 0 * * *', //every midnight
         // pattern: '0 0 1 * *', //every 1st day of the month
@@ -86,8 +86,19 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
     const now = new Date();
 
     const { series } = investment
-    const { periods, peakSeason, payoutSchedule } = series
+    const { periods, peakSeason } = series
     const { peakSeasonStartMonth, peakSeasonEndMonth } = peakSeason!
+
+    const user = await prisma.users.findUnique({
+        where: {
+            id: investment.userId
+        }
+    })
+    if (!user) {
+        return job.log(`User with id ${investment.userId} not found`)
+    }
+
+    const { payoutSchedule } = user
 
     const lastPeriod = periods[0].period; // get the last period
     // get the profit logs on this investment
@@ -121,7 +132,6 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
     } else if (payoutSchedule === "QUARTERLY") {
         expectedProfitDistributionCount = lastPeriod / 3;
         // quarterly schedule must run every 1st day of the quarter
-        job.log(`now: ${now}, month now: ${now.getMonth()}`)
         if (!quarterMonths.includes(now.getMonth() + 1) || now.getDate() !== 1) {
             return job.log(`Cancelling job since it's not quarter year and 1st day of the month.`);
         }
@@ -165,7 +175,6 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
     if (now < monthsary) {
         return job.log(`Investment ${investment.id} is not yet eligible for profit distribution, now: ${now}, monthsary: ${monthsary}`);
     }
-
 
     // check if the profit is already distributed based on the scheduled profit distribution
     if (profitLogs.length > 0) {
@@ -233,6 +242,7 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
                     totalProfit: {
                         increment: profit
                     },
+                    updatedAt: new Date(),
                 }
             })
             await tx.users.update({
@@ -242,7 +252,8 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
                 data: {
                     balance: {
                         increment: profit
-                    }
+                    },
+                    updatedAt: new Date(),
                 }
             })
         })
@@ -250,6 +261,7 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
             investment id: ${investment.id},
             last period: ${lastPeriod},
             created at: ${new Date(investment.createdAt).toLocaleDateString()},
+            user's payout scheduler: ${payoutSchedule},
             investment status next payout: ${nextMonthInvestmentStatus},
             investment monthsary: ${monthsary.toLocaleDateString()},
             last distributed profit id: ${profitLogs[0]?.id || "N/A"}

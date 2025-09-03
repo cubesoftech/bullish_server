@@ -25,6 +25,7 @@ export default async function updateReferrerPointConversion(req: Request, res: R
             },
             data: {
                 status: status as any,
+                updatedAt: new Date()
             }
         });
 
@@ -39,7 +40,8 @@ export default async function updateReferrerPointConversion(req: Request, res: R
                     },
                     balance: {
                         increment: log.amount
-                    }
+                    },
+                    updatedAt: new Date(),
                 }
             })
         }

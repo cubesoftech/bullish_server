@@ -32,7 +32,8 @@ export default async function updateAdminNote(req: Request, res: Response) {
                 id: admin.id
             },
             data: {
-                note
+                note,
+                updatedAt: new Date(),
             }
         })
 

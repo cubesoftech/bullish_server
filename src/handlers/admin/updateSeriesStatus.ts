@@ -66,6 +66,15 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
             return res.status(404).json({ message: "User not found." });
         }
 
+        const userTotalInvestmentAmount = await prisma.investment_log.aggregate({
+            where: {
+                userId: user.id
+            },
+            _sum: {
+                amount: true
+            }
+        })
+
         await prisma.series_log.update({
             where: {
                 id: seriesId
@@ -92,6 +101,8 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
 
         if (status === "COMPLETED") {
             const { monthly, settlementRate, maturityDate, totalEstimatedProfit } = getInvestmentAdditionalData({
+                // amount is the user's total investment
+                userTotalInvestmentAmount: userTotalInvestmentAmount._sum.amount || 0,
                 amount: series.amount,
                 createdAt: new Date(),
                 series: {

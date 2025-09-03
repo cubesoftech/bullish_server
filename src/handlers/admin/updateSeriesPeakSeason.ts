@@ -6,11 +6,10 @@ interface UpdateSeriesPeakSeasonPayload {
     seriesId: string;
     peakSeasonStartMonth: number;
     peakSeasonEndMonth: number;
-    payoutSchedule: string;
 }
 
 export default async function updateSeriesPeakSeason(req: Request, res: Response) {
-    const { seriesId, peakSeasonStartMonth, peakSeasonEndMonth, payoutSchedule } = req.body as UpdateSeriesPeakSeasonPayload;
+    const { seriesId, peakSeasonStartMonth, peakSeasonEndMonth } = req.body as UpdateSeriesPeakSeasonPayload;
 
     const acceptedPayoutSchedule: series_payout_schedule[] = ["WEEKLY", "MONTHLY", "QUARTERLY"];
     // validate payloads
@@ -25,9 +24,6 @@ export default async function updateSeriesPeakSeason(req: Request, res: Response
     }
     if (peakSeasonStartMonth > peakSeasonEndMonth) {
         return res.status(400).json({ message: "Peak season start month cannot be after end month." });
-    }
-    if (!payoutSchedule || !acceptedPayoutSchedule.includes(payoutSchedule as series_payout_schedule)) {
-        return res.status(400).json({ error: "Invalid payout schedule." });
     }
 
     try {
@@ -45,7 +41,6 @@ export default async function updateSeriesPeakSeason(req: Request, res: Response
                 id: series.id
             },
             data: {
-                payoutSchedule: payoutSchedule as series_payout_schedule,
                 updatedAt: new Date(),
                 peakSeason: {
                     update: {

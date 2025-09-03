@@ -109,29 +109,41 @@ export default async function getSeriesLog(req: Request, res: Response) {
             }
         })
 
-        const processedSeriesLog = seriesLog.map(log => {
-            const { monthly, settlementRate, peakSettlementRate, leanSettlementRate, estimatedValues } = getInvestmentAdditionalData({
-                amount: log.amount,
-                createdAt: log.createdAt,
-                series: {
-                    periods: log.series.periods,
-                    rate: log.series.rate
+        const processedSeriesLog = await Promise.all(
+            seriesLog.map(async (log) => {
+                const totalInvestedAmount = await prisma.investment_log.aggregate({
+                    where: {
+                        userId: log.userId,
+                    },
+                    _sum: {
+                        amount: true
+                    }
+                })
+                const { monthly, settlementRate, peakSettlementRate, leanSettlementRate, estimatedValues } = getInvestmentAdditionalData({
+                    // amount is the user's total investment
+                    userTotalInvestmentAmount: totalInvestedAmount._sum.amount || 0,
+                    amount: log.amount,
+                    createdAt: log.createdAt,
+                    series: {
+                        periods: log.series.periods,
+                        rate: log.series.rate
+                    }
+                })
+                return {
+                    ...log,
+                    monthly,
+                    settlementRate: (settlementRate + log.user.baseSettlementRate) * 100, //convert from decimal to percent
+                    peakSettlementRate: (peakSettlementRate + log.user.baseSettlementRate) * 100, //convert from decimal to percent
+                    leanSettlementRate: (leanSettlementRate + log.user.baseSettlementRate) * 100, //convert from decimal to percent
+                    estimatedValues,
+                    user: {
+                        ...log.user,
+                        baseSettlementRate: log.user.baseSettlementRate * 100, //convert from decimal to percent
+                        referrerPoints: Number(log.user.referrerPoints),
+                    }
                 }
             })
-            return {
-                ...log,
-                monthly,
-                settlementRate: (settlementRate + log.user.baseSettlementRate) * 100, //convert from decimal to percent
-                peakSettlementRate: (peakSettlementRate + log.user.baseSettlementRate) * 100, //convert from decimal to percent
-                leanSettlementRate: (leanSettlementRate + log.user.baseSettlementRate) * 100, //convert from decimal to percent
-                estimatedValues,
-                user: {
-                    ...log.user,
-                    baseSettlementRate: log.user.baseSettlementRate * 100, //convert from decimal to percent
-                    referrerPoints: Number(log.user.referrerPoints),
-                }
-            }
-        })
+        )
 
         const totalSeriesLog = await prisma.series_log.count({ where })
 

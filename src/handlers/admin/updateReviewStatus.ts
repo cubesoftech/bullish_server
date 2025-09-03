@@ -25,6 +25,7 @@ export default async function updateReviewStatus(req: Request, res: Response) {
             },
             data: {
                 status: status as any,
+                updatedAt: new Date()
             }
         });
 

@@ -25,6 +25,7 @@ export default async function updateDepositRequestStatus(req: Request, res: Resp
             },
             data: {
                 status: status as any,
+                updatedAt: new Date()
             }
         });
 
@@ -36,7 +37,8 @@ export default async function updateDepositRequestStatus(req: Request, res: Resp
                 data: {
                     balance: {
                         increment: request.amount,
-                    }
+                    },
+                    updatedAt: new Date()
                 }
             })
         }
