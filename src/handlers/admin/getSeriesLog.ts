@@ -31,7 +31,11 @@ export default async function getSeriesLog(req: Request, res: Response) {
         return res.status(400).json({ message: "Invalid sort filter" });
     }
 
-    let where: any = {};
+    let where: any = {
+        status: {
+            not: "COMPLETED"
+        }
+    };
     let name: any = {};
     if (processedType === "log") {
         name = {
@@ -43,6 +47,7 @@ export default async function getSeriesLog(req: Request, res: Response) {
 
     if (search) {
         where = {
+            ...where,
             user: {
                 name
             }

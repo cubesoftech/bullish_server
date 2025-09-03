@@ -73,8 +73,12 @@ export default async function getInvestmentLog(req: Request, res: Response) {
 
         const processedInvestmentLogs = investmentLog.map(investment => ({
             ...investment,
+            settlementRate: investment.settlementRate * 100,
+            peakSettlementRate: investment.peakSettlementRate * 100,
+            leanSettlementRate: investment.leanSettlementRate * 100,
             user: {
                 ...investment.user,
+                baseSettlementRate: investment.user.baseSettlementRate * 100,
                 referrerPoints: Number(investment.user.referrerPoints),
             }
         }))

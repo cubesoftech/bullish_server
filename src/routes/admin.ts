@@ -59,6 +59,7 @@ import createAgent from "../handlers/admin/createAgent";
 import updateAgent from "../handlers/admin/updateAgent";
 import deleteAgent from "../handlers/admin/deleteAgent";
 import updateUserPayoutSchedule from "../handlers/admin/updateUserPayoutScedule";
+import updatePendingInvestment from "../handlers/admin/updatePendingInvestment";
 
 
 // ---------- ROUTER ---------- //
@@ -133,3 +134,4 @@ router.post('/createAgent', authenticate, createAgent);
 router.post('/updateAgent', authenticate, updateAgent);
 router.post('/deleteAgent', authenticate, deleteAgent);
 router.post('/updateUserPayoutSchedule', authenticate, updateUserPayoutSchedule);
+router.post('/updatePendingInvestment', authenticate, updatePendingInvestment);
