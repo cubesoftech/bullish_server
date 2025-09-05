@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { generateRandomString } from "../../utils";
 import { findUser } from "../../utils";
+import { notifyAdmin } from "../core/socketConnection";
 
 interface CreateReviewPayload {
     rating: number;
@@ -50,6 +51,8 @@ export default async function createReview(req: Request, res: Response) {
                 updatedAt: new Date(),
             }
         });
+
+        notifyAdmin();
 
         return res.status(200).json({ message: "Review created successfully" });
     } catch (error) {

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { findUser, generateRandomString } from "../../utils";
+import { notifyAdmin } from "../core/socketConnection";
 
 interface ApplyForReferrerPointConversionPayload {
     amount: number;
@@ -47,6 +48,8 @@ export default async function applyForReferrerPointConversion(req: Request, res:
                 updatedAt: new Date(),
             }
         });
+
+        notifyAdmin();
 
         return res.status(200).json({ message: "Referrer point conversion request submitted successfully." });
     } catch (error) {

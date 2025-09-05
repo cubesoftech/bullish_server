@@ -3,6 +3,7 @@ import { prisma } from "../../utils/prisma";
 import { findUser } from "../../utils";
 import { generateRandomString } from "../../utils";
 import { notifyOnlineUsers } from "../core/socketConnection";
+import { notifyAdmin } from "../core/socketConnection";
 
 interface ReplyDirectInquiry {
     content: string;
@@ -52,6 +53,7 @@ export default async function replyDirectInquiry(req: Request, res: Response) {
                     }
                 }
             })
+            notifyAdmin();
             return res.status(200).json({ message: "Inquiry sent." });
         }
 
@@ -83,6 +85,8 @@ export default async function replyDirectInquiry(req: Request, res: Response) {
         for (const admin of admins) {
             notifyOnlineUsers(admin.id)
         }
+
+        notifyAdmin();
 
         return res.status(200).json({ message: "Inquiry sent" });
     } catch (error) {

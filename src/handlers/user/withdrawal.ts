@@ -3,6 +3,7 @@ import { prisma } from "../../utils/prisma";
 import { generateRandomString } from "../../utils";
 import { TransactionPayload } from "../../utils/interface";
 import { findUser } from "../../utils";
+import { notifyAdmin } from "../core/socketConnection";
 
 export default async function withdrawal(req: Request, res: Response) {
     const { user } = req;
@@ -53,6 +54,8 @@ export default async function withdrawal(req: Request, res: Response) {
                 updatedAt: new Date(),
             }
         })
+
+        notifyAdmin();
 
 
         return res.status(200).json({ message: "Withdrawal processed successfully" });

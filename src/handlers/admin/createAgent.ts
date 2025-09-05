@@ -21,7 +21,7 @@ export default async function createAgent(req: Request, res: Response) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
-    const acceptedSettlementCycles = ["WEEKLY", "MONTHLY"]
+    const acceptedSettlementCycles = ["WEEKLY", "2WEEKS", "MONTHLY"]
     if (!acceptedSettlementCycles.includes(settlementCycle.toUpperCase())) {
         return res.status(400).json({ error: "Invalid settlement cycle" });
     }

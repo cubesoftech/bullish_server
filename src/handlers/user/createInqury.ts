@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { generateRandomString } from "../../utils";
 import { findUser } from "../../utils";
+import { notifyAdmin } from "../core/socketConnection";
 
 interface CreateInquiryPayload {
     content: string;
@@ -38,6 +39,8 @@ export default async function createInquiry(req: Request, res: Response) {
                 updatedAt: new Date(),
             }
         });
+
+        notifyAdmin();
 
         return res.status(200).json({ message: "Inquiry created successfully" });
     } catch (error) {

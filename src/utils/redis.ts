@@ -6,5 +6,6 @@ export const redisOptions: RedisOptions = {
 }
 
 const redis = new Redis(redisOptions)
+export const redisSubClient = redis.duplicate();
 
 export default redis;

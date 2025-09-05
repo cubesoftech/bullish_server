@@ -2,7 +2,8 @@ import express from 'express';
 import { createServer } from 'node:http';
 import cors from 'cors';
 import { Server } from "socket.io";
-import redis from './utils/redis';
+import redis, { redisSubClient } from './utils/redis';
+import { createAdapter } from '@socket.io/redis-adapter';
 
 import socketConnection from './handlers/core/socketConnection';
 import UserRoute from './routes/user';
@@ -45,6 +46,7 @@ redis.on("error", (err) => {
     console.error("Redis: Error ", err);
 })
 
+io.adapter(createAdapter(redis, redisSubClient));
 io.on("connection", socketConnection);
 
 server.listen(port, () => {
