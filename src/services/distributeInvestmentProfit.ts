@@ -217,6 +217,8 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
         profit = monthlyProfit * 3;
     }
 
+    profit *= (1 - 0.154); // deduct tax of 15.4%
+
     await new Promise(resolve => setTimeout(resolve, 1000)); // simulate an async job to prevent rate-limiting
 
     try {

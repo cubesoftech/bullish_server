@@ -14,8 +14,6 @@ export default async function createAgent(req: Request, res: Response) {
 
     if (
         (!name || name.trim() === "")
-        || (!commissionRate || isNaN(commissionRate) || commissionRate < 0)
-        || (!subCommissionLimit || isNaN(subCommissionLimit) || subCommissionLimit < 0)
         || (!settlementCycle || settlementCycle.trim() === "")
     ) {
         return res.status(400).json({ error: "All fields are required" });

@@ -3,11 +3,18 @@ import { prisma } from "../../utils/prisma"
 import { Prisma } from "@prisma/client";
 
 export default async function getInvestmentLog(req: Request, res: Response) {
-    const { page, limit, search, seriesId } = req.query;
+    const { page, limit, search, seriesId, sortAmount, sortCreatedBy } = req.query;
+
+    const acceptedCreatedBySort = ['asc', 'desc'];
+    const acceptedTotalInvestmentSort = ['asc', 'desc'];
 
     const processedPage = parseInt(page as string) || 1;
     const processedLimit = parseInt(limit as string) || 25;
     const processedSeriesId = (seriesId as string) || "default";
+    const processedCreatedBySort =
+        sortCreatedBy && acceptedCreatedBySort.includes(sortCreatedBy as string)
+            ? (sortCreatedBy as string)
+            : "desc";
 
     let acceptedSeriesId = ["default", "1", "2", "3", "4", "5"];
     if (!acceptedSeriesId.includes(processedSeriesId)) {
@@ -15,6 +22,15 @@ export default async function getInvestmentLog(req: Request, res: Response) {
     }
 
     let where: Prisma.investment_logWhereInput = {}
+    let orderBy: Prisma.investment_logOrderByWithRelationInput = {
+        createdAt: processedCreatedBySort as "asc" | "desc",
+    }
+
+    if (sortAmount && acceptedTotalInvestmentSort.includes(sortAmount as string)) {
+        orderBy = {
+            amount: sortAmount as "asc" | "desc",
+        }
+    }
 
     if (search) {
         where = {
@@ -55,9 +71,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
             where,
             skip: (processedPage - 1) * processedLimit,
             take: processedLimit,
-            orderBy: {
-                createdAt: 'desc'
-            },
+            orderBy,
             include: {
                 user: true,
                 series: {

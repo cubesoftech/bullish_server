@@ -12,7 +12,13 @@ export default async function getSeriesPeakSeason(req: Request, res: Response) {
             }
         })
 
-        return res.status(200).json({ data: series })
+        const processedSeries = series.map(s => ({
+            ...s,
+            peakSettlementRate: s.peakSettlementRate * 100,
+            leanSettlementRate: s.leanSettlementRate * 100,
+        }))
+
+        return res.status(200).json({ data: processedSeries })
     } catch (error) {
         console.log("Error in getSeriesPeakSeason:", error);
         return res.status(500).json({ message: "Internal server error." })

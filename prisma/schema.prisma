@@ -8,16 +8,17 @@ datasource db {
 }
 
 model admin {
-  id         String   @id @default(cuid())
-  email      String
-  password   String
-  status     Boolean  @default(false)
-  lastLogin  DateTime @default(now())
-  lastLogout DateTime @default(now())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  note       String   @default("")
-  summary    String   @default("")
+  id                  String                @id @default(cuid())
+  email               String
+  password            String
+  status              Boolean               @default(false)
+  lastLogin           DateTime              @default(now())
+  lastLogout          DateTime              @default(now())
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  note                String                @default("")
+  summary             String                @default("")
+  settlement_rate_log settlement_rate_log[]
 }
 
 model agents {
@@ -165,20 +166,23 @@ model series_log {
 }
 
 model series {
-  id             String                 @id @default(cuid())
-  seriesId       Int
-  name           String
-  region         String
-  minAmount      Int
-  createdAt      DateTime               @default(now())
-  updatedAt      DateTime               @updatedAt
-  payoutSchedule series_payout_schedule @default(MONTHLY)
-  series_log     series_log[]
-  periods        series_periods[]
-  rate           series_rate?
-  peakSeason     series_peak_season?
-  profit_log     profit_log[]
-  investment_log investment_log[]
+  id                  String                 @id @default(cuid())
+  seriesId            Int
+  name                String
+  region              String
+  minAmount           Int
+  peakSettlementRate  Float                  @default(0)
+  leanSettlementRate  Float                  @default(0)
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  payoutSchedule      series_payout_schedule @default(MONTHLY)
+  series_log          series_log[]
+  periods             series_periods[]
+  rate                series_rate?
+  peakSeason          series_peak_season?
+  profit_log          profit_log[]
+  investment_log      investment_log[]
+  settlement_rate_log settlement_rate_log[]
 }
 
 model series_periods {
@@ -280,25 +284,26 @@ model otp {
 
 // dito papasok lahat ng mga approved investments
 model investment_log {
-  id                  String             @id @default(cuid())
+  id                  String                @id @default(cuid())
   userId              String
-  seriesLogId         String             @unique
+  seriesLogId         String                @unique
   seriesId            String
   amount              Int
   monthly             Float
   settlementRate      Float
-  peakSettlementRate  Float              @default(0)
-  leanSettlementRate  Float              @default(0)
+  peakSettlementRate  Float                 @default(0)
+  leanSettlementRate  Float                 @default(0)
   maturityDate        DateTime
-  totalProfit         Int                @default(0)
-  totalExpectedProfit Int                @default(0)
-  status              transaction_status @default(PENDING)
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-  user                users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Investment_Log_userId_fkey")
-  seriesLog           series_log         @relation(fields: [seriesLogId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesLogId_fkey")
-  series              series             @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesId_fkey")
+  totalProfit         Int                   @default(0)
+  totalExpectedProfit Int                   @default(0)
+  status              transaction_status    @default(PENDING)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  user                users                 @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Investment_Log_userId_fkey")
+  seriesLog           series_log            @relation(fields: [seriesLogId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesLogId_fkey")
+  series              series                @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesId_fkey")
   profit_log          profit_log[]
+  settlement_rate_log settlement_rate_log[]
 }
 
 model profit_log {
@@ -342,6 +347,22 @@ model referrer_point_conversion_log {
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
   user      users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Referrer_Point_Conversion_Log_userId_fkey")
+}
+
+model settlement_rate_log {
+  id                 String          @id @default(cuid())
+  adminId            String
+  seriesId           String? //for SERIES type
+  seriesSeriesId     Int? //for SERIES type(to easily identify series)
+  investmentId       String? //for INDIVIDUAL type
+  peakSettlementRate Float
+  leanSettlementRate Float
+  type               String
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  admins             admin           @relation(fields: [adminId], references: [id], map: "Settlement_Rate_Log_adminId_fkey")
+  series             series?         @relation(fields: [seriesId], references: [id], map: "Settlement_Rate_Log_seriesId_fkey")
+  investment         investment_log? @relation(fields: [investmentId], references: [id], map: "Settlement_Rate_Log_investmentId_fkey")
 }
 
 enum transaction_status {

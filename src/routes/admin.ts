@@ -29,6 +29,7 @@ import getMonthlyDeposit from "../handlers/admin/getMonthlyDeposit";
 import getMonthlyWithdrawals from "../handlers/admin/getMonthlyWithdrawal";
 import getMonthlySettlementProfit from "../handlers/admin/getMonthlySettlementProfit";
 import getNotificationCount from "../handlers/admin/getNotificationCount";
+import getReferrers from "../handlers/admin/getReferrers";
 import generateSeriesData from "../handlers/admin/generateSeriesData";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -48,7 +49,6 @@ import deleteActivityLog from "../handlers/admin/deleteActivityLog";
 import createInquiry from "../handlers/admin/createInquiry";
 import replyInquiry from "../handlers/admin/replyInquiry";
 import deleteInquiry from "../handlers/admin/deleteInquiry";
-import getReferrers from "../handlers/admin/getReferrers";
 import updateSeriesStatus from "../handlers/admin/updateSeriesStatus";
 import replyDirectInquiry from "../handlers/admin/replyDirectInquiry";
 import updateSeriesPeakSeason from "../handlers/admin/updateSeriesPeakSeason";
@@ -61,6 +61,8 @@ import updateAgent from "../handlers/admin/updateAgent";
 import deleteAgent from "../handlers/admin/deleteAgent";
 import updateUserPayoutSchedule from "../handlers/admin/updateUserPayoutScedule";
 import updatePendingInvestment from "../handlers/admin/updatePendingInvestment";
+import updateSeriesSettlementRates from "../handlers/admin/updateSeriesSettlementRates";
+import recalculateInvestmentProfit from "../handlers/admin/recalculateInvestmentProfit";
 
 
 // ---------- ROUTER ---------- //
@@ -137,3 +139,5 @@ router.post('/updateAgent', authenticate, updateAgent);
 router.post('/deleteAgent', authenticate, deleteAgent);
 router.post('/updateUserPayoutSchedule', authenticate, updateUserPayoutSchedule);
 router.post('/updatePendingInvestment', authenticate, updatePendingInvestment);
+router.post('/updateSeriesSettlementRates', authenticate, updateSeriesSettlementRates);
+router.post('/recalculateInvestmentProfit', authenticate, recalculateInvestmentProfit);

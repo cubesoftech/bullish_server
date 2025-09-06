@@ -27,9 +27,7 @@ export async function findAdmin(adminId: string) {
     });
 }
 
-
-interface InvestmentWIthAdditionalDataProps {
-    userTotalInvestmentAmount: number;
+interface Investment {
     amount: number;
     createdAt: Date;
     series: Series
@@ -37,6 +35,9 @@ interface InvestmentWIthAdditionalDataProps {
 interface Series {
     periods: series_periods[];
     rate: series_rate | null;
+}
+interface InvestmentWIthAdditionalDataProps extends Investment {
+    userTotalInvestmentAmount: number;
 }
 
 export interface EstimatedValues {
@@ -47,10 +48,8 @@ export interface EstimatedValues {
 }
 
 // before editing this helper function keep in mind that this is being used in the ff:
-// src/handlers/admin/getSeriesLog.ts
 // src/handlers/admin/updateSeriesStatus.ts
 // src/handlers/admin/getUserDetails.ts
-
 export function getInvestmentAdditionalData(investment: InvestmentWIthAdditionalDataProps) {
     const { periods, rate } = investment.series
 
@@ -95,6 +94,73 @@ export function getInvestmentAdditionalData(investment: InvestmentWIthAdditional
         )
     );
     const totalEstimatedProfit = monthlyProfit * lastPeriod
+
+    return {
+        monthly: monthlyProfit,
+        settlementRate,
+        estimatedValues,
+        peakSettlementRate,
+        leanSettlementRate,
+        maturityDate,
+        totalEstimatedProfit
+    }
+}
+
+// before editing this helper function keep in mind that this is being used in the ff:
+// src/handlers/admin/getSeriesLog.ts
+export function getInvestmentAdditionalData2(investment: Investment) {
+    const { periods, rate } = investment.series
+
+    const rateMinRate = rate?.minRate || 0
+    const rateMaxRate = rate?.maxRate || 0
+
+    const convertedMinRateValue = rateMinRate / 100; // convert minRate to decimal
+    const convertedMaxRateValue = rateMaxRate / 100; // convert maxRate to decimal
+
+    let isOnPeakSeason: boolean = true;
+
+    const minRate = convertedMinRateValue; // convert minRate to decimal
+
+    let settlementRate = minRate * (isOnPeakSeason ? 1.2 : 0.8);
+    let peakSettlementRate = minRate * 1.2;
+    let leanSettlementRate = minRate * 0.8;
+
+    // adjust settlement rate
+    if (settlementRate > convertedMaxRateValue) {
+        settlementRate = convertedMaxRateValue
+    }
+    if (settlementRate < convertedMinRateValue) {
+        settlementRate = convertedMinRateValue
+    }
+
+    // adjust peak settlement rate
+    if (peakSettlementRate > convertedMaxRateValue) {
+        peakSettlementRate = convertedMaxRateValue
+    }
+
+    // adjust lean settlement rate
+    if (leanSettlementRate < convertedMinRateValue) {
+        leanSettlementRate = convertedMinRateValue
+    }
+
+    const monthlyProfit = investment.amount * settlementRate
+    const estimatedValues: EstimatedValues[]
+        = periods.map(period => {
+            const value = monthlyProfit * period.period
+            return {
+                duration: period.period + "개월",
+                value,
+                afterTax: value * (1 - 0.154),
+            }
+        });
+
+    const lastPeriod = periods[0].period;
+    const maturityDate = new Date(
+        new Date(investment.createdAt).setMonth(
+            new Date(investment.createdAt).getMonth() + lastPeriod
+        )
+    );
+    const totalEstimatedProfit = (monthlyProfit * lastPeriod) * (1 - 0.154)
 
     return {
         monthly: monthlyProfit,
