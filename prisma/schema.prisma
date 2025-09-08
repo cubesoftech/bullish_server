@@ -216,12 +216,6 @@ model series_peak_season {
   series               series   @relation(fields: [seriesID], references: [id], onDelete: Cascade, map: "Series_Peak_Season_seriesID_fkey")
 }
 
-enum series_payout_schedule {
-  WEEKLY
-  MONTHLY
-  QUARTERLY
-}
-
 model notices {
   id           String   @id @default(cuid())
   noticeNumber Int      @unique @default(autoincrement())
@@ -363,6 +357,12 @@ model settlement_rate_log {
   admins             admin           @relation(fields: [adminId], references: [id], map: "Settlement_Rate_Log_adminId_fkey")
   series             series?         @relation(fields: [seriesId], references: [id], map: "Settlement_Rate_Log_seriesId_fkey")
   investment         investment_log? @relation(fields: [investmentId], references: [id], map: "Settlement_Rate_Log_investmentId_fkey")
+}
+
+enum series_payout_schedule {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
 }
 
 enum transaction_status {
