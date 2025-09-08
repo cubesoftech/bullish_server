@@ -3,17 +3,32 @@ import { prisma } from "../../utils/prisma";
 
 interface UpdateAgentPayload {
     id: string;
+    name: string;
+    commissionRate: number;
+    subCommissionLimit: number;
+    settlementCycle: string;
     note: string;
 }
 
 export default async function updateAgent(req: Request, res: Response) {
-    const { id, note } = req.body as UpdateAgentPayload;
+    const { id, name, commissionRate, subCommissionLimit, settlementCycle, note } = req.body as UpdateAgentPayload;
 
     if (!id || id.trim() === "") {
         return res.status(400).json({ message: "Agent ID is required." });
     }
+    if (!name || name.trim() === "") {
+        return res.status(400).json({ error: "Invalid name" });
+    }
+    if (!settlementCycle || settlementCycle.trim() === "") {
+        return res.status(400).json({ error: "Invalid settlement cycle" });
+    }
     if (!note || note.trim() === "") {
         return res.status(400).json({ message: "Note is required." });
+    }
+
+    const acceptedSettlementCycles = ["WEEKLY", "2WEEKS", "MONTHLY"];
+    if (!acceptedSettlementCycles.includes(settlementCycle.toUpperCase())) {
+        return res.status(400).json({ error: "Invalid settlement cycle" });
     }
 
     try {
@@ -32,6 +47,10 @@ export default async function updateAgent(req: Request, res: Response) {
             },
             data: {
                 note,
+                name,
+                commissionRate,
+                subCommissionLimit,
+                settlementCycle,
                 updatedAt: new Date()
             }
         });
