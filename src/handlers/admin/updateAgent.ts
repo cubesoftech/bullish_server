@@ -22,9 +22,6 @@ export default async function updateAgent(req: Request, res: Response) {
     if (!settlementCycle || settlementCycle.trim() === "") {
         return res.status(400).json({ error: "Invalid settlement cycle" });
     }
-    if (!note || note.trim() === "") {
-        return res.status(400).json({ message: "Note is required." });
-    }
 
     const acceptedSettlementCycles = ["WEEKLY", "2WEEKS", "MONTHLY"];
     if (!acceptedSettlementCycles.includes(settlementCycle.toUpperCase())) {

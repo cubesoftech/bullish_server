@@ -115,7 +115,7 @@ export default async function getSeriesLog(req: Request, res: Response) {
         })
 
         const processedSeriesLog = seriesLog.map(log => {
-            const { monthly, estimatedValues, settlementRate, peakSettlementRate, leanSettlementRate } = getInvestmentAdditionalData2({
+            const { monthly, leanMonthlyProfit, peakMonthlyProfit, estimatedValues, settlementRate, peakSettlementRate, leanSettlementRate } = getInvestmentAdditionalData2({
                 // amount is the user's total investment
                 amount: log.amount,
                 createdAt: log.createdAt,
@@ -127,6 +127,8 @@ export default async function getSeriesLog(req: Request, res: Response) {
             return {
                 ...log,
                 monthly,
+                leanMonthlyProfit,
+                peakMonthlyProfit,
                 settlementRate: settlementRate * 100, //convert from decimal to percent
                 peakSettlementRate: peakSettlementRate * 100, //convert from decimal to percent
                 leanSettlementRate: leanSettlementRate * 100, //convert from decimal to percent

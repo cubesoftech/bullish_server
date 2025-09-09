@@ -125,7 +125,7 @@ export function getInvestmentAdditionalData2(investment: Investment) {
     const convertedMinRateValue = rateMinRate / 100; // convert minRate to decimal
     const convertedMaxRateValue = rateMaxRate / 100; // convert maxRate to decimal
 
-    let isOnPeakSeason: boolean = true;
+    let isOnPeakSeason: boolean = false;
 
     const minRate = convertedMinRateValue; // convert minRate to decimal
 
@@ -152,6 +152,8 @@ export function getInvestmentAdditionalData2(investment: Investment) {
     }
 
     const monthlyProfit = investment.amount * settlementRate
+    const leanMonthlyProfit = investment.amount * leanSettlementRate
+    const peakMonthlyProfit = investment.amount * peakSettlementRate
     const estimatedValues: EstimatedValues[]
         = periods.map(period => {
             const value = monthlyProfit * period.period
@@ -172,6 +174,8 @@ export function getInvestmentAdditionalData2(investment: Investment) {
 
     return {
         monthly: monthlyProfit,
+        leanMonthlyProfit,
+        peakMonthlyProfit,
         settlementRate,
         estimatedValues,
         peakSettlementRate,

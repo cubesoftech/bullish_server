@@ -259,18 +259,16 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
                 }
             })
         })
-        return job.log(`
-            investment id: ${investment.id},
-            last period: ${lastPeriod},
-            created at: ${new Date(investment.createdAt).toLocaleDateString()},
-            user's payout scheduler: ${payoutSchedule},
-            investment status next payout: ${nextMonthInvestmentStatus},
-            investment monthsary: ${monthsary.toLocaleDateString()},
-            last distributed profit id: ${profitLogs[0]?.id || "N/A"}
-            is on peak season: ${isOnPeakSeason},
-            settlement rate: ${settlementRate},
-            profit for this payout: ${profit.toLocaleString()}
-        `)
+        return job.log(`investment id: ${investment.id},
+last period: ${lastPeriod},
+created at: ${new Date(investment.createdAt).toLocaleDateString()},
+user's payout scheduler: ${payoutSchedule},
+investment status next payout: ${nextMonthInvestmentStatus},
+investment monthsary: ${monthsary.toLocaleDateString()},
+last distributed profit id: ${profitLogs[0]?.id || "N/A"}
+is on peak season: ${isOnPeakSeason},
+settlement rate: ${settlementRate},
+profit for this payout: ${profit.toLocaleString()}`)
     } catch (error) {
         job.log(`Error occurred while distributing profit for investment ${investment.id}: ${error}`);
     }
