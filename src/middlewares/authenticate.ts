@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken"
 import { AuthPayload } from "../utils/interface";
+import { getEnvirontmentVariable } from "../utils";
 
 export default function authenticate(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
@@ -15,7 +16,7 @@ export default function authenticate(req: Request, res: Response, next: NextFunc
 
     const token = parts[1];
 
-    const secret = process.env.JWT_ACCESS_SECRET;
+    const secret = getEnvirontmentVariable("JWT_ACCESS_SECRET");
     if (!secret) {
         return res.status(500).json({ message: "Server configuration error." });
     }

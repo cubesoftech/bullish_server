@@ -13,8 +13,9 @@ import { bullMqExpressAdapter } from './routes/workers';
 import { initDistributeInvestmentProfit } from './services/distributeInvestmentProfit';
 import { initDistributeMonthlyReferrerReward } from './services/distributeMonthyReferrerReward';
 import { initDistributeMonthlySettlementRate } from './services/distributeMonthlySettlementRate';
+import { getEnvirontmentVariable } from './utils';
 
-const port = process.env.PORT ?? 8010;
+const port = getEnvirontmentVariable("PORT") || 8010;
 const app = express();
 const server = createServer(app);
 

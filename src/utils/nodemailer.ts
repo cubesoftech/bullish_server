@@ -1,10 +1,11 @@
 import nodemailer from "nodemailer"
+import { getEnvirontmentVariable } from ".";
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-        user: process.env.NODEMAILER_USER,
-        pass: process.env.NODEMAILER_PASS,
+        user: getEnvirontmentVariable("NODEMAILER_USER"),
+        pass: getEnvirontmentVariable("NODEMAILER_PASS"),
     },
 });
 export default transporter;

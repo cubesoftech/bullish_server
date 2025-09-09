@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import { prisma } from "../../utils/prisma";
 import transporter from "../../utils/nodemailer";
-import { generateRandomString } from "../../utils";
+import { generateRandomString, getEnvirontmentVariable } from "../../utils";
 import { maskEmail } from "../../utils";
 
 interface SendOTPPayload {
@@ -50,7 +50,7 @@ export default async function sendOTP(req: Request, res: Response) {
         })
 
         await transporter.sendMail({
-            from: process.env.NODEMAILER_USER,
+            from: getEnvirontmentVariable("NODEMAILER_USER"),
             to: "",
             subject: "Password Reset",
             text: `Your OTP is ${otp}`,
