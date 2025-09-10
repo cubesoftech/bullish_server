@@ -23,14 +23,16 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
     ) {
         return res.status(400).json({ message: "Invalid investment and/or status." });
     }
-    if (
-        (!peakSettlementRate || peakSettlementRate <= 0)
-        || (!leanSettlementRate || leanSettlementRate <= 0)
-    ) {
-        return res.status(400).json({ message: "Invalid settlement rates." });
-    }
-    if (peakSettlementRate < leanSettlementRate) {
-        return res.status(400).json({ message: "Peak settlement rate must be greater than lean settlement rate." });
+    if (status === "COMPLETED") {
+        if (
+            (!peakSettlementRate || peakSettlementRate <= 0)
+            || (!leanSettlementRate || leanSettlementRate <= 0)
+        ) {
+            return res.status(400).json({ message: "Invalid settlement rates." });
+        }
+        if (peakSettlementRate < leanSettlementRate) {
+            return res.status(400).json({ message: "Peak settlement rate must be greater than lean settlement rate." });
+        }
     }
 
     try {
