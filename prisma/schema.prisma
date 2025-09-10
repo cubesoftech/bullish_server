@@ -359,6 +359,13 @@ model settlement_rate_log {
   investment         investment_log? @relation(fields: [investmentId], references: [id], map: "Settlement_Rate_Log_investmentId_fkey")
 }
 
+model nice_api_tokens {
+  id          String   @id @default(cuid())
+  accessToken String
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+}
+
 enum series_payout_schedule {
   WEEKLY
   MONTHLY

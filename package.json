@@ -16,6 +16,7 @@
     "@bull-board/express": "^6.12.0",
     "@prisma/client": "^6.12.0",
     "@socket.io/redis-adapter": "^8.3.0",
+    "axios": "^1.11.0",
     "bullmq": "^5.58.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
