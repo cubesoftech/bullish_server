@@ -3,10 +3,12 @@ import { prisma } from "../../utils/prisma";
 import { generateRandomString } from "../../utils";
 import { findUser } from "../../utils";
 import { notifyAdmin } from "../core/socketConnection";
+import { series_payout_schedule } from "@prisma/client";
 
 interface InvestToSeriesPayload {
     amount: number;
     seriesId: number;
+    payoutSchedule: string;
 }
 
 export default async function investToSeries(req: Request, res: Response) {
@@ -16,14 +18,16 @@ export default async function investToSeries(req: Request, res: Response) {
         return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const { amount, seriesId } = req.body as InvestToSeriesPayload;
+    const { amount, seriesId, payoutSchedule } = req.body as InvestToSeriesPayload;
+    const acceptedSchedules: series_payout_schedule[] = ["WEEKLY", "MONTHLY", "QUARTERLY"]
 
     // Validate required fields
     const validateFields = !(
-        isNaN(amount) || !Number.isFinite(amount) || amount <= 0 ||
-        isNaN(seriesId) || !Number.isFinite(seriesId) ||
+        (isNaN(amount) || !Number.isFinite(amount) || amount <= 0) ||
+        (isNaN(seriesId) || !Number.isFinite(seriesId)) ||
         // update this too when series got changed
-        seriesId <= 0 || seriesId > 5
+        (seriesId <= 0 || seriesId > 5) ||
+        (!payoutSchedule || payoutSchedule.trim() === "" || !acceptedSchedules.includes(payoutSchedule as series_payout_schedule))
     )
     if (!validateFields) {
         return res.status(400).json({ message: "Invalid investment parameters" });
@@ -33,9 +37,6 @@ export default async function investToSeries(req: Request, res: Response) {
         const userInfo = await findUser(user.id);
         if (!userInfo) {
             return res.status(400).json({ message: "Invalid phone number or password" });
-        }
-        if (amount > userInfo.balance) {
-            return res.status(400).json({ message: "Insufficient balance for investment" });
         }
 
         const series = await prisma.series.findFirst({
@@ -51,30 +52,18 @@ export default async function investToSeries(req: Request, res: Response) {
             return res.status(400).json({ message: `Minimum investment amount is ${series.minAmount}` });
         }
 
-        await prisma.$transaction(async (tx: any) => {
-            await tx.series_log.create({
-                data: {
-                    id: generateRandomString(7),
-                    userId: user.id,
-                    seriesId: series.id,
-                    amount,
-                    status: "PENDING",
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                }
-            });
-            await tx.users.update({
-                where: {
-                    id: user.id
-                },
-                data: {
-                    balance: {
-                        decrement: amount
-                    },
-                    updatedAt: new Date(),
-                }
-            })
-        })
+        await prisma.series_log.create({
+            data: {
+                id: generateRandomString(7),
+                userId: user.id,
+                seriesId: series.id,
+                amount,
+                status: "PENDING",
+                payoutSchedule: payoutSchedule as series_payout_schedule,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            }
+        });
 
         notifyAdmin();
 

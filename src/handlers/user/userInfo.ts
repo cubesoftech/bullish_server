@@ -20,7 +20,7 @@ export default async function userInfo(req: Request, res: Response) {
 
         const processedUserInfo = {
             ...userInfo,
-            referrerPoints: Number(userInfo.referrerPoints)
+            referrerPoints: Number(userInfo.referrerPoints || 0)
         }
 
         return res.status(200).json({ data: processedUserInfo });

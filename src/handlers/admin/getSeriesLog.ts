@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma"
 import { getInvestmentAdditionalData2 } from "../../utils";
+import { Prisma } from "@prisma/client";
 
 export default async function getSeriesLog(req: Request, res: Response) {
     const { page, limit, search, seriesId, type, sort, investmentDate } = req.query;
@@ -31,7 +32,7 @@ export default async function getSeriesLog(req: Request, res: Response) {
         return res.status(400).json({ message: "Invalid sort filter" });
     }
 
-    let where: any = {
+    let where: Prisma.series_logWhereInput = {
         status: {
             not: "COMPLETED"
         }
@@ -114,6 +115,7 @@ export default async function getSeriesLog(req: Request, res: Response) {
             }
         })
 
+        const fiveSecondsAgo = new Date(Date.now() - 1000 * 30);
         const processedSeriesLog = seriesLog.map(log => {
             const { monthly, leanMonthlyProfit, peakMonthlyProfit, estimatedValues, settlementRate, peakSettlementRate, leanSettlementRate } = getInvestmentAdditionalData2({
                 // amount is the user's total investment
@@ -126,6 +128,7 @@ export default async function getSeriesLog(req: Request, res: Response) {
             })
             return {
                 ...log,
+                isNew: log.createdAt > fiveSecondsAgo,
                 monthly,
                 leanMonthlyProfit,
                 peakMonthlyProfit,

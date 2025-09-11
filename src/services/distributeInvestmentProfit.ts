@@ -85,20 +85,9 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
 
     const now = new Date();
 
-    const { series } = investment
+    const { series, payoutSchedule } = investment
     const { periods, peakSeason } = series
     const { peakSeasonStartMonth, peakSeasonEndMonth } = peakSeason!
-
-    const user = await prisma.users.findUnique({
-        where: {
-            id: investment.userId
-        }
-    })
-    if (!user) {
-        return job.log(`User with id ${investment.userId} not found`)
-    }
-
-    const { payoutSchedule } = user
 
     const lastPeriod = periods[0].period; // get the last period
     // get the profit logs on this investment
@@ -172,7 +161,7 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
             )
     );
     // check if the investment is approved a month ago
-    if (now < monthsary) {
+    if (now < monthsary && payoutSchedule !== "WEEKLY") {
         return job.log(`Investment ${investment.id} is not yet eligible for profit distribution, now: ${now}, monthsary: ${monthsary}`);
     }
 

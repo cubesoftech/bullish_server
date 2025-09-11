@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
+import { Prisma } from "@prisma/client";
 
 export default async function getSuggestedUsers(req: Request, res: Response) {
     const { search } = req.query;
 
-    let where: any = {};
+    let where: Prisma.usersWhereInput = {};
 
     if (search) {
         where = {

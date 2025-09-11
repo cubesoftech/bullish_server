@@ -13,13 +13,17 @@ export default async function deleteUsers(req: Request, res: Response) {
     }
 
     try {
-        await prisma.users.deleteMany({
+        await prisma.users.updateMany({
             where: {
                 id: {
                     in: users
                 }
+            },
+            data: {
+                isDeleted: true,
             }
         });
+
         return res.status(200).json({ message: "Users deleted successfully" });
     } catch (error) {
         console.error("Error deleting users: ", error);

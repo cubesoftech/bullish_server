@@ -30,6 +30,11 @@ import getMonthlyWithdrawals from "../handlers/admin/getMonthlyWithdrawal";
 import getMonthlySettlementProfit from "../handlers/admin/getMonthlySettlementProfit";
 import getNotificationCount from "../handlers/admin/getNotificationCount";
 import getReferrers from "../handlers/admin/getReferrers";
+import checkDirectionInquiry from "../handlers/admin/checkDirectInquiry";
+import getDeletedUsers from "../handlers/admin/getDeletedUsers";
+import getUserDeletionRequests from "../handlers/admin/getUserDeletionRequests";
+import getWithdrawExtraBalanceRequestLog from "../handlers/admin/getWithdrawExtraBalanceRequestLog";
+import getWithdrawInvestmentAmountLog from "../handlers/admin/getWithdrawInvestmentAmountLog";
 import generateSeriesData from "../handlers/admin/generateSeriesData";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -63,6 +68,12 @@ import updateUserPayoutSchedule from "../handlers/admin/updateUserPayoutScedule"
 import updatePendingInvestment from "../handlers/admin/updatePendingInvestment";
 import updateSeriesSettlementRates from "../handlers/admin/updateSeriesSettlementRates";
 import recalculateInvestmentProfit from "../handlers/admin/recalculateInvestmentProfit";
+import createDirectInquiry from "../handlers/admin/createDirectInquiry";
+import updateUserExtraWithdrawableBalance from "../handlers/admin/updateUserExtraWithdrawableBalance";
+import reactivateUserAccountDeletion from "../handlers/admin/reactivateUserAccountDeletion";
+import updateUserDeletionRequestStatus from "../handlers/admin/updateUserDeletionRequestStatus";
+import updateWithdrawExtraBalanceRequestStatus from "../handlers/admin/updateWithdrawExtraBalanceRequestStatus";
+import updateWithdrawInvestedAmountStatus from "../handlers/admin/updateWithdrawInvestedAmountStatus";
 
 
 // ---------- ROUTER ---------- //
@@ -99,6 +110,11 @@ router.get("/getMonthlyDeposits", authenticate, getMonthlyDeposit);
 router.get("/getMonthlyWithdrawals", authenticate, getMonthlyWithdrawals);
 router.get("/getMonthlySettlementProfit", authenticate, getMonthlySettlementProfit);
 router.get("/getNotificationCount", authenticate, getNotificationCount);
+router.get("/checkDirectionInquiry", authenticate, checkDirectionInquiry);
+router.get("/getDeletedUsers", authenticate, getDeletedUsers);
+router.get("/getUserDeletionRequests", authenticate, getUserDeletionRequests);
+router.get("/getWithdrawExtraBalanceRequestLog", authenticate, getWithdrawExtraBalanceRequestLog);
+router.get("/getWithdrawInvestmentAmountLog", authenticate, getWithdrawInvestmentAmountLog);
 
 
 // commented out for now, as it is not used in the current context
@@ -141,3 +157,9 @@ router.post('/updateUserPayoutSchedule', authenticate, updateUserPayoutSchedule)
 router.post('/updatePendingInvestment', authenticate, updatePendingInvestment);
 router.post('/updateSeriesSettlementRates', authenticate, updateSeriesSettlementRates);
 router.post('/recalculateInvestmentProfit', authenticate, recalculateInvestmentProfit);
+router.post('/createDirectInquiry', authenticate, createDirectInquiry);
+router.post('/reactivateUserAccountDeletion', authenticate, reactivateUserAccountDeletion);
+router.post('/updateUserDeletionRequestStatus', authenticate, updateUserDeletionRequestStatus);
+router.post('/updateWithdrawExtraBalanceRequestStatus', authenticate, updateWithdrawExtraBalanceRequestStatus);
+router.post('/updateWithdrawInvestedAmountStatus', authenticate, updateWithdrawInvestedAmountStatus);
+router.post('/updateUserExtraWithdrawableBalance', authenticate, updateUserExtraWithdrawableBalance);

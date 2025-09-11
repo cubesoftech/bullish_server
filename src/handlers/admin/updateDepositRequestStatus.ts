@@ -29,19 +29,19 @@ export default async function updateDepositRequestStatus(req: Request, res: Resp
             }
         });
 
-        if (status === "COMPLETED") {
-            await prisma.users.update({
-                where: {
-                    id: request.userId
-                },
-                data: {
-                    balance: {
-                        increment: request.amount,
-                    },
-                    updatedAt: new Date()
-                }
-            })
-        }
+        // if (status === "COMPLETED") {
+        //     await prisma.users.update({
+        //         where: {
+        //             id: request.userId
+        //         },
+        //         data: {
+        //             balance: {
+        //                 increment: request.amount,
+        //             },
+        //             updatedAt: new Date()
+        //         }
+        //     })
+        // }
 
         return res.status(200).json({ message: "Deposit status updated successfully" });
     } catch (error) {

@@ -86,20 +86,6 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                 updatedAt: new Date(),
             }
         });
-        // give back the amount to user if investment failed
-        if (status === "FAILED") {
-            await prisma.users.update({
-                where: {
-                    id: series.userId
-                },
-                data: {
-                    balance: {
-                        increment: series.amount
-                    },
-                    updatedAt: new Date(),
-                }
-            })
-        }
 
         if (status === "COMPLETED") {
             const { monthly, settlementRate, maturityDate, totalEstimatedProfit } = getInvestmentAdditionalData({
@@ -123,6 +109,7 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                     amount: series.amount,
                     monthly,
                     settlementRate,
+                    payoutSchedule: series.payoutSchedule,
                     peakSettlementRate: processedPeakSettlementRate,
                     leanSettlementRate: processedLeanSettlementRate,
                     maturityDate,
@@ -130,6 +117,7 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                 }
             })
 
+            // ---------- LOGIC FOR ADDING REFERRER TO THE REFERRER POINT DISTRIBUTION JOB ---------- //
             const { investorReferrerId, referrerId } = user
             if (!investorReferrerId && referrerId) {
                 // if hindi pa naka set and investorReferrerId then set it 

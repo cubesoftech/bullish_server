@@ -22,6 +22,7 @@ import getUserInvestmentSummary from "../handlers/user/getUserInvestmentSummary"
 import getLatestMonthlyProfit from "../handlers/user/getLatestMonthlyProfit";
 import getReferrerPointLog from "../handlers/user/getReferrerPointLog";
 import getReferrerPointConversionLog from "../handlers/user/getReferrerPointConversionLog";
+import getEndedInvestment from "../handlers/user/getFinishedInvestment";
 
 
 // ---------- POST HANDLERS ---------- //
@@ -39,6 +40,9 @@ import sendOTP from "../handlers/user/sendOTP";
 import loginUsingOTP from "../handlers/user/loginUsingOTP";
 import deleteAccount from "../handlers/user/deleteAccount";
 import applyForReferrerPointConversion from "../handlers/user/applyForReferrerPointConversion";
+import matchPhoneNumber from "../handlers/user/matchPhoneNumber";
+import withdrawExtraBalance from "../handlers/user/withdrawExtraBalance";
+import withdrawInvestedAmount from "../handlers/user/withdrawInvestedAmount";
 
 // ---------- ROUTER ---------- //
 const router = Router();
@@ -67,6 +71,7 @@ router.get('/getUserInvestmentSummary', authenticate, getUserInvestmentSummary);
 router.get('/getLatestMonthlyProfit', authenticate, getLatestMonthlyProfit);
 router.get('/getReferrerPointLog', authenticate, getReferrerPointLog);
 router.get('/getReferrerPointConversionLog', authenticate, getReferrerPointConversionLog);
+router.get('/getEndedInvestment', authenticate, getEndedInvestment);
 
 
 // ---------- POST REQUESTS ---------- //
@@ -86,3 +91,6 @@ router.post('/investToSeries', authenticate, investToSeries)
 router.post('/replyDirectInquiry', authenticate, replyDirectInquiry)
 router.post('/deleteAccount', authenticate, deleteAccount)
 router.post('/applyForReferrerPointConversion', authenticate, applyForReferrerPointConversion)
+router.post('/matchPhoneNumber', authenticate, matchPhoneNumber)
+router.post('/withdrawExtraBalance', authenticate, withdrawExtraBalance)
+router.post('/withdrawInvestedAmount', authenticate, withdrawInvestedAmount)

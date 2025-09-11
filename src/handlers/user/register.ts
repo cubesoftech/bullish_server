@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { generateRandomString } from "../../utils";
+import { notifyAdmin } from "../core/socketConnection";
 
 interface RegisterPayload {
     phoneNumber: string;
@@ -36,7 +37,7 @@ export default async function register(req: Request, res: Response) {
     try {
         const isExistingUser = await prisma.users.findFirst({
             where: {
-                phoneNumber: phoneNumber
+                phoneNumber: phoneNumber,
             }
         })
         if (isExistingUser) {
@@ -117,6 +118,8 @@ export default async function register(req: Request, res: Response) {
                 lastDevice: "",
             }
         });
+
+        notifyAdmin();
         return res.status(200).json({ message: "User registered successfully!" });
     } catch (error) {
         console.error("Error registering user:", error);

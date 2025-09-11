@@ -2,8 +2,12 @@ import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 
 export default async function getNotificationCount(req: Request, res: Response) {
-    const fiveSecondsAgo = new Date(Date.now() - 6 * 1000);
     try {
+        const pendingUsers = await prisma.users.count({
+            where: {
+                status: false,
+            }
+        })
         const inquiries = await prisma.inquiry_log.count({
             where: {
                 isReplied: false,
@@ -41,6 +45,7 @@ export default async function getNotificationCount(req: Request, res: Response) 
         })
 
         const data = {
+            pendingUsers,
             inquiries,
             directInquiries,
             deposits,

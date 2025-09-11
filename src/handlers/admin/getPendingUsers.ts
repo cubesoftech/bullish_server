@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
+import { Prisma } from "@prisma/client";
 
 export default async function getPendingUsers(req: Request, res: Response) {
     const { page, limit, search } = req.query;
@@ -7,13 +8,15 @@ export default async function getPendingUsers(req: Request, res: Response) {
     const processedPage = parseInt(page as string) || 1;
     const processedLimit = parseInt(limit as string) || 10;
 
-    let where: any = {
-        status: false
+    let where: Prisma.usersWhereInput = {
+        status: false,
+        isDeleted: false,
     }
 
     if (search) {
         where = {
             status: false,
+            isDeleted: false,
             name: {
                 contains: search as string,
             }

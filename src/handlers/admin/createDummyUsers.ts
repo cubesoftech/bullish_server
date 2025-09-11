@@ -27,6 +27,7 @@ export default async function createDummyUsers(req: Request, res: Response) {
             seriesId: "i9pml4k",
             amount: 1_000_000,
             status: "PENDING",
+            payoutSchedule: "MONTHLY",
             createdAt: new Date(),
             updatedAt: new Date(),
         }))

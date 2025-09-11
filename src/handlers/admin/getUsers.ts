@@ -17,12 +17,14 @@ export default async function getUsers(req: Request, res: Response) {
     const acceptedTotalInvestmentSort = ['asc', 'desc'];
 
     let where: Prisma.usersWhereInput = {
-        status: true
+        status: true,
+        isDeleted: false,
     }
 
     if (search) {
         where = {
             status: true,
+            isDeleted: false,
             OR: [
                 {
                     name: {

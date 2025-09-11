@@ -35,49 +35,54 @@ model agents {
 }
 
 model users {
-  id                            String                          @id @default(cuid())
-  phoneNumber                   String
-  password                      String
-  name                          String
-  birthDate                     String
-  gender                        String
-  status                        Boolean
-  email                         String                          @default("")
-  bank                          String                          @default("")
-  accountNumber                 String                          @default("")
-  accountHolder                 String                          @default("")
-  balance                       Int                             @default(0)
-  createdAt                     DateTime                        @default(now())
-  updatedAt                     DateTime                        @updatedAt
-  lastLogin                     DateTime                        @default(now())
-  lastLogout                    DateTime                        @default(now())
-  lastDevice                    String                          @db.LongText
-  lastIpAddress                 String                          @default("")
-  referrerId                    String?
-  referrer                      users?                          @relation("Referrer", fields: [referrerId], references: [id], map: "Users_referrerId_fkey")
-  referredUsers                 users[]                         @relation("Referrer")
-  baseSettlementRate            Float                           @default(0)
-  referrerPoints                BigInt                          @default(0)
-  investorReferrerId            String?
-  investorReferrer              users?                          @relation("InvestorReferrer", fields: [investorReferrerId], references: [id], map: "Users_investorReferrerId_fkey")
-  referredInvestors             users[]                         @relation("InvestorReferrer")
-  referrerAgentId               String?
-  referrerAgent                 agents?                         @relation(fields: [referrerAgentId], references: [id], map: "Users_referrerAgentId_fkey")
-  payoutSchedule                series_payout_schedule          @default(MONTHLY)
-  activity_log                  activity_log[]
-  deposit_log                   deposit_log[]
-  inquiry_log                   inquiry_log[]
-  reservation_log               reservation_log[]
-  review_log                    review_log[]
-  series_log                    series_log[]
-  withdrawal_log                withdrawal_log[]
-  direct_inquiry                direct_inquiry?
-  otp                           otp?
-  investment_log                investment_log[]
-  profit_log                    profit_log[]
-  monthly_profit_log            monthly_profit_log[]
-  monthly_referrer_profit_log   monthly_referrer_profit_log[]
-  referrer_point_conversion_log referrer_point_conversion_log[]
+  id                               String                             @id @default(cuid())
+  phoneNumber                      String
+  password                         String
+  name                             String
+  birthDate                        String
+  gender                           String
+  status                           Boolean
+  email                            String                             @default("")
+  bank                             String                             @default("")
+  accountNumber                    String                             @default("")
+  accountHolder                    String                             @default("")
+  balance                          Int                                @default(0)
+  createdAt                        DateTime                           @default(now())
+  updatedAt                        DateTime                           @updatedAt
+  lastLogin                        DateTime                           @default(now())
+  lastLogout                       DateTime                           @default(now())
+  lastDevice                       String                             @db.LongText
+  lastIpAddress                    String                             @default("")
+  isDeleted                        Boolean                            @default(false)
+  extraWithdrawalBalance           Int                                @default(0)
+  referrerId                       String?
+  referrer                         users?                             @relation("Referrer", fields: [referrerId], references: [id], map: "Users_referrerId_fkey")
+  referredUsers                    users[]                            @relation("Referrer")
+  baseSettlementRate               Float                              @default(0)
+  referrerPoints                   BigInt                             @default(0)
+  investorReferrerId               String?
+  investorReferrer                 users?                             @relation("InvestorReferrer", fields: [investorReferrerId], references: [id], map: "Users_investorReferrerId_fkey")
+  referredInvestors                users[]                            @relation("InvestorReferrer")
+  referrerAgentId                  String?
+  referrerAgent                    agents?                            @relation(fields: [referrerAgentId], references: [id], map: "Users_referrerAgentId_fkey")
+  payoutSchedule                   series_payout_schedule             @default(MONTHLY)
+  activity_log                     activity_log[]
+  deposit_log                      deposit_log[]
+  inquiry_log                      inquiry_log[]
+  reservation_log                  reservation_log[]
+  review_log                       review_log[]
+  series_log                       series_log[]
+  withdrawal_log                   withdrawal_log[]
+  direct_inquiry                   direct_inquiry?
+  otp                              otp?
+  investment_log                   investment_log[]
+  profit_log                       profit_log[]
+  monthly_profit_log               monthly_profit_log[]
+  monthly_referrer_profit_log      monthly_referrer_profit_log[]
+  referrer_point_conversion_log    referrer_point_conversion_log[]
+  user_deletion_request            user_deletion_request[]
+  investment_amount_withdrawal_log investment_amount_withdrawal_log[]
+  withdraw_extra_balance_log       withdraw_extra_balance_log[]
 
   @@index([id, name, phoneNumber], map: "Users_id_name_phoneNumber_fkey")
   @@index([referrerId], map: "Users_referrerId_fkey")
@@ -150,15 +155,16 @@ model review_log {
 }
 
 model series_log {
-  id             String             @id @default(cuid())
+  id             String                 @id @default(cuid())
   userId         String
   seriesId       String
   amount         Int
-  status         transaction_status @default(PENDING)
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  series         series             @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Series_Log_seriesId_fkey")
-  user           users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Series_Log_userId_fkey")
+  payoutSchedule series_payout_schedule @default(MONTHLY)
+  status         transaction_status     @default(PENDING)
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  series         series                 @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Series_Log_seriesId_fkey")
+  user           users                  @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Series_Log_userId_fkey")
   investment_log investment_log?
 
   @@index([seriesId], map: "Series_Log_seriesId_fkey")
@@ -278,26 +284,28 @@ model otp {
 
 // dito papasok lahat ng mga approved investments
 model investment_log {
-  id                  String                @id @default(cuid())
-  userId              String
-  seriesLogId         String                @unique
-  seriesId            String
-  amount              Int
-  monthly             Float
-  settlementRate      Float
-  peakSettlementRate  Float                 @default(0)
-  leanSettlementRate  Float                 @default(0)
-  maturityDate        DateTime
-  totalProfit         Int                   @default(0)
-  totalExpectedProfit Int                   @default(0)
-  status              transaction_status    @default(PENDING)
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  user                users                 @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Investment_Log_userId_fkey")
-  seriesLog           series_log            @relation(fields: [seriesLogId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesLogId_fkey")
-  series              series                @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesId_fkey")
-  profit_log          profit_log[]
-  settlement_rate_log settlement_rate_log[]
+  id                               String                             @id @default(cuid())
+  userId                           String
+  seriesLogId                      String                             @unique
+  seriesId                         String
+  amount                           Int
+  monthly                          Float
+  payoutSchedule                   series_payout_schedule             @default(MONTHLY)
+  settlementRate                   Float
+  peakSettlementRate               Float                              @default(0)
+  leanSettlementRate               Float                              @default(0)
+  maturityDate                     DateTime
+  totalProfit                      Int                                @default(0)
+  totalExpectedProfit              Int                                @default(0)
+  status                           transaction_status                 @default(PENDING)
+  createdAt                        DateTime                           @default(now())
+  updatedAt                        DateTime                           @updatedAt
+  user                             users                              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Investment_Log_userId_fkey")
+  seriesLog                        series_log                         @relation(fields: [seriesLogId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesLogId_fkey")
+  series                           series                             @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesId_fkey")
+  profit_log                       profit_log[]
+  settlement_rate_log              settlement_rate_log[]
+  investment_amount_withdrawal_log investment_amount_withdrawal_log[]
 }
 
 model profit_log {
@@ -354,9 +362,9 @@ model settlement_rate_log {
   type               String
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
-  admins             admin           @relation(fields: [adminId], references: [id], map: "Settlement_Rate_Log_adminId_fkey")
-  series             series?         @relation(fields: [seriesId], references: [id], map: "Settlement_Rate_Log_seriesId_fkey")
-  investment         investment_log? @relation(fields: [investmentId], references: [id], map: "Settlement_Rate_Log_investmentId_fkey")
+  admins             admin           @relation(fields: [adminId], references: [id], onDelete: Cascade, map: "Settlement_Rate_Log_adminId_fkey")
+  series             series?         @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Settlement_Rate_Log_seriesId_fkey")
+  investment         investment_log? @relation(fields: [investmentId], references: [id], onDelete: Cascade, map: "Settlement_Rate_Log_investmentId_fkey")
 }
 
 model nice_api_tokens {
@@ -364,6 +372,39 @@ model nice_api_tokens {
   accessToken String
   expiresAt   DateTime
   createdAt   DateTime @default(now())
+}
+
+model user_deletion_request {
+  id        String             @id @default(cuid())
+  userId    String
+  status    transaction_status @default(PENDING)
+  user      users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "User_Deletion_Request_userId_fkey")
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+}
+
+model investment_amount_withdrawal_log {
+  id              String             @id @default(cuid())
+  userId          String
+  investmentLogId String
+  amount          Int
+  approvedAmount  Int                @default(0)
+  status          transaction_status @default(PENDING)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  user            users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Investment_Investment_Amount_Withdrawal_Log_userId_fkey")
+  investmentLog   investment_log     @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Investment_Investment_Amount_Withdrawal_Log_investmentLogId_fkey")
+}
+
+model withdraw_extra_balance_log {
+  id             String             @id @default(cuid())
+  userId         String
+  amount         Int
+  approvedAmount Int                @default(0)
+  status         transaction_status @default(PENDING)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  user           users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Withdraw_Extra_Balance_Log_userId_fkey")
 }
 
 enum series_payout_schedule {
