@@ -91,6 +91,7 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
             const { monthly, settlementRate, maturityDate, totalEstimatedProfit } = getInvestmentAdditionalData({
                 // amount is the user's total investment
                 userTotalInvestmentAmount: userTotalInvestmentAmount._sum.amount || 0,
+                investmentDuration: series.investmentDuration,
                 amount: series.amount,
                 createdAt: new Date(),
                 series: {

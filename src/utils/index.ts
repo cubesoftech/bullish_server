@@ -95,7 +95,7 @@ export function getInvestmentAdditionalData(investment: InvestmentWIthAdditional
                 afterTax: value * (1 - 0.154),
             }
         });
-    const lastPeriod = periods[0].period;
+    const lastPeriod = investment.investmentDuration!;
     // last month = maturity date?
     const maturityDate = new Date(
         new Date(investment.createdAt).setMonth(
