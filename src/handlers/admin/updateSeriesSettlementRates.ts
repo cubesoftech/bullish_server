@@ -62,7 +62,11 @@ export default async function updateSeriesSettlementRates(req: Request, res: Res
             })
             await tx.investment_log.updateMany({
                 where: {
-                    seriesId: series.id
+                    seriesId: series.id,
+                    status: "PENDING",
+                    amount: {
+                        lt: 100_000_000 //only update for investments < 100M
+                    }
                 },
                 data: {
                     peakSettlementRate: processedPeakSettlementRate,
