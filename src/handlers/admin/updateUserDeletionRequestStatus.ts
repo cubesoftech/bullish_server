@@ -38,14 +38,26 @@ export default async function updateUserDeletionRequestStatus(req: Request, res:
         })
 
         if (status === "COMPLETED") {
-            await prisma.users.update({
-                where: {
-                    id: request.userId
-                },
-                data: {
-                    isDeleted: true,
-                    updatedAt: new Date(),
-                }
+            await prisma.$transaction(async (tx) => {
+                await tx.users.update({
+                    where: {
+                        id: request.userId
+                    },
+                    data: {
+                        isDeleted: true,
+                        updatedAt: new Date(),
+                    }
+                })
+                await tx.investment_log.updateMany({
+                    where: {
+                        userId: request.userId,
+                        status: "PENDING"
+                    },
+                    data: {
+                        status: "FAILED", //failed due to account deletion
+                        updatedAt: new Date(),
+                    }
+                })
             })
         }
 

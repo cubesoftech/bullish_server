@@ -86,6 +86,15 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
     }
 
     if (investment.user.isDeleted) {
+        await prisma.investment_log.update({
+            where: {
+                id: investment.id
+            },
+            data: {
+                status: "FAILED", //failed due to account deletion
+                updatedAt: new Date(),
+            }
+        })
         return job.log(`Cancelling job for ${investment.user.id} | ${investment.user.name}, because this account is deleted.`)
     }
 
