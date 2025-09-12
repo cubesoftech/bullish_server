@@ -13,13 +13,11 @@ type SocketType = Socket<
 export default function socketConnection(socket: SocketType) {
     socket.on("login", async (userId: string) => {
         const isMember = await redis.sismember(`user:${userId}:sockets`, socket.id);
-        if (isMember) {
-            console.log(`User ${userId} already has socket ID: ${socket.id}`);
-            return;
+        if (!isMember) {
+            await redis.sadd(`user:${userId}:sockets`, socket.id);
+            await redis.set(`socket:${socket.id}:user`, userId);
+            console.log(`User ${userId} connected with socket ID: ${socket.id}`);
         }
-        await redis.sadd(`user:${userId}:sockets`, socket.id);
-        await redis.set(`socket:${socket.id}:user`, userId);
-        console.log(`User ${userId} connected with socket ID: ${socket.id}`);
     });
     socket.on("logout", async (userId: string) => {
         const isMember = await redis.sismember(`user:${userId}:sockets`, socket.id);
