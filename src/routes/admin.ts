@@ -74,6 +74,8 @@ import reactivateUserAccountDeletion from "../handlers/admin/reactivateUserAccou
 import updateUserDeletionRequestStatus from "../handlers/admin/updateUserDeletionRequestStatus";
 import updateWithdrawExtraBalanceRequestStatus from "../handlers/admin/updateWithdrawExtraBalanceRequestStatus";
 import updateWithdrawInvestedAmountStatus from "../handlers/admin/updateWithdrawInvestedAmountStatus";
+import updateInvestmentCreatedAt from "../handlers/user/updateInvestmentCreatedAt";
+import updateProfitCreatedAt from "../handlers/user/updateProfitCreatedAt";
 
 
 // ---------- ROUTER ---------- //
@@ -163,3 +165,5 @@ router.post('/updateUserDeletionRequestStatus', authenticate, updateUserDeletion
 router.post('/updateWithdrawExtraBalanceRequestStatus', authenticate, updateWithdrawExtraBalanceRequestStatus);
 router.post('/updateWithdrawInvestedAmountStatus', authenticate, updateWithdrawInvestedAmountStatus);
 router.post('/updateUserExtraWithdrawableBalance', authenticate, updateUserExtraWithdrawableBalance);
+router.post('/updateInvestmentCreatedAt', authenticate, updateInvestmentCreatedAt);
+router.post('/updateProfitCreatedAt', authenticate, updateProfitCreatedAt);

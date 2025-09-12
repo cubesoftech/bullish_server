@@ -23,6 +23,8 @@ import getLatestMonthlyProfit from "../handlers/user/getLatestMonthlyProfit";
 import getReferrerPointLog from "../handlers/user/getReferrerPointLog";
 import getReferrerPointConversionLog from "../handlers/user/getReferrerPointConversionLog";
 import getEndedInvestment from "../handlers/user/getFinishedInvestment";
+import getDepositLog from "../handlers/user/getDepositLog";
+import getWithdrawalLog from "../handlers/user/getWithdrawalLog";
 
 
 // ---------- POST HANDLERS ---------- //
@@ -72,6 +74,8 @@ router.get('/getLatestMonthlyProfit', authenticate, getLatestMonthlyProfit);
 router.get('/getReferrerPointLog', authenticate, getReferrerPointLog);
 router.get('/getReferrerPointConversionLog', authenticate, getReferrerPointConversionLog);
 router.get('/getEndedInvestment', authenticate, getEndedInvestment);
+router.get('/getDepositLog', authenticate, getDepositLog);
+router.get('/getWithdrawalLog', authenticate, getWithdrawalLog);
 
 
 // ---------- POST REQUESTS ---------- //
