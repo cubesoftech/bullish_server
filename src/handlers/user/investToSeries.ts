@@ -9,6 +9,7 @@ interface InvestToSeriesPayload {
     amount: number;
     seriesId: number;
     payoutSchedule: string;
+    investmentDuration: number;
 }
 
 export default async function investToSeries(req: Request, res: Response) {
@@ -18,8 +19,9 @@ export default async function investToSeries(req: Request, res: Response) {
         return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const { amount, seriesId, payoutSchedule } = req.body as InvestToSeriesPayload;
+    const { amount, seriesId, payoutSchedule, investmentDuration } = req.body as InvestToSeriesPayload;
     const acceptedSchedules: series_payout_schedule[] = ["WEEKLY", "MONTHLY", "QUARTERLY"]
+    const acceptedInvestmentDurations = [1, 3, 6, 12, 24, 36]; // in months
 
     // Validate required fields
     const validateFields = !(
@@ -27,7 +29,8 @@ export default async function investToSeries(req: Request, res: Response) {
         (isNaN(seriesId) || !Number.isFinite(seriesId)) ||
         // update this too when series got changed
         (seriesId <= 0 || seriesId > 5) ||
-        (!payoutSchedule || payoutSchedule.trim() === "" || !acceptedSchedules.includes(payoutSchedule as series_payout_schedule))
+        (!payoutSchedule || payoutSchedule.trim() === "" || !acceptedSchedules.includes(payoutSchedule as series_payout_schedule)) ||
+        (isNaN(investmentDuration) || !Number.isFinite(investmentDuration) || investmentDuration <= 0 || !acceptedInvestmentDurations.includes(investmentDuration))
     )
     if (!validateFields) {
         return res.status(400).json({ message: "Invalid investment parameters" });
@@ -60,6 +63,7 @@ export default async function investToSeries(req: Request, res: Response) {
                 amount,
                 status: "PENDING",
                 payoutSchedule: payoutSchedule as series_payout_schedule,
+                investmentDuration,
                 createdAt: new Date(),
                 updatedAt: new Date(),
             }

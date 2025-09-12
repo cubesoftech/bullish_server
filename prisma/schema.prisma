@@ -155,17 +155,18 @@ model review_log {
 }
 
 model series_log {
-  id             String                 @id @default(cuid())
-  userId         String
-  seriesId       String
-  amount         Int
-  payoutSchedule series_payout_schedule @default(MONTHLY)
-  status         transaction_status     @default(PENDING)
-  createdAt      DateTime               @default(now())
-  updatedAt      DateTime               @updatedAt
-  series         series                 @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Series_Log_seriesId_fkey")
-  user           users                  @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Series_Log_userId_fkey")
-  investment_log investment_log?
+  id                 String                 @id @default(cuid())
+  userId             String
+  seriesId           String
+  amount             Int
+  payoutSchedule     series_payout_schedule @default(MONTHLY)
+  investmentDuration Int                    @default(0) //in months 
+  status             transaction_status     @default(PENDING)
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  series             series                 @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Series_Log_seriesId_fkey")
+  user               users                  @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Series_Log_userId_fkey")
+  investment_log     investment_log?
 
   @@index([seriesId], map: "Series_Log_seriesId_fkey")
   @@index([userId], map: "Series_Log_userId_fkey")
@@ -291,6 +292,7 @@ model investment_log {
   amount                           Int
   monthly                          Float
   payoutSchedule                   series_payout_schedule             @default(MONTHLY)
+  investmentDuration               Int                                @default(0) //in months
   settlementRate                   Float
   peakSettlementRate               Float                              @default(0)
   leanSettlementRate               Float                              @default(0)

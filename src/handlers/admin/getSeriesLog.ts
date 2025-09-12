@@ -120,6 +120,7 @@ export default async function getSeriesLog(req: Request, res: Response) {
             const { monthly, leanMonthlyProfit, peakMonthlyProfit, estimatedValues, settlementRate, peakSettlementRate, leanSettlementRate } = getInvestmentAdditionalData2({
                 // amount is the user's total investment
                 amount: log.amount,
+                investmentDuration: log.investmentDuration,
                 createdAt: log.createdAt,
                 series: {
                     periods: log.series.periods,

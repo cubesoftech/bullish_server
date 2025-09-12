@@ -112,6 +112,7 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                     payoutSchedule: series.payoutSchedule,
                     peakSettlementRate: processedPeakSettlementRate,
                     leanSettlementRate: processedLeanSettlementRate,
+                    investmentDuration: series.investmentDuration,
                     maturityDate,
                     totalExpectedProfit: totalEstimatedProfit,
                 }

@@ -100,11 +100,11 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
 
     const now = new Date();
 
-    const { series, payoutSchedule } = investment
-    const { periods, peakSeason } = series
+    const { series, payoutSchedule, investmentDuration } = investment
+    const { peakSeason } = series
     const { peakSeasonStartMonth, peakSeasonEndMonth } = peakSeason!
 
-    const lastPeriod = periods[0].period; // get the last period
+    const lastPeriod = investmentDuration; // investmentDuration is in months
     // get the profit logs on this investment
     const profitLogs = await prisma.profit_log.findMany({
         where: {

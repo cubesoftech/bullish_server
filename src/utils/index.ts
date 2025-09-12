@@ -37,6 +37,7 @@ export function getEnvirontmentVariable(key: string) {
 
 interface Investment {
     amount: number;
+    investmentDuration?: number;
     createdAt: Date;
     series: Series
 }
@@ -164,7 +165,7 @@ export function getInvestmentAdditionalData2(investment: Investment) {
             }
         });
 
-    const lastPeriod = periods[0].period;
+    const lastPeriod = investment.investmentDuration!;
     const maturityDate = new Date(
         new Date(investment.createdAt).setMonth(
             new Date(investment.createdAt).getMonth() + lastPeriod

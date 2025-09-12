@@ -128,7 +128,7 @@ router.get("/getWithdrawInvestmentAmountLog", authenticate, getWithdrawInvestmen
 
 // commented out for now, as it is not used in the current context
 // use only to generate dummy users
-// router.get('/createDummyUsers', createDummyUsers);
+router.get('/createDummyUsers', createDummyUsers);
 
 
 // ---------- POST REQUESTS ---------- //
