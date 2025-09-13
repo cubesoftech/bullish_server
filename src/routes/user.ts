@@ -25,6 +25,7 @@ import getReferrerPointConversionLog from "../handlers/user/getReferrerPointConv
 import getEndedInvestment from "../handlers/user/getFinishedInvestment";
 import getDepositLog from "../handlers/user/getDepositLog";
 import getWithdrawalLog from "../handlers/user/getWithdrawalLog";
+import getEarlyWithdrawnedInvestment from "../handlers/user/getEarlyWithdrawnedInvestment";
 
 
 // ---------- POST HANDLERS ---------- //
@@ -78,6 +79,7 @@ router.get('/getReferrerPointConversionLog', authenticate, getReferrerPointConve
 router.get('/getEndedInvestment', authenticate, getEndedInvestment);
 router.get('/getDepositLog', authenticate, getDepositLog);
 router.get('/getWithdrawalLog', authenticate, getWithdrawalLog);
+router.get('/getEarlyWithdrawnedInvestment', authenticate, getEarlyWithdrawnedInvestment);
 
 
 // ---------- POST REQUESTS ---------- //

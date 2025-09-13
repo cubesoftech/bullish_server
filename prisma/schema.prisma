@@ -85,6 +85,7 @@ model users {
   withdraw_extra_balance_log       withdraw_extra_balance_log[]
   investment_early_withdrawal_log  investment_early_withdrawal_log[]
   extend_investment_duration_log   extend_investment_duration_log[]
+  early_withdrawned_investment_log early_withdrawned_investment_log[]
 
   @@index([id, name, phoneNumber], map: "Users_id_name_phoneNumber_fkey")
   @@index([referrerId], map: "Users_referrerId_fkey")
@@ -313,6 +314,7 @@ model investment_log {
   investment_amount_withdrawal_log investment_amount_withdrawal_log[]
   investment_early_withdrawal_log  investment_early_withdrawal_log[]
   extend_investment_duration_log   extend_investment_duration_log[]
+  early_withdrawned_investment_log early_withdrawned_investment_log[]
 }
 
 model profit_log {
@@ -435,6 +437,16 @@ model extend_investment_duration_log {
   updatedAt       DateTime           @updatedAt
   user            users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Extend_Investment_Duration_Log_userId_fkey")
   investmentLog   investment_log     @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Extend_Investment_Duration_Log_investmentLogId_fkey")
+}
+
+model early_withdrawned_investment_log {
+  id              String         @id @default(cuid())
+  userId          String
+  investmentLogId String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  user            users          @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Early_Withdrawned_Investment_Log_userId_fkey")
+  investmentLog   investment_log @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Early_Withdrawned_Investment_Log_investmentLogId_fkey")
 }
 
 enum series_payout_schedule {

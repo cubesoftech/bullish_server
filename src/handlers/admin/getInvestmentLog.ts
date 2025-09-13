@@ -125,10 +125,10 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                     for (let b = subDays(a, 7); b >= subDays(oldestPendingInvestmentDate, 7); b = subDays(b, 7)) {
                         weekly.push(new Date(b))
                     }
-                    for (let b = a; b >= oldestPendingInvestmentDate; b = subMonths(b, 1)) {
+                    for (let b = subDays(a, 7); b >= oldestPendingInvestmentDate; b = subMonths(b, 1)) {
                         monthly.push(new Date(b))
                     }
-                    for (let b = a; b >= oldestPendingInvestmentDate; b = subMonths(b, 3)) {
+                    for (let b = subDays(a, 7); b >= oldestPendingInvestmentDate; b = subMonths(b, 3)) {
                         quarterly.push(new Date(b))
                     }
                 }

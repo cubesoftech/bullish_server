@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { transaction_status } from "@prisma/client";
+import { generateRandomString } from "../../utils";
 
 interface UpdateInvestmentEarlyWithdrawalRequestPayload {
     requestId: string;
@@ -39,12 +40,12 @@ export default async function updateInvestmentEarlyWithdrawalRequest(req: Reques
             }
         });
         if (status === "COMPLETED") {
-            await prisma.investment_log.update({
-                where: {
-                    id: request.investmentLogId,
-                },
+            await prisma.early_withdrawned_investment_log.create({
                 data: {
-                    status: "COMPLETED",
+                    id: generateRandomString(7),
+                    userId: request.userId,
+                    investmentLogId: request.investmentLogId,
+                    createdAt: new Date(),
                     updatedAt: new Date(),
                 }
             })

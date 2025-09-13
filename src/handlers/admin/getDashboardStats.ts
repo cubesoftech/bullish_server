@@ -212,6 +212,55 @@ export default async function getDashboardStats(req: Request, res: Response) {
             }
         })
 
+        const extendInvestmentRequests = await prisma.extend_investment_duration_log.findMany({
+            where: {
+                status: "PENDING"
+            },
+            take: 5,
+            orderBy: {
+                createdAt: "desc"
+            },
+            include: {
+                user: true,
+                investmentLog: {
+                    include: {
+                        series: true,
+                    }
+                }
+            }
+        })
+        const processedExtendInvestmentRequests = extendInvestmentRequests.map(req => ({
+            ...req,
+            user: {
+                ...req.user,
+                referrerPoints: Number(req.user.referrerPoints),
+            }
+        }))
+        const earlyWithdrawal = await prisma.investment_early_withdrawal_log.findMany({
+            where: {
+                status: "PENDING"
+            },
+            take: 5,
+            orderBy: {
+                createdAt: "desc"
+            },
+            include: {
+                user: true,
+                investmentLog: {
+                    include: {
+                        series: true,
+                    }
+                }
+            }
+        })
+        const processedEarlyWithdrawal = earlyWithdrawal.map(req => ({
+            ...req,
+            user: {
+                ...req.user,
+                referrerPoints: Number(req.user.referrerPoints),
+            }
+        }))
+
         const admin = await prisma.admin.findUnique({
             where: {
                 id: user.id
@@ -249,6 +298,9 @@ export default async function getDashboardStats(req: Request, res: Response) {
                 totalDepositAmount: totalDepositAmount._sum.amount || 0,
                 totalWithdrawalAmount: totalWithdrawalAmount._sum.amount || 0,
                 totalSettlementProfit: totalSettlementProfit._sum.profit || 0,
+
+                extendInvestmentRequests: processedExtendInvestmentRequests,
+                earlyWithdrawalRequests: processedEarlyWithdrawal,
             }
         })
 
