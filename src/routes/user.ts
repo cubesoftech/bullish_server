@@ -45,6 +45,8 @@ import applyForReferrerPointConversion from "../handlers/user/applyForReferrerPo
 import matchPhoneNumber from "../handlers/user/matchPhoneNumber";
 import withdrawExtraBalance from "../handlers/user/withdrawExtraBalance";
 import withdrawInvestedAmount from "../handlers/user/withdrawInvestedAmount";
+import extendInvestmentRequest from "../handlers/user/extendInvestmentRequest";
+import requestInvestmentEarlyWithdrawal from "../handlers/user/requestInvestmentEarlyWithdrawal";
 
 // ---------- ROUTER ---------- //
 const router = Router();
@@ -98,3 +100,5 @@ router.post('/applyForReferrerPointConversion', authenticate, applyForReferrerPo
 router.post('/matchPhoneNumber', authenticate, matchPhoneNumber)
 router.post('/withdrawExtraBalance', authenticate, withdrawExtraBalance)
 router.post('/withdrawInvestedAmount', authenticate, withdrawInvestedAmount)
+router.post('/extendInvestmentRequest', authenticate, extendInvestmentRequest)
+router.post('/requestInvestmentEarlyWithdrawal', authenticate, requestInvestmentEarlyWithdrawal)

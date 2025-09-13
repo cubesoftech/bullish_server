@@ -119,7 +119,7 @@ export default async function register(req: Request, res: Response) {
             }
         });
 
-        notifyAdmin();
+        await notifyAdmin();
         return res.status(200).json({ message: "User registered successfully!" });
     } catch (error) {
         console.error("Error registering user:", error);

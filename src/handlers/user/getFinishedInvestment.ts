@@ -14,8 +14,8 @@ export default async function getEndedInvestment(req: Request, res: Response) {
     const processedLimit = parseInt(limit as string) || 25
     const processedPage = parseInt(page as string) || 1
 
-    const now = new Date();
 
+    const lastPeriods = [3, 12, 12, 24, 36]
     try {
         const userInfo = await findUser(user.id)
         if (!userInfo) {
@@ -24,7 +24,9 @@ export default async function getEndedInvestment(req: Request, res: Response) {
 
         const where: Prisma.investment_logWhereInput = {
             userId: user.id,
-            status: "COMPLETED",
+            status: {
+                not: "PENDING"
+            },
         }
 
         const endedInvestments = await prisma.investment_log.findMany({
@@ -43,6 +45,11 @@ export default async function getEndedInvestment(req: Request, res: Response) {
 
         const processedEndedInvestments = endedInvestments.map(investment => ({
             ...investment,
+            settlementRate: investment.settlementRate * 100,
+            peakSettlementRate: investment.peakSettlementRate * 100,
+            leanSettlementRate: investment.leanSettlementRate * 100,
+            coveredAllPeriods: lastPeriods[Number(investment.series.seriesId) - 1] === investment.investmentDuration,
+            lastDuration: lastPeriods[Number(investment.seriesId) - 1],
             investmentAmountWithdrawned: investment.investment_amount_withdrawal_log.filter(investment => investment.status === "COMPLETED").length > 0,
         }))
 

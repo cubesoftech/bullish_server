@@ -53,7 +53,7 @@ export default async function replyDirectInquiry(req: Request, res: Response) {
                     }
                 }
             })
-            notifyAdmin();
+            await notifyAdmin();
             return res.status(200).json({ message: "Inquiry sent." });
         }
 
@@ -86,7 +86,7 @@ export default async function replyDirectInquiry(req: Request, res: Response) {
             notifyOnlineUsers(admin.id)
         }
 
-        notifyAdmin();
+        await notifyAdmin();
 
         return res.status(200).json({ message: "Inquiry sent" });
     } catch (error) {

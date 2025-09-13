@@ -41,7 +41,7 @@ export default async function deposit(req: Request, res: Response) {
             }
         })
 
-        notifyAdmin();
+        await notifyAdmin();
 
         return res.status(200).json({ message: "Deposit processed successfully" });
     } catch (error) {

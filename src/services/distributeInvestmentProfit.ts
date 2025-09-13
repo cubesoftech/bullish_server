@@ -14,7 +14,7 @@ export const distributeInvestmentProfitQueue = createQueue(
 createWorker(
     workerNames.distributeInvestmentProfit,
     async (job: Job) => {
-        return await distributeInvestmentProfit({ job })
+        // return await distributeInvestmentProfit({ job })
     },
 )
 
@@ -40,10 +40,10 @@ export async function initDistributeInvestmentProfit() {
 // ---------- UPSERT JOB QUEUE HELPER ---------- //
 export async function distributeInvestmentProfitQueueUpsertJobScheduler(investment: investment_log) {
     return await distributeInvestmentProfitQueue.upsertJobScheduler(`distributeInvestmentProfit:${investment.id}`, {
-        //pattern: '0 0 * * *', //every midnight
+        pattern: '0 0 * * *', //every midnight
         // pattern: '0 0 1 * *', //every 1st day of the month
         // pattern: '*/1 * * * *', //every 1 minute
-        pattern: '*/10 * * * *', //every 15 minutes / this is for testing only use the every midnight pattern above for production
+        // pattern: '*/10 * * * *', //every 15 minutes / this is for testing only use the every midnight pattern above for production
     }, {
         data: {
             // pass only the investment id since data passed here don't change

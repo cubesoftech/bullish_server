@@ -83,6 +83,8 @@ model users {
   user_deletion_request            user_deletion_request[]
   investment_amount_withdrawal_log investment_amount_withdrawal_log[]
   withdraw_extra_balance_log       withdraw_extra_balance_log[]
+  investment_early_withdrawal_log  investment_early_withdrawal_log[]
+  extend_investment_duration_log   extend_investment_duration_log[]
 
   @@index([id, name, phoneNumber], map: "Users_id_name_phoneNumber_fkey")
   @@index([referrerId], map: "Users_referrerId_fkey")
@@ -302,12 +304,15 @@ model investment_log {
   status                           transaction_status                 @default(PENDING)
   createdAt                        DateTime                           @default(now())
   updatedAt                        DateTime                           @updatedAt
+  note                             String                             @default("")
   user                             users                              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Investment_Log_userId_fkey")
   seriesLog                        series_log                         @relation(fields: [seriesLogId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesLogId_fkey")
   series                           series                             @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesId_fkey")
   profit_log                       profit_log[]
   settlement_rate_log              settlement_rate_log[]
   investment_amount_withdrawal_log investment_amount_withdrawal_log[]
+  investment_early_withdrawal_log  investment_early_withdrawal_log[]
+  extend_investment_duration_log   extend_investment_duration_log[]
 }
 
 model profit_log {
@@ -407,6 +412,29 @@ model withdraw_extra_balance_log {
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
   user           users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Withdraw_Extra_Balance_Log_userId_fkey")
+}
+
+model investment_early_withdrawal_log {
+  id              String             @id @default(cuid())
+  userId          String
+  investmentLogId String
+  status          transaction_status @default(PENDING)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  user            users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Investment_Early_Withdrawal_Log_userId_fkey")
+  investmentLog   investment_log     @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Investment_Early_Withdrawal_Log_investmentLogId_fkey")
+}
+
+model extend_investment_duration_log {
+  id              String             @id @default(cuid())
+  userId          String
+  investmentLogId String
+  newDuration     Int
+  status          transaction_status @default(PENDING)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  user            users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Extend_Investment_Duration_Log_userId_fkey")
+  investmentLog   investment_log     @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Extend_Investment_Duration_Log_investmentLogId_fkey")
 }
 
 enum series_payout_schedule {

@@ -49,7 +49,7 @@ export default async function applyForReferrerPointConversion(req: Request, res:
             }
         });
 
-        notifyAdmin();
+        await notifyAdmin();
 
         return res.status(200).json({ message: "Referrer point conversion request submitted successfully." });
     } catch (error) {

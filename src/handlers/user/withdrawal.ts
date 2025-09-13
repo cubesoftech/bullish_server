@@ -55,8 +55,7 @@ export default async function withdrawal(req: Request, res: Response) {
             }
         })
 
-        notifyAdmin();
-
+        await notifyAdmin();
 
         return res.status(200).json({ message: "Withdrawal processed successfully" });
     } catch (error) {

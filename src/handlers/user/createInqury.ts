@@ -40,7 +40,7 @@ export default async function createInquiry(req: Request, res: Response) {
             }
         });
 
-        notifyAdmin();
+        await notifyAdmin();
 
         return res.status(200).json({ message: "Inquiry created successfully" });
     } catch (error) {

@@ -35,6 +35,8 @@ import getDeletedUsers from "../handlers/admin/getDeletedUsers";
 import getUserDeletionRequests from "../handlers/admin/getUserDeletionRequests";
 import getWithdrawExtraBalanceRequestLog from "../handlers/admin/getWithdrawExtraBalanceRequestLog";
 import getWithdrawInvestmentAmountLog from "../handlers/admin/getWithdrawInvestmentAmountLog";
+import getExtendInvestmentDurationLog from "../handlers/admin/getExtendInvestmentDurationLog";
+import getInvestmentEarlyWithdrawalLog from "../handlers/admin/getInvestmentEarlyWithdrawalLog";
 import generateSeriesData from "../handlers/admin/generateSeriesData";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -76,6 +78,9 @@ import updateWithdrawExtraBalanceRequestStatus from "../handlers/admin/updateWit
 import updateWithdrawInvestedAmountStatus from "../handlers/admin/updateWithdrawInvestedAmountStatus";
 import updateInvestmentCreatedAt from "../handlers/user/updateInvestmentCreatedAt";
 import updateProfitCreatedAt from "../handlers/user/updateProfitCreatedAt";
+import updateExtendInvestmentDurationStatus from "../handlers/admin/updateExtendInvestmentDurationStatus";
+import updateInvestmentEarlyWithdrawalRequest from "../handlers/admin/updateInvestmentEarlyWithdrawalRequest";
+import updateInvestmentLogStatus from "../handlers/admin/updateInvestmentLogStatus";
 
 
 // ---------- ROUTER ---------- //
@@ -117,6 +122,8 @@ router.get("/getDeletedUsers", authenticate, getDeletedUsers);
 router.get("/getUserDeletionRequests", authenticate, getUserDeletionRequests);
 router.get("/getWithdrawExtraBalanceRequestLog", authenticate, getWithdrawExtraBalanceRequestLog);
 router.get("/getWithdrawInvestmentAmountLog", authenticate, getWithdrawInvestmentAmountLog);
+router.get("/getExtendInvestmentDurationLog", authenticate, getExtendInvestmentDurationLog);
+router.get("/getInvestmentEarlyWithdrawalLog", authenticate, getInvestmentEarlyWithdrawalLog);
 
 
 // commented out for now, as it is not used in the current context
@@ -128,7 +135,7 @@ router.get("/getWithdrawInvestmentAmountLog", authenticate, getWithdrawInvestmen
 
 // commented out for now, as it is not used in the current context
 // use only to generate dummy users
-router.get('/createDummyUsers', createDummyUsers);
+// router.get('/createDummyUsers', createDummyUsers);
 
 
 // ---------- POST REQUESTS ---------- //
@@ -167,3 +174,6 @@ router.post('/updateWithdrawInvestedAmountStatus', authenticate, updateWithdrawI
 router.post('/updateUserExtraWithdrawableBalance', authenticate, updateUserExtraWithdrawableBalance);
 router.post('/updateInvestmentCreatedAt', authenticate, updateInvestmentCreatedAt);
 router.post('/updateProfitCreatedAt', authenticate, updateProfitCreatedAt);
+router.post('/updateExtendInvestmentDurationStatus', authenticate, updateExtendInvestmentDurationStatus);
+router.post('/updateInvestmentEarlyWithdrawalRequest', authenticate, updateInvestmentEarlyWithdrawalRequest);
+router.post('/updateInvestmentLogStatus', authenticate, updateInvestmentLogStatus);

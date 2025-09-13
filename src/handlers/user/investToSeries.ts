@@ -69,7 +69,7 @@ export default async function investToSeries(req: Request, res: Response) {
             }
         });
 
-        notifyAdmin();
+        await notifyAdmin();
 
         return res.status(200).json({ message: "Investment processed successfully" });
     } catch (e) {

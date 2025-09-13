@@ -52,7 +52,7 @@ export default async function createReview(req: Request, res: Response) {
             }
         });
 
-        notifyAdmin();
+        await notifyAdmin();
 
         return res.status(200).json({ message: "Review created successfully" });
     } catch (error) {
