@@ -46,17 +46,31 @@ export default async function updateInvestmentLogStatus(req: Request, res: Respo
             if (!settlementRate || settlementRate <= 0) {
                 return res.status(400).json({ message: "Settlement rate must be greater than zero when marking as paid" });
             }
-            await prisma.profit_log.create({
-                data: {
-                    id: generateRandomString(7),
-                    userId: investment.userId,
-                    investmentLogId: investment.id,
-                    seriesId: investment.seriesId,
-                    profit: amount,
-                    settlementRate: settlementRate / 100,
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                }
+
+            await prisma.$transaction(async (tx) => {
+                await tx.profit_log.create({
+                    data: {
+                        id: generateRandomString(7),
+                        userId: investment.userId,
+                        investmentLogId: investment.id,
+                        seriesId: investment.seriesId,
+                        profit: amount,
+                        settlementRate: settlementRate / 100,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    }
+                })
+                await tx.investment_log.update({
+                    where: {
+                        id: investment.id
+                    },
+                    data: {
+                        totalProfit: {
+                            increment: amount
+                        },
+                        updatedAt: new Date()
+                    }
+                })
             })
         }
 
