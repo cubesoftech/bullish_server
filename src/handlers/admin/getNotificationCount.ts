@@ -3,6 +3,11 @@ import { prisma } from "../../utils/prisma";
 
 export default async function getNotificationCount(req: Request, res: Response) {
     try {
+        const reservationLogs = await prisma.reservation_log.count({
+            where: {
+                reply: "",
+            }
+        })
         const extendInvestment = await prisma.extend_investment_duration_log.count({
             where: {
                 status: "PENDING"
@@ -55,6 +60,7 @@ export default async function getNotificationCount(req: Request, res: Response) 
         })
 
         const data = {
+            reservationLogs,
             extendInvestment,
             earlyWithdrawal,
             pendingUsers,

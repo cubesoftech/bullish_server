@@ -28,6 +28,8 @@ export default async function getDirectInquiryMessages(req: Request, res: Respon
         })
         const totalDirectInquiryMessages = await prisma.direct_inquiry_messages.count({ where })
 
+        directInquiryMessages.reverse()
+
         return res.status(200).json({ data: directInquiryMessages, total: totalDirectInquiryMessages });
     } catch (error) {
         console.error("Error fetching direct inquiries: ", error);

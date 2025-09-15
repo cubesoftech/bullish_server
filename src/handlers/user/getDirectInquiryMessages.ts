@@ -60,6 +60,8 @@ export default async function getDirectInquiryMessages(req: Request, res: Respon
             }
         }))
 
+        processedDirectInquiries.reverse();
+
         return res.status(200).json({ data: processedDirectInquiries, total: totalDirectInquiry });
     } catch (error) {
         console.error("Error fetching direct inquiry: ", error);

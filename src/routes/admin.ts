@@ -37,6 +37,7 @@ import getWithdrawExtraBalanceRequestLog from "../handlers/admin/getWithdrawExtr
 import getWithdrawInvestmentAmountLog from "../handlers/admin/getWithdrawInvestmentAmountLog";
 import getExtendInvestmentDurationLog from "../handlers/admin/getExtendInvestmentDurationLog";
 import getInvestmentEarlyWithdrawalLog from "../handlers/admin/getInvestmentEarlyWithdrawalLog";
+import getReservationLog from "../handlers/admin/getReservationLog";
 import generateSeriesData from "../handlers/admin/generateSeriesData";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -81,6 +82,8 @@ import updateProfitCreatedAt from "../handlers/user/updateProfitCreatedAt";
 import updateExtendInvestmentDurationStatus from "../handlers/admin/updateExtendInvestmentDurationStatus";
 import updateInvestmentEarlyWithdrawalRequest from "../handlers/admin/updateInvestmentEarlyWithdrawalRequest";
 import updateInvestmentLogStatus from "../handlers/admin/updateInvestmentLogStatus";
+import replyToReservation from "../handlers/admin/replyToReservation";
+import deleteReservationLog from "../handlers/admin/deleteReservationLog";
 
 
 // ---------- ROUTER ---------- //
@@ -124,6 +127,7 @@ router.get("/getWithdrawExtraBalanceRequestLog", authenticate, getWithdrawExtraB
 router.get("/getWithdrawInvestmentAmountLog", authenticate, getWithdrawInvestmentAmountLog);
 router.get("/getExtendInvestmentDurationLog", authenticate, getExtendInvestmentDurationLog);
 router.get("/getInvestmentEarlyWithdrawalLog", authenticate, getInvestmentEarlyWithdrawalLog);
+router.get("/getReservationLog", authenticate, getReservationLog);
 
 
 // commented out for now, as it is not used in the current context
@@ -177,3 +181,5 @@ router.post('/updateProfitCreatedAt', authenticate, updateProfitCreatedAt);
 router.post('/updateExtendInvestmentDurationStatus', authenticate, updateExtendInvestmentDurationStatus);
 router.post('/updateInvestmentEarlyWithdrawalRequest', authenticate, updateInvestmentEarlyWithdrawalRequest);
 router.post('/updateInvestmentLogStatus', authenticate, updateInvestmentLogStatus);
+router.post('/replyToReservation', authenticate, replyToReservation);
+router.post('/deleteReservationLog', authenticate, deleteReservationLog);
