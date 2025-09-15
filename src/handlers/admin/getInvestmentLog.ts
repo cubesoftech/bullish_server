@@ -55,7 +55,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
         const monthly: Date[] = []
         const quarterly: Date[] = []
 
-        const sevenDaysToGo = addDays(now, 7)
+        const sevenDaysAgo = subDays(now, 7)
 
         if (search) {
             where = {
@@ -120,15 +120,15 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                 break;
             };
             case "week": {
-                for (let a = now; a < sevenDaysToGo; a = addDays(a, 1)) {
+                for (let a = sevenDaysAgo; a >= subDays(sevenDaysAgo, 7); a = subDays(a, 1)) {
 
-                    for (let b = subDays(a, 7); b >= subDays(oldestPendingInvestmentDate, 7); b = subDays(b, 7)) {
+                    for (let b = a; b >= oldestPendingInvestmentDate; b = subDays(b, 7)) {
                         weekly.push(new Date(b))
                     }
-                    for (let b = subDays(a, 7); b >= oldestPendingInvestmentDate; b = subMonths(b, 1)) {
+                    for (let b = a; b >= oldestPendingInvestmentDate; b = subMonths(b, 1)) {
                         monthly.push(new Date(b))
                     }
-                    for (let b = subDays(a, 7); b >= oldestPendingInvestmentDate; b = subMonths(b, 3)) {
+                    for (let b = a; b >= oldestPendingInvestmentDate; b = subMonths(b, 3)) {
                         quarterly.push(new Date(b))
                     }
                 }
@@ -169,6 +169,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                 break;
             }
         }
+
         const investmentLog = await prisma.investment_log.findMany({
             where,
             skip: (processedPage - 1) * processedLimit,
