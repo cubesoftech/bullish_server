@@ -24,7 +24,7 @@ export default async function getDirectInquiryLog(req: Request, res: Response) {
             skip: (processedPage - 1) * processedLimit,
             take: processedLimit,
             orderBy: {
-                createdAt: 'desc'
+                updatedAt: 'desc'
             },
             include: {
                 user: true,
