@@ -121,6 +121,7 @@ model reservation_log {
   userId    String
   type      String
   content   String
+  reply     String   @default("")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Reservation_userId_fkey")

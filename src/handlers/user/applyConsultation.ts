@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { generateRandomString } from "../../utils";
 import { findUser } from "../../utils";
+import { notifyAdmin } from "../core/socketConnection";
 
 interface ApplyConsultationPayload {
     type: string;
@@ -44,6 +45,8 @@ export default async function applyConsultation(req: Request, res: Response) {
                 updatedAt: new Date()
             }
         })
+
+        await notifyAdmin();
 
         return res.status(201).json({ message: "Consultation applied successfully" });
     } catch (error) {
