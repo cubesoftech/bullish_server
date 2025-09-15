@@ -102,8 +102,8 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
             const processedPeakSettlementRate = peakSettlementRate / 100; // convert from percent to decimal
             const processedLeanSettlementRate = leanSettlementRate / 100; // convert from percent to decimal
 
-            const seriesLeanSettlementRate = series.series.leanSettlementRate / 100; // convert from percent to decimal
-            const seriesPeakSettlementRate = series.series.peakSettlementRate / 100; // convert from percent to decimal
+            const seriesLeanSettlementRate = series.series.leanSettlementRate; // convert from percent to decimal
+            const seriesPeakSettlementRate = series.series.peakSettlementRate; // convert from percent to decimal
             const investment = await prisma.investment_log.create({
                 data: {
                     id: generateRandomString(7),
