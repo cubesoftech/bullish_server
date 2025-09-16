@@ -40,14 +40,25 @@ export default async function updateInvestmentEarlyWithdrawalRequest(req: Reques
             }
         });
         if (status === "COMPLETED") {
-            await prisma.early_withdrawned_investment_log.create({
-                data: {
-                    id: generateRandomString(7),
-                    userId: request.userId,
-                    investmentLogId: request.investmentLogId,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                }
+            await prisma.$transaction(async (tx) => {
+                await tx.early_withdrawned_investment_log.create({
+                    data: {
+                        id: generateRandomString(7),
+                        userId: request.userId,
+                        investmentLogId: request.investmentLogId,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    }
+                })
+                await tx.investment_log.update({
+                    where: {
+                        id: request.investmentLogId,
+                    },
+                    data: {
+                        status: "FAILED",
+                        updatedAt: new Date(),
+                    }
+                })
             })
         }
 

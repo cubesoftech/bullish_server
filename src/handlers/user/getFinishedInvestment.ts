@@ -24,9 +24,7 @@ export default async function getEndedInvestment(req: Request, res: Response) {
 
         const where: Prisma.investment_logWhereInput = {
             userId: user.id,
-            status: {
-                not: "PENDING"
-            },
+            status: "COMPLETED",
         }
 
         const endedInvestments = await prisma.investment_log.findMany({
