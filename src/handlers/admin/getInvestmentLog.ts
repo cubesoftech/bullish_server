@@ -38,7 +38,9 @@ export default async function getInvestmentLog(req: Request, res: Response) {
 
     try {
         let where: Prisma.investment_logWhereInput = {
-            status: "PENDING"
+            status: {
+                not: "FAILED"
+            }
         }
 
         const investment = await prisma.investment_log.findMany({
