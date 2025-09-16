@@ -4,10 +4,11 @@ import { Prisma, transaction_status } from "@prisma/client";
 import { addDays, endOfDay, startOfDay, subDays, subMonths } from "date-fns";
 
 export default async function getInvestmentLog(req: Request, res: Response) {
-    const { page, limit, search, sortAmount, sortCreatedBy, type_ } = req.query;
+    const { page, limit, search, sortAmount, sortCreatedBy, type_, searchType } = req.query;
 
     const acceptedCreatedBySort = ['asc', 'desc'];
     const acceptedTotalInvestmentSort = ['asc', 'desc'];
+    const acceptedSearchTypes = ['details', 'logs'];
 
     const processedPage = parseInt(page as string) || 1;
     const processedLimit = parseInt(limit as string) || 25;
@@ -16,6 +17,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
         sortCreatedBy && acceptedCreatedBySort.includes(sortCreatedBy as string)
             ? (sortCreatedBy as string)
             : "desc";
+    const processedSearchType = searchType && acceptedSearchTypes.includes(searchType as string) ? searchType as string : "logs"
 
 
     const acceptedTypes = ["default", "1", "2", "3", "4", "5", "today", "week"]
@@ -58,11 +60,20 @@ export default async function getInvestmentLog(req: Request, res: Response) {
         const sevenDaysAgo = subDays(now, 7)
 
         if (search) {
-            where = {
-                ...where,
-                user: {
-                    name: {
-                        contains: search as string,
+            if (processedSearchType === "details") {
+                where = {
+                    ...where,
+                    user: {
+                        name: search as string,
+                    }
+                }
+            } else {
+                where = {
+                    ...where,
+                    user: {
+                        name: {
+                            contains: search as string,
+                        }
                     }
                 }
             }
