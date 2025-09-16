@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma"
 import { Prisma } from "@prisma/client";
+import { addMonths, differenceInDays, differenceInMinutes, differenceInMonths, subMonths } from "date-fns";
 
 export default async function getInvestmentEarlyWithdrawalLog(req: Request, res: Response) {
     const { page, limit, search } = req.query;
@@ -38,13 +39,37 @@ export default async function getInvestmentEarlyWithdrawalLog(req: Request, res:
         })
         const totalRequests = await prisma.investment_early_withdrawal_log.count({ where })
 
-        const processedInquiries = requests.map(inquiry => ({
-            ...inquiry,
-            user: {
-                ...inquiry.user,
-                referrerPoints: Number(inquiry.user.referrerPoints),
+        const processedInquiries = requests.map(inquiry => {
+            // get the maturity date of investment
+            const maturityDate = addMonths(
+                inquiry.investmentLog.createdAt,
+                inquiry.investmentLog.investmentDuration
+            );
+
+            const months = differenceInMonths(
+                maturityDate,
+                inquiry.createdAt
+            )
+            const days = differenceInDays(
+                maturityDate,
+                addMonths(inquiry.createdAt, months)
+            )
+
+            const processedMonths = days >= 15 ? months + 1 : months;
+
+            const remainingPeriodFactor = processedMonths / 12;
+            const withdrawalFee = inquiry.investmentLog.amount * (18 / 100) * remainingPeriodFactor;
+            const refundableAmount = inquiry.investmentLog.amount - withdrawalFee
+            return {
+                ...inquiry,
+                withdrawalFee,
+                refundableAmount,
+                user: {
+                    ...inquiry.user,
+                    referrerPoints: Number(inquiry.user.referrerPoints),
+                }
             }
-        }))
+        })
 
         return res.status(200).json({ data: processedInquiries, total: totalRequests });
     } catch (error) {
