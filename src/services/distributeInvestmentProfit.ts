@@ -124,30 +124,21 @@ async function distributeInvestmentProfit({ job }: { job: Job }) {
     if (payoutSchedule === "WEEKLY") {
         expectedProfitDistributionCount = lastPeriod * 4;
         // weekly schedule must run every friday
-        // --------------------------------------------------- //
-        // commented out for testing purposes only
-        // uncomment once testing is done
-        // if (now.getDay() !== 5) {
-        //     return job.log(`Cancelling job since it's not friday.`);
-        // }
+        if (now.getDay() !== 5) {
+            return job.log(`Cancelling job since it's not friday.`);
+        }
     } else if (payoutSchedule === "MONTHLY") {
         expectedProfitDistributionCount = lastPeriod;
         // monthy schedule must run every 1st day of the month
-        // --------------------------------------------------- //
-        // commented out for testing purposes only
-        // uncomment once testing is done
-        // if (now.getDate() !== 1) {
-        //     return job.log(`Cancelling job since it's not the first day of the month.`);
-        // }
+        if (now.getDate() !== 1) {
+            return job.log(`Cancelling job since it's not the first day of the month.`);
+        }
     } else if (payoutSchedule === "QUARTERLY") {
         expectedProfitDistributionCount = lastPeriod / 3;
         // quarterly schedule must run every 1st day of the quarter
-        // --------------------------------------------------- //
-        // commented out for testing purposes only
-        // uncomment once testing is done
-        // if (!quarterMonths.includes(now.getMonth() + 1) || now.getDate() !== 1) {
-        //     return job.log(`Cancelling job since it's not quarter year and 1st day of the month.`);
-        // }
+        if (!quarterMonths.includes(now.getMonth() + 1) || now.getDate() !== 1) {
+            return job.log(`Cancelling job since it's not quarter year and 1st day of the month.`);
+        }
     }
 
     // check if the scheduler already distributed all the profit
