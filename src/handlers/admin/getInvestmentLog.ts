@@ -20,7 +20,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
     const processedSearchType = searchType && acceptedSearchTypes.includes(searchType as string) ? searchType as string : "logs"
 
 
-    const acceptedTypes = ["default", "1", "2", "3", "4", "5", "today", "week"]
+    const acceptedTypes = ["default", "1", "2", "3", "4", "5", "today", "week", "expiring"]
     if (!acceptedTypes.includes(type_ as string)) {
         return res.status(400).json({ message: "Invalid type filter" });
     }
@@ -174,6 +174,20 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                 };
                 break;
             };
+            case "expiring": {
+                where = {
+                    ...where,
+                    status: "PENDING",
+                    maturityDate: {
+                        lte: addMonths(now, 4),
+                        gte: now,
+                    }
+                };
+                orderBy = {
+                    maturityDate: "desc",
+                }
+                break;
+            }
             default: {
                 where = {
                     ...where,
