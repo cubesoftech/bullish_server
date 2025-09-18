@@ -38,7 +38,7 @@ app.use('/admin', AdminRoute);
 app.use("/workers", bullMqExpressAdapter.getRouter())
 
 redis.on("connect", () => {
-    initDistributeInvestmentProfit();
+    // initDistributeInvestmentProfit();
     initDistributeMonthlyReferrerReward();
     initDistributeMonthlySettlementRate();
     console.log("Redis: Connected!")
