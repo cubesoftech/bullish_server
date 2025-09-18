@@ -271,8 +271,21 @@ export default async function getDashboardStats(req: Request, res: Response) {
             }
         })
 
+        const totalPendingInvestments = await prisma.investment_log.count({
+            where: {
+                status: "PENDING"
+            }
+        })
+        const totalCompletedInvestments = await prisma.investment_log.count({
+            where: {
+                status: "COMPLETED"
+            }
+        })
+
         return res.status(200).json({
             data: {
+                totalPendingInvestments,
+                totalCompletedInvestments,
                 totalUsers,
                 signedUpToday,
                 settlementProfits,
