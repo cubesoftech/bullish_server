@@ -56,12 +56,14 @@ export default async function getInvestmentEarlyWithdrawalLog(req: Request, res:
             )
 
             const processedMonths = days >= 15 ? months + 1 : months;
+            const monthsCovered = inquiry.investmentLog.investmentDuration - processedMonths;
 
             const remainingPeriodFactor = processedMonths / inquiry.investmentLog.investmentDuration;
             const withdrawalFee = inquiry.investmentLog.amount * (18 / 100) * remainingPeriodFactor;
             const refundableAmount = inquiry.investmentLog.amount - withdrawalFee
             return {
                 ...inquiry,
+                monthsCovered,
                 withdrawalFee,
                 refundableAmount,
                 user: {
