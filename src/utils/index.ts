@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { prisma } from "./prisma";
 import { series_periods, series_rate } from '@prisma/client';
+import { addMonths } from 'date-fns';
 
 export function generateRandomString(length: number): string {
     return crypto.randomUUID().slice(0, length);
@@ -96,12 +97,7 @@ export function getInvestmentAdditionalData(investment: InvestmentWIthAdditional
             }
         });
     const lastPeriod = investment.investmentDuration!;
-    // last month = maturity date?
-    const maturityDate = new Date(
-        new Date(investment.createdAt).setMonth(
-            new Date(investment.createdAt).getMonth() + lastPeriod
-        )
-    );
+    const maturityDate = addMonths(investment.createdAt, lastPeriod);
     const totalEstimatedProfit = monthlyProfit * lastPeriod
 
     return {
@@ -166,11 +162,7 @@ export function getInvestmentAdditionalData2(investment: Investment) {
         });
 
     const lastPeriod = investment.investmentDuration!;
-    const maturityDate = new Date(
-        new Date(investment.createdAt).setMonth(
-            new Date(investment.createdAt).getMonth() + lastPeriod
-        )
-    );
+    const maturityDate = addMonths(investment.createdAt, lastPeriod);
     const totalEstimatedProfit = (monthlyProfit * lastPeriod) * (1 - 0.154)
 
     return {
