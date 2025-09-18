@@ -4,12 +4,12 @@ import { getInvestmentAdditionalData2 } from "../../utils";
 import { Prisma } from "@prisma/client";
 
 export default async function getSeriesLog(req: Request, res: Response) {
-    const { page, limit, search, seriesId, type, sort, investmentDate } = req.query;
+    const { page, limit, search, type_, type, sort, investmentDate } = req.query;
 
     // default parameters
     const processedPage = parseInt(page as string) || 1;
     const processedLimit = parseInt(limit as string) || 10;
-    const processedSeriesId = (seriesId as string) || "default";
+    const processedSeriesId = (type_ as string) || "default";
     const processedType = (type as string) || "log";
     const processedSort = (sort as string) || "desc";
     const processedInvestmentDate = investmentDate ? new Date(investmentDate as string) : undefined;

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma"
 import { Prisma, transaction_status } from "@prisma/client";
-import { addDays, endOfDay, startOfDay, subDays, subMonths } from "date-fns";
+import { addDays, addMonths, differenceInMonths, endOfDay, startOfDay, subDays, subMonths } from "date-fns";
 
 export default async function getInvestmentLog(req: Request, res: Response) {
     const { page, limit, search, sortAmount, sortCreatedBy, type_, searchType } = req.query;
@@ -222,6 +222,17 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                 })
                 let isPaid: transaction_status = "PENDING"
 
+                const maturityDate = addMonths(investment.createdAt, investment.investmentDuration)
+
+                let isExpiring = false;
+                const remainingMonths = differenceInMonths(
+                    maturityDate,
+                    now
+                )
+                if (remainingMonths <= 4) {
+                    isExpiring = true
+                }
+
                 const currentMonth = now.getMonth() + 1; // getMonth() returns 0-11
                 const peakSeasonStartMonth = investment.series.peakSeason?.peakSeasonStartMonth
                 const peakSeasonEndMonth = investment.series.peakSeason?.peakSeasonEndMonth
@@ -252,6 +263,8 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                     settlementRate: investment.settlementRate * 100,
                     peakSettlementRate: investment.peakSettlementRate * 100,
                     leanSettlementRate: investment.leanSettlementRate * 100,
+                    isExpiring,
+                    maturityDate,
                     user: {
                         ...investment.user,
                         baseSettlementRate: investment.user.baseSettlementRate * 100,

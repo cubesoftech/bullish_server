@@ -3,12 +3,12 @@ import { prisma } from "../../utils/prisma"
 import { Prisma } from "@prisma/client";
 
 export default async function getProfitLog(req: Request, res: Response) {
-    const { page, limit, search, seriesId, startDate, endDate } = req.query;
+    const { page, limit, search, type_, startDate, endDate } = req.query;
 
     // default parameters
     const processedPage = parseInt(page as string) || 1;
     const processedLimit = parseInt(limit as string) || 10;
-    const processedSeriesId = (seriesId as string) || "default";
+    const processedSeriesId = (type_ as string) || "default";
     const processedStartDate = startDate ? new Date(startDate as string) : undefined;
     const processedEndDate = endDate ? new Date(endDate as string) : undefined;
 
