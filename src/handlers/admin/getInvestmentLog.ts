@@ -184,7 +184,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                     }
                 };
                 orderBy = {
-                    maturityDate: "desc",
+                    maturityDate: "asc",
                 }
                 break;
             }
