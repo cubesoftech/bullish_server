@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { findUser } from "../../utils";
 import { Prisma } from "@prisma/client";
+import { addMonths, subMonths } from "date-fns";
 
 export default async function getEndingInvestments(req: Request, res: Response) {
     const { user } = req
@@ -26,7 +27,7 @@ export default async function getEndingInvestments(req: Request, res: Response) 
             userId: user.id,
             status: "PENDING",
             maturityDate: {
-                lt: new Date(now.getFullYear(), now.getMonth() + 2, now.getDate())
+                lt: addMonths(now, 2),
             }
         }
 

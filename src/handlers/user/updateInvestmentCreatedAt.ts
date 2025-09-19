@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
+import { addMonths } from "date-fns";
 
 interface UpdateInvestmentCreatedAtPayload {
     investmentId: string;
@@ -39,6 +40,7 @@ export default async function updateInvestmentCreatedAt(req: Request, res: Respo
             },
             data: {
                 createdAt: processedNewCreatedAt,
+                maturityDate: addMonths(processedNewCreatedAt, investment.investmentDuration),
                 updatedAt: new Date()
             }
         })
