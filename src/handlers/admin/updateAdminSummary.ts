@@ -13,10 +13,6 @@ export default async function updateAdminSummary(req: Request, res: Response) {
 
     const { summary } = req.body as UpdateAdminSummaryPayload
 
-    if (!summary || summary.trim() === "") {
-        return res.status(400).json({ message: "Summary is required." })
-    }
-
     try {
         const admin = await prisma.admin.findUnique({
             where: {

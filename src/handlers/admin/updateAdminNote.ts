@@ -13,10 +13,6 @@ export default async function updateAdminNote(req: Request, res: Response) {
 
     const { note } = req.body as UpdateAdminNotePayload
 
-    if (!note || note.trim() === "") {
-        return res.status(400).json({ message: "Note is required." })
-    }
-
     try {
         const admin = await prisma.admin.findUnique({
             where: {
