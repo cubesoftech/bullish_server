@@ -30,6 +30,7 @@ import getReservationLog from "../handlers/user/getReservationLog";
 
 
 // ---------- POST HANDLERS ---------- //
+import refresh from "../handlers/core/refresh";
 import register from "../handlers/user/register";
 import login from "../handlers/user/login";
 import deposit from "../handlers/user/deposit";
@@ -86,6 +87,7 @@ router.get('/getReservationLog', authenticate, getReservationLog);
 
 // ---------- POST REQUESTS ---------- //
 // ---------- UNSECURED POST REQUESTS ---------- //
+router.post('/refresh', refresh)
 router.post('/register', register)
 router.post('/login', login)
 router.post('/sendOTP', sendOTP)

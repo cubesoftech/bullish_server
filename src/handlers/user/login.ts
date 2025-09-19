@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
-import { signAccessToken } from "../../utils/token";
+import { signAccessToken, signRefreshToken } from "../../utils/token";
 import { generateRandomString } from "../../utils";
 
 interface LoginPayload {
@@ -42,7 +42,11 @@ export default async function login(req: Request, res: Response) {
             return res.status(400).json({ message: "Invalid phone number or password" });
         }
 
+        const accessToken = signAccessToken({ id: user.id })
+        const refreshToken = signRefreshToken({ id: user.id })
+
         await prisma.$transaction(async (tx: any) => {
+            // update user's last login, device, and ip address
             await tx.users.update({
                 where: {
                     id: user.id
@@ -53,6 +57,7 @@ export default async function login(req: Request, res: Response) {
                     lastIpAddress: ipAddress ?? "Unknown IP Address",
                 }
             });
+            // log login activity
             await tx.activity_log.create({
                 data: {
                     id: generateRandomString(7),
@@ -64,9 +69,25 @@ export default async function login(req: Request, res: Response) {
                     updatedAt: new Date(),
                 }
             });
+            // create/update refresh token
+            await tx.refresh_tokens.upsert({
+                where: {
+                    userId: user.id
+                },
+                create: {
+                    id: generateRandomString(7),
+                    userId: user.id,
+                    token: refreshToken,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                },
+                update: {
+                    token: refreshToken,
+                    updatedAt: new Date(),
+                }
+            })
         })
 
-        const accessToken = signAccessToken({ id: user.id })
         const unreadMessages = await prisma.direct_inquiry.count({
             where: {
                 userId: user.id,
@@ -79,6 +100,7 @@ export default async function login(req: Request, res: Response) {
             data: {
                 ...user,
                 data: accessToken,
+                data2: refreshToken,
             },
             unreadMessages,
         });

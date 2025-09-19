@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
-import { signAccessToken } from "../../utils/token";
+import { signAccessToken, signRefreshToken } from "../../utils/token";
+import { admin } from "@prisma/client";
+import { generateRandomString } from "../../utils";
 
 interface LoginPayload {
     email: string;
@@ -40,11 +42,30 @@ export default async function login(req: Request, res: Response) {
         })
 
         const accessToken = signAccessToken({ id: admin.id })
+        const refreshToken = signRefreshToken({ id: admin.id })
+
+        await prisma.refresh_tokens.upsert({
+            where: {
+                adminId: admin.id
+            },
+            create: {
+                id: generateRandomString(7),
+                adminId: admin.id,
+                token: refreshToken,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            },
+            update: {
+                token: refreshToken,
+                updatedAt: new Date(),
+            }
+        })
 
         return res.status(200).json({
             message: "Login successful",
             data: {
                 data: accessToken,
+                data2: refreshToken,
                 id: admin.id
             },
         });

@@ -43,6 +43,7 @@ import createDummyUsers from "../handlers/admin/createDummyUsers";
 
 
 // ---------- POST HANDLERS ---------- //
+import refresh from "../handlers/core/refresh";
 import login from "../handlers/admin/login";
 import deleteUsers from "../handlers/admin/deleteUsers";
 import getUserDetails from "../handlers/admin/getUserDetails";
@@ -143,6 +144,7 @@ router.get("/getReservationLog", authenticate, getReservationLog);
 
 
 // ---------- POST REQUESTS ---------- //
+router.post('/refresh', refresh);
 router.post('/login', login);
 router.post('/deleteUsers', authenticate, deleteUsers);
 router.post('/approveUserRequest', authenticate, approveUserRequest);

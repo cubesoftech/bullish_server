@@ -19,6 +19,7 @@ model admin {
   note                String                @default("")
   summary             String                @default("")
   settlement_rate_log settlement_rate_log[]
+  refresh_tokens      refresh_tokens?
 }
 
 model agents {
@@ -86,6 +87,7 @@ model users {
   investment_early_withdrawal_log  investment_early_withdrawal_log[]
   extend_investment_duration_log   extend_investment_duration_log[]
   early_withdrawned_investment_log early_withdrawned_investment_log[]
+  refresh_tokens                   refresh_tokens?
 
   @@index([id, name, phoneNumber], map: "Users_id_name_phoneNumber_fkey")
   @@index([referrerId], map: "Users_referrerId_fkey")
@@ -448,6 +450,17 @@ model early_withdrawned_investment_log {
   updatedAt       DateTime       @updatedAt
   user            users          @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Early_Withdrawned_Investment_Log_userId_fkey")
   investmentLog   investment_log @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Early_Withdrawned_Investment_Log_investmentLogId_fkey")
+}
+
+model refresh_tokens {
+  id        String   @id @default(cuid())
+  userId    String?  @unique
+  adminId   String?  @unique
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      users?   @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Access_Tokens_userId_fkey")
+  admin     admin?   @relation(fields: [adminId], references: [id], onDelete: Cascade, map: "Access_Tokens_adminId_fkey")
 }
 
 enum series_payout_schedule {
