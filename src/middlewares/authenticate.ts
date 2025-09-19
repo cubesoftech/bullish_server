@@ -26,7 +26,6 @@ export default function authenticate(req: Request, res: Response, next: NextFunc
         req.user = decoded;
         next();
     } catch (error) {
-        console.error("Token verification error:", error);
         return res.status(403).json({ message: "Invalid or expired token." });
     }
 }
