@@ -217,76 +217,78 @@ export default async function getInvestmentLog(req: Request, res: Response) {
         })
         const totalInvestmentLog = await prisma.investment_log.count({ where })
 
-        const processedInvestmentLogs = await Promise.all(
-            investmentLog.map(async investment => {
-                const lastProfit = await prisma.profit_log.findFirst({
-                    where: {
-                        investmentLogId: investment.id
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    },
-                    include: {
-                        series: {
-                            include: {
-                                peakSeason: true
+        const processedInvestmentLogs = totalInvestmentLog <= 0
+            ? []
+            : await Promise.all(
+                investmentLog.map(async investment => {
+                    const lastProfit = await prisma.profit_log.findFirst({
+                        where: {
+                            investmentLogId: investment.id
+                        },
+                        orderBy: {
+                            createdAt: "desc"
+                        },
+                        include: {
+                            series: {
+                                include: {
+                                    peakSeason: true
+                                }
                             }
+                        }
+                    })
+                    let isPaid: transaction_status = "PENDING"
+
+                    const maturityDate = addMonths(investment.createdAt, investment.investmentDuration)
+
+                    let isExpiring = false;
+                    const remainingMonths = differenceInMonths(
+                        maturityDate,
+                        now
+                    )
+                    if (remainingMonths <= 4) {
+                        isExpiring = true
+                    }
+
+                    const currentMonth = now.getMonth() + 1; // getMonth() returns 0-11
+                    const peakSeasonStartMonth = investment.series.peakSeason?.peakSeasonStartMonth
+                    const peakSeasonEndMonth = investment.series.peakSeason?.peakSeasonEndMonth
+                    const isOnPeak = currentMonth >= peakSeasonStartMonth! && currentMonth <= peakSeasonEndMonth!
+
+                    if (investment.payoutSchedule === "WEEKLY" && lastProfit) {
+                        if (lastProfit.createdAt >= subDays(now, 7)) {
+                            isPaid = "COMPLETED"
+                        }
+                    }
+                    if (investment.payoutSchedule === "MONTHLY" && lastProfit) {
+                        if (lastProfit.createdAt >= subMonths(now, 1)) {
+                            isPaid = "COMPLETED"
+                        }
+                    }
+                    if (investment.payoutSchedule === "QUARTERLY" && lastProfit) {
+                        if (lastProfit.createdAt >= subMonths(now, 3)) {
+                            isPaid = "COMPLETED"
+                        }
+                    }
+                    if (!lastProfit) {
+                        isPaid = "PENDING"
+                    }
+                    return {
+                        ...investment,
+                        isPaid,
+                        isOnPeak,
+                        settlementRate: investment.settlementRate * 100,
+                        peakSettlementRate: investment.peakSettlementRate * 100,
+                        leanSettlementRate: investment.leanSettlementRate * 100,
+                        isExpiring,
+                        maturityDate,
+                        user: {
+                            ...investment.user,
+                            baseSettlementRate: investment.user.baseSettlementRate * 100,
+                            referrerPoints: Number(investment.user.referrerPoints),
                         }
                     }
                 })
-                let isPaid: transaction_status = "PENDING"
-
-                const maturityDate = addMonths(investment.createdAt, investment.investmentDuration)
-
-                let isExpiring = false;
-                const remainingMonths = differenceInMonths(
-                    maturityDate,
-                    now
-                )
-                if (remainingMonths <= 4) {
-                    isExpiring = true
-                }
-
-                const currentMonth = now.getMonth() + 1; // getMonth() returns 0-11
-                const peakSeasonStartMonth = investment.series.peakSeason?.peakSeasonStartMonth
-                const peakSeasonEndMonth = investment.series.peakSeason?.peakSeasonEndMonth
-                const isOnPeak = currentMonth >= peakSeasonStartMonth! && currentMonth <= peakSeasonEndMonth!
-
-                if (investment.payoutSchedule === "WEEKLY" && lastProfit) {
-                    if (lastProfit.createdAt >= subDays(now, 7)) {
-                        isPaid = "COMPLETED"
-                    }
-                }
-                if (investment.payoutSchedule === "MONTHLY" && lastProfit) {
-                    if (lastProfit.createdAt >= subMonths(now, 1)) {
-                        isPaid = "COMPLETED"
-                    }
-                }
-                if (investment.payoutSchedule === "QUARTERLY" && lastProfit) {
-                    if (lastProfit.createdAt >= subMonths(now, 3)) {
-                        isPaid = "COMPLETED"
-                    }
-                }
-                if (!lastProfit) {
-                    isPaid = "PENDING"
-                }
-                return {
-                    ...investment,
-                    isPaid,
-                    isOnPeak,
-                    settlementRate: investment.settlementRate * 100,
-                    peakSettlementRate: investment.peakSettlementRate * 100,
-                    leanSettlementRate: investment.leanSettlementRate * 100,
-                    isExpiring,
-                    maturityDate,
-                    user: {
-                        ...investment.user,
-                        baseSettlementRate: investment.user.baseSettlementRate * 100,
-                        referrerPoints: Number(investment.user.referrerPoints),
-                    }
-                }
-            })
-        )
+            )
 
         return res.status(200).json({ data: processedInvestmentLogs, total: totalInvestmentLog });
     } catch (error) {
