@@ -18,6 +18,11 @@ export default async function getNotificationCount(req: Request, res: Response) 
                 status: "PENDING"
             }
         })
+        const investmentWithdrawAmount = await prisma.investment_amount_withdrawal_log.count({
+            where: {
+                status: "PENDING"
+            }
+        })
         const pendingUsers = await prisma.users.count({
             where: {
                 status: false,
@@ -60,6 +65,7 @@ export default async function getNotificationCount(req: Request, res: Response) 
         })
 
         const data = {
+            investmentWithdrawAmount,
             reservationLogs,
             extendInvestment,
             earlyWithdrawal,

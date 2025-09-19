@@ -28,6 +28,9 @@ import getWithdrawalLog from "../handlers/user/getWithdrawalLog";
 import getEarlyWithdrawnedInvestment from "../handlers/user/getEarlyWithdrawnedInvestment";
 import getReservationLog from "../handlers/user/getReservationLog";
 
+// ---------- NICE API ---------- //
+import { getNiceEncryptedToken } from "../utils/niceApi";
+
 
 // ---------- POST HANDLERS ---------- //
 import refresh from "../handlers/core/refresh";
@@ -64,6 +67,7 @@ router.get('/', (req, res) => {
 router.get('/getReviews', getReviews);
 router.get('/getSeriesData', getSeriesData);
 router.get('/getNotices', getNotices);
+router.get('/getNiceEncryptedToken', getNiceEncryptedToken);
 // ---------- SECURED GET REQUESTS ---------- //
 router.get('/logout', authenticate, logout);
 router.get('/userInfo', authenticate, userInfo)

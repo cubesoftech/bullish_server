@@ -1,6 +1,8 @@
 import axios from "axios";
 import { prisma } from "./prisma";
 import { generateRandomString, getEnvirontmentVariable } from ".";
+import dayjs from "dayjs"
+import { Request, Response } from "express";
 
 const NICE_API_BASE_URL = getEnvirontmentVariable("NICE_API_BASE_URL");
 const NICE_API_CLIENT_ID = getEnvirontmentVariable("NICE_API_CLIENT_ID");
@@ -18,16 +20,25 @@ interface AuthResponse {
         scope: string;
     };
 }
+interface EncryptedTokenResponse {
+    dataHeader: {
+        GW_RSLT_CD: string;
+        GW_RSLT_MSG: string;
+    };
+    dataBody: {
+        token_val: string
+    }
+}
 
 export async function getNiceApiAccessToken() {
     try {
-        const token = await prisma.nice_api_tokens.findFirst({
-            orderBy: { createdAt: 'desc' }
-        })
+        // const token = await prisma.nice_api_tokens.findFirst({
+        //     orderBy: { createdAt: 'desc' }
+        // })
 
-        if (token && token.expiresAt > new Date()) {
-            return token.accessToken;
-        }
+        // if (token && token.expiresAt > new Date()) {
+        //     return token.accessToken;
+        // }
 
         const credentials = Buffer.from(`${NICE_API_CLIENT_ID}:${NICE_API_CLIENT_SECRET}`).toString('base64');
 
@@ -37,7 +48,7 @@ export async function getNiceApiAccessToken() {
             "Authorization": `Basic ${credentials}`
         };
 
-        const { data } = await axios.post<AuthResponse>(
+        const { data } = await axios.post(
             url,
             "grant_type=client_credentials&scope=default",
             {
@@ -72,10 +83,39 @@ export async function getNiceApiAccessToken() {
     }
 }
 
+export async function getNiceEncryptedToken(req: Request, res: Response) {
+    try {
+        const productId = "2101979031";
+        const req_dtim = dayjs().format("YYYYMMDDHHmmss");
+        const req_no = generateRandomString(20); // must be unique
+        const body = {
+            dataHeader: {},
+            dataBody: {
+                req_dtim,
+                req_no,
+                enc_mode: "1",
+            },
+        };
+
+        const data = await postToNiceApi(
+            "/digital/niceid/api/v1.0/common/crypto/token",
+            productId,
+            body
+        );
+
+        console.log("data: ", data.dataBody)
+
+        return res.status(200).json({ data: data.dataBody })
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Failed to get NICE encrypted token" });
+
+    }
+}
+
 export async function postToNiceApi(endpoint: string, productId: string, body: Record<string, any>) {
     try {
         const accessToken = await getNiceApiAccessToken();
-        if (!accessToken) throw new Error("No access token found");
 
         const currentTimeStamp = Math.floor(Date.now() / 1000);
 
