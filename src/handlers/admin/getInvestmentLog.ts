@@ -55,7 +55,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
             },
             take: 1
         })
-        const oldestPendingInvestmentDate = new Date(investment[0].createdAt)
+        const oldestPendingInvestmentDate = investment.length <= 0 ? now : new Date(investment[0].createdAt)
 
         const weekly: Date[] = []
         const monthly: Date[] = []
