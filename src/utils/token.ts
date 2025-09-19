@@ -12,8 +12,6 @@ export function signAccessToken(payload: { id: AuthPayload["id"] }) {
         throw new Error("JWT_ACCESS_SECRET is not defined in environment variables.");
     }
 
-    console.log("Access Token TTL (seconds):", Access_TTL);
-
     return jwt.sign(
         payload,
         accessSecret,
