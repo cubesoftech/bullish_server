@@ -117,7 +117,7 @@ export default async function getSeriesLog(req: Request, res: Response) {
 
         const fiveSecondsAgo = new Date(Date.now() - 1000 * 30);
         const processedSeriesLog = seriesLog.map(log => {
-            const { monthly, leanMonthlyProfit, peakMonthlyProfit, estimatedValues, settlementRate, peakSettlementRate, leanSettlementRate } = getInvestmentAdditionalData2({
+            const { monthly, leanMonthlyProfit, peakMonthlyProfit, estimatedValues, settlementRate } = getInvestmentAdditionalData2({
                 // amount is the user's total investment
                 amount: log.amount,
                 investmentDuration: log.investmentDuration,
@@ -127,15 +127,18 @@ export default async function getSeriesLog(req: Request, res: Response) {
                     rate: log.series.rate
                 }
             })
+
+            const peakSettlementRate = log.series.peakSettlementRate * 100
+            const leanSettlementRate = log.series.leanSettlementRate * 100
             return {
                 ...log,
                 isNew: log.createdAt > fiveSecondsAgo,
                 monthly,
-                leanMonthlyProfit,
-                peakMonthlyProfit,
+                leanMonthlyProfit: log.amount * (leanSettlementRate / 100),
+                peakMonthlyProfit: log.amount * (peakSettlementRate / 100),
                 settlementRate: settlementRate * 100, //convert from decimal to percent
-                peakSettlementRate: peakSettlementRate * 100, //convert from decimal to percent
-                leanSettlementRate: leanSettlementRate * 100, //convert from decimal to percent
+                peakSettlementRate, //convert from decimal to percent
+                leanSettlementRate, //convert from decimal to percent
                 estimatedValues,
                 user: {
                     ...log.user,
