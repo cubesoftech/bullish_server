@@ -99,18 +99,27 @@ export default async function getInvestmentLog(req: Request, res: Response) {
             };
             case "today": {
                 for (let i = subDays(now, 7); i >= subDays(oldestPendingInvestmentDate, 7); i = subDays(i, 7)) {
-                    weekly.push(new Date(i))
+                    if (i !== now) {
+                        weekly.push(new Date(i))
+                    }
                 };
                 for (let i = now; i >= oldestPendingInvestmentDate; i = subMonths(i, 1)) {
-                    monthly.push(new Date(i))
+                    if (i !== now) {
+                        monthly.push(new Date(i))
+                    }
                 };
                 for (let i = now; i >= oldestPendingInvestmentDate; i = subMonths(i, 3)) {
-                    quarterly.push(new Date(i))
+                    if (i !== now) {
+                        quarterly.push(new Date(i))
+                    }
                 };
 
                 where = {
                     ...where,
                     status: "PENDING",
+                    createdAt: {
+                        not: now,
+                    },
                     OR: [
                         ...weekly.map(date => ({
                             createdAt: {
@@ -249,23 +258,28 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                         isExpiring = true
                     }
 
+                    let profit = 0;
                     const currentMonth = now.getMonth() + 1; // getMonth() returns 0-11
                     const peakSeasonStartMonth = investment.series.peakSeason?.peakSeasonStartMonth
                     const peakSeasonEndMonth = investment.series.peakSeason?.peakSeasonEndMonth
                     const isOnPeak = currentMonth >= peakSeasonStartMonth! && currentMonth <= peakSeasonEndMonth!
+                    const monthly = (investment.amount * ((isOnPeak ? investment.peakSettlementRate : investment.leanSettlementRate) / 100)) * (1 - 0.154) //monthly profit deduction 15.4% tax
 
-                    if (investment.payoutSchedule === "WEEKLY" && lastProfit) {
-                        if (lastProfit.createdAt >= subDays(now, 7)) {
+                    if (investment.payoutSchedule === "WEEKLY") {
+                        profit = (monthly / 4);
+                        if (lastProfit && lastProfit.createdAt >= subDays(now, 7)) {
                             isPaid = "COMPLETED"
                         }
                     }
-                    if (investment.payoutSchedule === "MONTHLY" && lastProfit) {
-                        if (lastProfit.createdAt >= subMonths(now, 1)) {
+                    if (investment.payoutSchedule === "MONTHLY") {
+                        profit = monthly;
+                        if (lastProfit && lastProfit.createdAt >= subMonths(now, 1)) {
                             isPaid = "COMPLETED"
                         }
                     }
-                    if (investment.payoutSchedule === "QUARTERLY" && lastProfit) {
-                        if (lastProfit.createdAt >= subMonths(now, 3)) {
+                    if (investment.payoutSchedule === "QUARTERLY") {
+                        profit = monthly * 3;
+                        if (lastProfit && lastProfit.createdAt >= subMonths(now, 3)) {
                             isPaid = "COMPLETED"
                         }
                     }
@@ -281,6 +295,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                         leanSettlementRate: investment.leanSettlementRate * 100,
                         isExpiring,
                         maturityDate,
+                        profit,
                         user: {
                             ...investment.user,
                             baseSettlementRate: investment.user.baseSettlementRate * 100,

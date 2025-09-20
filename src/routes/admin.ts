@@ -38,6 +38,7 @@ import getWithdrawInvestmentAmountLog from "../handlers/admin/getWithdrawInvestm
 import getExtendInvestmentDurationLog from "../handlers/admin/getExtendInvestmentDurationLog";
 import getInvestmentEarlyWithdrawalLog from "../handlers/admin/getInvestmentEarlyWithdrawalLog";
 import getReservationLog from "../handlers/admin/getReservationLog";
+import getChangeUserInfoLog from "../handlers/admin/getChangeUserInfoLog";
 import generateSeriesData from "../handlers/admin/generateSeriesData";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -85,6 +86,8 @@ import updateInvestmentEarlyWithdrawalRequest from "../handlers/admin/updateInve
 import updateInvestmentLogStatus from "../handlers/admin/updateInvestmentLogStatus";
 import replyToReservation from "../handlers/admin/replyToReservation";
 import deleteReservationLog from "../handlers/admin/deleteReservationLog";
+import deleteProfit from "../handlers/admin/deleteProfit";
+import updateChangeUserInfoStatus from "../handlers/admin/updateChangeUserInfoStatus";
 
 
 // ---------- ROUTER ---------- //
@@ -129,6 +132,7 @@ router.get("/getWithdrawInvestmentAmountLog", authenticate, getWithdrawInvestmen
 router.get("/getExtendInvestmentDurationLog", authenticate, getExtendInvestmentDurationLog);
 router.get("/getInvestmentEarlyWithdrawalLog", authenticate, getInvestmentEarlyWithdrawalLog);
 router.get("/getReservationLog", authenticate, getReservationLog);
+router.get("/getChangeUserInfoLog", authenticate, getChangeUserInfoLog);
 
 
 // commented out for now, as it is not used in the current context
@@ -185,3 +189,5 @@ router.post('/updateInvestmentEarlyWithdrawalRequest', authenticate, updateInves
 router.post('/updateInvestmentLogStatus', authenticate, updateInvestmentLogStatus);
 router.post('/replyToReservation', authenticate, replyToReservation);
 router.post('/deleteReservationLog', authenticate, deleteReservationLog);
+router.post('/deleteProfit', authenticate, deleteProfit);
+router.post('/updateChangeUserInfoStatus', authenticate, updateChangeUserInfoStatus);

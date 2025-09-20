@@ -30,6 +30,7 @@ import getReservationLog from "../handlers/user/getReservationLog";
 
 // ---------- NICE API ---------- //
 import { getNiceEncryptedToken } from "../utils/niceApi";
+import { decodeNiceEncryptedData } from "../utils/niceApi";
 
 
 // ---------- POST HANDLERS ---------- //
@@ -53,6 +54,7 @@ import withdrawExtraBalance from "../handlers/user/withdrawExtraBalance";
 import withdrawInvestedAmount from "../handlers/user/withdrawInvestedAmount";
 import extendInvestmentRequest from "../handlers/user/extendInvestmentRequest";
 import requestInvestmentEarlyWithdrawal from "../handlers/user/requestInvestmentEarlyWithdrawal";
+import verifyTurnstile from "../handlers/user/verifyTurnstile";
 
 // ---------- ROUTER ---------- //
 const router = Router();
@@ -96,6 +98,8 @@ router.post('/register', register)
 router.post('/login', login)
 router.post('/sendOTP', sendOTP)
 router.post('/loginUsingOTP', loginUsingOTP)
+router.post('/decodeNiceEncryptedData', decodeNiceEncryptedData);
+router.post('/verifyTurnstile', verifyTurnstile);
 // ---------- SECURED POST REQUESTS ---------- //
 router.post('/deposit', authenticate, deposit)
 router.post('/withdrawal', authenticate, withdrawal)

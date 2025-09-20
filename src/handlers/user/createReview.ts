@@ -5,6 +5,7 @@ import { findUser } from "../../utils";
 import { notifyAdmin } from "../core/socketConnection";
 
 interface CreateReviewPayload {
+    investmentLogId: string;
     rating: number;
     series: number;
     review: string;
@@ -21,16 +22,13 @@ export default async function createReview(req: Request, res: Response) {
     const body = req.body as CreateReviewPayload;
 
     // Validate required fields
-    const validateFields = !(
+    const validateFields = (
         // check if any field is missing or invalid
         !body.rating || !body.series || !body.review || !body.investedAmount || !body.profit ||
         typeof body.rating !== "number" || typeof body.series !== "number" || typeof body.review !== "string" || typeof body.investedAmount !== "number" || typeof body.profit !== "number" ||
         isNaN(body.rating) || isNaN(body.series) || isNaN(body.investedAmount) || isNaN(body.profit) ||
-        body.rating < 1 || body.rating > 5 ||
-        body.series < 1 || body.series > 5 ||
         body.review.trim() === "" ||
-        body.investedAmount <= 0 ||
-        body.profit < 0
+        body.investmentLogId.trim() === ""
     )
     if (!validateFields) {
         return res.status(400).json({ message: "Invalid fields" });
@@ -40,6 +38,17 @@ export default async function createReview(req: Request, res: Response) {
         const userInfo = await findUser(user.id)
         if (!userInfo) {
             return res.status(404).json({ message: "User not found" });
+        }
+
+        const hasPendingReview = await prisma.review_log.findFirst({
+            where: {
+                userId: user.id,
+                investmentLogId: body.investmentLogId,
+                status: "PENDING",
+            }
+        })
+        if (hasPendingReview) {
+            return res.status(400).json({ message: "Already have a pending review." });
         }
 
         await prisma.review_log.create({

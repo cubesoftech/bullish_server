@@ -1,10 +1,8 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
-import { findUser } from "../../utils";
+import { findUser, generateRandomString } from "../../utils";
 
 interface UpdateUserInfoPayload {
-    name: string;
-    phoneNumber: string;
     password: string;
     bank: string;
     accountNumber: string;
@@ -26,30 +24,11 @@ export default async function updateUserInfo(req: Request, res: Response) {
     const processedAccountHolder = !body.accountHolder || body.accountHolder.trim() === "" ? "" : body.accountHolder;
     const processedEmail = !body.email || body.email.trim() === "" ? "" : body.email;
 
-    // Validate required fields
-    const validateFields = !(
-        body.name.trim() === ""
-        || body.phoneNumber.trim() === ""
-        || body.password.trim() === ""
-    )
-    if (!validateFields) {
+    if (body.password.trim() === "") {
         return res.status(400).json({ message: "All fields are required" });
     }
 
     try {
-
-        const isExistingUser = await prisma.users.findFirst({
-            where: {
-                phoneNumber: body.phoneNumber,
-                id: {
-                    not: user.id // Ensure we are not updating the phone number to the same one
-                }
-            }
-        })
-        if (isExistingUser) {
-            return res.status(400).json({ message: "Phone number already exists" });
-        }
-
         if (processedEmail.trim() !== "") {
             const emailExists = await prisma.users.findFirst({
                 where: {
@@ -74,14 +53,36 @@ export default async function updateUserInfo(req: Request, res: Response) {
                 id: user.id
             },
             data: {
-                ...body,
-                bank: processedBank,
-                accountNumber: processedAccountNumber,
-                accountHolder: processedAccountHolder,
                 email: processedEmail,
+                password: body.password,
                 updatedAt: new Date(),
             },
         });
+
+        if (processedBank !== userInfo.bank) {
+
+            const hasPendingRequest = await prisma.user_change_info_log.findFirst({
+                where: {
+                    userId: userInfo.id,
+                    status: "PENDING",
+                }
+            })
+            if (hasPendingRequest) {
+                return res.status(400).json({ message: "You already have a pending change request." });
+            }
+
+            await prisma.user_change_info_log.create({
+                data: {
+                    id: generateRandomString(7),
+                    userId: userInfo.id,
+                    bank: processedBank,
+                    accountNumber: processedAccountNumber,
+                    accountHolder: processedAccountHolder,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                }
+            })
+        }
 
         return res.status(200).json({ message: "User information updated successfully" });
     } catch (error) {

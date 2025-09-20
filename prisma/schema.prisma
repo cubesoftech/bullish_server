@@ -88,6 +88,7 @@ model users {
   extend_investment_duration_log   extend_investment_duration_log[]
   early_withdrawned_investment_log early_withdrawned_investment_log[]
   refresh_tokens                   refresh_tokens?
+  user_change_info_log             user_change_info_log[]
 
   @@index([id, name, phoneNumber], map: "Users_id_name_phoneNumber_fkey")
   @@index([referrerId], map: "Users_referrerId_fkey")
@@ -145,17 +146,19 @@ model inquiry_log {
 }
 
 model review_log {
-  id             String             @id @default(cuid())
-  userId         String
-  rating         Int
-  series         Int
-  review         String
-  investedAmount Int
-  profit         Int
-  status         transaction_status @default(PENDING)
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  user           users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Review_Log_userId_fkey")
+  id              String             @id @default(cuid())
+  investmentLogId String?
+  userId          String
+  rating          Int
+  series          Int
+  review          String
+  investedAmount  Int
+  profit          Int
+  status          transaction_status @default(PENDING)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  user            users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Review_Log_userId_fkey")
+  investmentLog   investment_log?    @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Review_Log_investmentLogId_fkey")
 
   @@index([userId], map: "Review_Log_userId_fkey")
 }
@@ -318,6 +321,7 @@ model investment_log {
   investment_early_withdrawal_log  investment_early_withdrawal_log[]
   extend_investment_duration_log   extend_investment_duration_log[]
   early_withdrawned_investment_log early_withdrawned_investment_log[]
+  review_log                       review_log[]
 }
 
 model profit_log {
@@ -461,6 +465,18 @@ model refresh_tokens {
   updatedAt DateTime @updatedAt
   user      users?   @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Access_Tokens_userId_fkey")
   admin     admin?   @relation(fields: [adminId], references: [id], onDelete: Cascade, map: "Access_Tokens_adminId_fkey")
+}
+
+model user_change_info_log {
+  id            String             @id @default(cuid())
+  userId        String
+  bank          String
+  accountNumber String
+  accountHolder String
+  status        transaction_status @default(PENDING)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  user          users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "User_Change_Info_Log_userId_fkey")
 }
 
 enum series_payout_schedule {
