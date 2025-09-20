@@ -266,7 +266,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                     const monthly = (investment.amount * ((isOnPeak ? investment.peakSettlementRate : investment.leanSettlementRate) / 100)) * (1 - 0.154) //monthly profit deduction 15.4% tax
 
                     if (investment.payoutSchedule === "WEEKLY") {
-                        profit = (monthly / 4);
+                        profit = (monthly * (85 / 100)) / 4.3; //85% of monthly is divided by 4.3
                         if (lastProfit && lastProfit.createdAt >= subDays(now, 7)) {
                             isPaid = "COMPLETED"
                         }
@@ -278,7 +278,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                         }
                     }
                     if (investment.payoutSchedule === "QUARTERLY") {
-                        profit = monthly * 3;
+                        profit = (monthly * (105 / 100)) * 3;
                         if (lastProfit && lastProfit.createdAt >= subMonths(now, 3)) {
                             isPaid = "COMPLETED"
                         }
