@@ -59,7 +59,7 @@ export default async function updateUserInfo(req: Request, res: Response) {
             },
         });
 
-        if (processedBank !== userInfo.bank) {
+        if (processedBank !== userInfo.bank || processedAccountHolder !== userInfo.accountHolder || processedAccountNumber !== userInfo.accountNumber) {
 
             const hasPendingRequest = await prisma.user_change_info_log.findFirst({
                 where: {
