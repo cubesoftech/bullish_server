@@ -22,7 +22,6 @@ export default async function getReferrerPointLog(req: Request, res: Response) {
 
         const where: Prisma.monthly_referrer_profit_logWhereInput = {
             userId: user.id,
-            type: "REFERRER2"
         }
 
         const referrerPointLog = await prisma.monthly_referrer_profit_log.findMany({
@@ -40,6 +39,7 @@ export default async function getReferrerPointLog(req: Request, res: Response) {
 
         const processedReferrerPointLog = referrerPointLog.map(log => ({
             ...log,
+            amount: log.type === "REFERRER1" ? log.amount * 100 : log.amount,
             user: {
                 ...log.user,
                 baseSettlementRate: Number(log.user.baseSettlementRate) * 100,

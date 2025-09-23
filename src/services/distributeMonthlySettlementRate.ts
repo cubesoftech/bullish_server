@@ -13,7 +13,7 @@ export const distributeMonthlySettlementRateQueue = createQueue(
 createWorker(
     workerNames.distributeMonthlySettlementRate,
     async (job: Job) => {
-        return await distributeMonthlySettlementRate({ job })
+        // return await distributeMonthlySettlementRate({ job })
     },
 )
 

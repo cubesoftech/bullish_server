@@ -90,6 +90,8 @@ model users {
   refresh_tokens                   refresh_tokens?
   user_change_info_log             user_change_info_log[]
   agent_incentive_log              agent_incentive_log[]
+  user_reached_referral_limit_log  user_reached_referral_limit_log[]
+  referred_investors_log           referred_investors_log[]
 
   @@index([id, name, phoneNumber], map: "Users_id_name_phoneNumber_fkey")
   @@index([referrerId], map: "Users_referrerId_fkey")
@@ -351,13 +353,14 @@ model monthly_profit_log {
 }
 
 model monthly_referrer_profit_log {
-  id        String   @id @default(cuid())
-  userId    String
-  amount    Float
-  type      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Monthly_Referrer_Profit_Log_userId_fkey")
+  id             String   @id @default(cuid())
+  userId         String
+  amount         Float
+  type           String
+  referredUserId String? //only for referred user less than or equal to 20
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Monthly_Referrer_Profit_Log_userId_fkey")
 }
 
 model referrer_point_conversion_log {
@@ -491,6 +494,24 @@ model agent_incentive_log {
   updatedAt       DateTime       @updatedAt
   user            users          @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Agent_Incentive_Log_userId_fkey")
   investmentLog   investment_log @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Agent_Incentive_Log_investmentLogId_fkey")
+}
+
+// for user who reached referral limit of 20 users
+model user_reached_referral_limit_log {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "User_Reached_Referral_Limit_Log_userId_fkey")
+}
+
+model referred_investors_log {
+  id                 String   @id @default(cuid())
+  referrerId         String
+  referredInvestorId String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  referrer           users    @relation(fields: [referrerId], references: [id], onDelete: Cascade, map: "Referred_Investors_Log_referrerId_fkey")
 }
 
 enum series_payout_schedule {

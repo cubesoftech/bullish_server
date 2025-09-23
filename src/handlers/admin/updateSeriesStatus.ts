@@ -124,17 +124,21 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
 
             // ---------- LOGIC FOR ADDING REFERRER TO THE REFERRER POINT DISTRIBUTION JOB ---------- //
             const { investorReferrerId, referrerId } = user
-            if (!investorReferrerId && referrerId) {
-                // if hindi pa naka set and investorReferrerId then set it 
-                await prisma.users.update({
-                    where: {
-                        id: user.id
-                    },
-                    data: {
-                        investorReferrerId: referrerId,
-                        updatedAt: new Date()
-                    }
-                })
+            // only run if referred by user
+            if (referrerId) {
+                if (!investorReferrerId) {
+                    // if hindi pa naka set and investorReferrerId then set it 
+                    await prisma.users.update({
+                        where: {
+                            id: user.id
+                        },
+                        data: {
+                            investorReferrerId: referrerId,
+                            updatedAt: new Date()
+                        }
+                    })
+                }
+
                 // get the referrer info
                 const referrer = await prisma.users.findUnique({
                     where: {
@@ -144,15 +148,82 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                         referredInvestors: true
                     }
                 })
-                // if referrer exist
-                if (referrer && referrer.referredInvestors.length <= 20) {
-                    // add to the monthly settlement rate distribution the referrer it the referred investor is less than or equal 20
-                    await distributeMonthlySettlementRateQueueUpsertJobScheduler(referrer)
+
+                if (referrer) {
+
+                    if (referrer.referredInvestors.length <= 20) {
+                        // if already has investorReferrerId, skip
+                        if (!investorReferrerId) {
+                            await prisma.$transaction(async (tx) => {
+                                await tx.monthly_referrer_profit_log.create({
+                                    data: {
+                                        id: generateRandomString(7),
+                                        userId: referrer.id,
+                                        amount: 0.1 / 100, //0.1%
+                                        type: "REFERRER1",
+                                        referredUserId: user.id,
+                                        createdAt: new Date(),
+                                        updatedAt: new Date(),
+                                    }
+                                })
+                                await tx.users.update({
+                                    where: {
+                                        id: referrer.id
+                                    },
+                                    data: {
+                                        baseSettlementRate: {
+                                            increment: 0.1 / 100 //increment by 0.1%
+                                        },
+                                        updatedAt: new Date()
+                                    }
+                                })
+                                await tx.referred_investors_log.create({
+                                    data: {
+                                        id: generateRandomString(7),
+                                        referrerId: referrer.id,
+                                        referredInvestorId: user.id,
+                                        createdAt: new Date(),
+                                        updatedAt: new Date(),
+                                    }
+                                })
+                            })
+                        }
+                    } else {
+                        const referrerAlreadyReachedLimit = await prisma.user_reached_referral_limit_log.findUnique({
+                            where: {
+                                userId: referrer.id
+                            }
+                        })
+
+                        if (!investorReferrerId) {
+                            await prisma.referred_investors_log.create({
+                                data: {
+                                    id: generateRandomString(7),
+                                    referrerId: referrer.id,
+                                    referredInvestorId: user.id,
+                                    createdAt: new Date(),
+                                    updatedAt: new Date(),
+                                }
+                            })
+                        }
+
+                        if (!referrerAlreadyReachedLimit) {
+                            await prisma.user_reached_referral_limit_log.create({
+                                data: {
+                                    id: generateRandomString(7),
+                                    userId: referrer.id,
+                                    createdAt: new Date(),
+                                    updatedAt: new Date(),
+                                }
+                            })
+                            await distributeMonthlyReferrerRewardQueueUpsertJobScheduler(referrer)
+                        }
+                    }
                 }
             }
 
             // add the user on the jobs if the investment gets approved
-            await distributeInvestmentProfitQueueUpsertJobScheduler(investment);
+            // await distributeInvestmentProfitQueueUpsertJobScheduler(investment);
         }
         return res.status(200).json({ message: "투자 상태가 성공적으로 업데이트되었습니다." });
     } catch (error) {

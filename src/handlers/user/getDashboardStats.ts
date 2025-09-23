@@ -44,6 +44,10 @@ export default async function getDashboardStats(req: Request, res: Response) {
             },
             take: 6
         })
+        const processedMonthltySettlementRate = monthlySettlementRate.map(item => ({
+            ...item,
+            amount: item.type === "REFERRER1" ? item.amount * 100 : item.amount,
+        }))
 
         const startMonth = new Date(
             new Date().setMonth(
@@ -130,7 +134,7 @@ export default async function getDashboardStats(req: Request, res: Response) {
         }
         const data = {
             summary,
-            monthlySettlementRate,
+            monthlySettlementRate: processedMonthltySettlementRate,
             cumulativeProfit,
             totalInvestmentEachSeries
         }

@@ -40,8 +40,8 @@ app.use("/workers", bullMqExpressAdapter.getRouter())
 
 redis.on("connect", () => {
     // initDistributeInvestmentProfit();
+    // initDistributeMonthlySettlementRate();
     initDistributeMonthlyReferrerReward();
-    initDistributeMonthlySettlementRate();
     console.log("Redis: Connected!")
 })
 redis.on("error", (err) => {
