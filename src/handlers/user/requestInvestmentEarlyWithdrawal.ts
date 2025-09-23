@@ -10,11 +10,11 @@ interface RequestInvestmentEarlyWithdrawalPayload {
 export default async function requestInvestmentEarlyWithdrawal(req: Request, res: Response) {
     const { user } = req
     if (!user) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).json({ message: "인증되지 않았습니다." });
     }
     const { investmentId } = req.body as RequestInvestmentEarlyWithdrawalPayload;
     if (!investmentId || investmentId.trim() === "") {
-        return res.status(400).json({ message: "Invalid investment ID" });
+        return res.status(400).json({ message: "잘못된 투자 ID입니다." });
     }
 
     try {
@@ -26,7 +26,7 @@ export default async function requestInvestmentEarlyWithdrawal(req: Request, res
             },
         });
         if (!userInfo) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
         }
 
         const investment = await prisma.investment_log.findUnique({
@@ -37,7 +37,7 @@ export default async function requestInvestmentEarlyWithdrawal(req: Request, res
             }
         })
         if (!investment) {
-            return res.status(404).json({ message: "Investment not found or not eligible for early withdrawal" });
+            return res.status(404).json({ message: "투자를 찾을 수 없거나 조기 출금이 불가능합니다." });
         }
 
         const existingRequest = await prisma.investment_early_withdrawal_log.findFirst({
@@ -48,7 +48,7 @@ export default async function requestInvestmentEarlyWithdrawal(req: Request, res
             }
         })
         if (existingRequest) {
-            return res.status(400).json({ message: "An early withdrawal request for this investment already exists" });
+            return res.status(400).json({ message: "이 투자에 대해 이미 조기 출금 요청이 존재합니다." });
         }
 
         await prisma.investment_early_withdrawal_log.create({
@@ -63,7 +63,7 @@ export default async function requestInvestmentEarlyWithdrawal(req: Request, res
         })
 
         await notifyAdmin();
-        return res.status(200).json({ message: "Early withdrawal requested successfully/" });
+        return res.status(200).json({ message: "조기 출금 요청이 성공적으로 제출되었습니다." });
     } catch (error) {
         console.error("Error requestInvestmentEarlyWithdrawal:", error);
         return res.status(500).json({ message: "Internal server error" });

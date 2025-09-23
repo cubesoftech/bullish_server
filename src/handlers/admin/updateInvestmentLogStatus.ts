@@ -16,16 +16,16 @@ export default async function updateInvestmentLogStatus(req: Request, res: Respo
     const { investmentLogId, status, note, amount, action, settlementRate } = req.body as UpdateInvestmentLogStatusPayload;
 
     if (!investmentLogId || investmentLogId.trim() === "") {
-        return res.status(400).json({ message: "Invalid investment log ID" });
+        return res.status(400).json({ message: "잘못된 투자 로그 ID입니다." });
     }
 
     if (!status || status.trim() === "") {
-        return res.status(400).json({ message: "Status is required" });
+        return res.status(400).json({ message: "상태는 필수입니다." });
     }
 
     const acceptedStatuses: transaction_status[] = ["PENDING", "COMPLETED", "FAILED"];
     if (!acceptedStatuses.includes(status as transaction_status)) {
-        return res.status(400).json({ message: "Invalid status" });
+        return res.status(400).json({ message: "잘못된 상태입니다." });
     }
 
     try {
@@ -36,15 +36,15 @@ export default async function updateInvestmentLogStatus(req: Request, res: Respo
             }
         })
         if (!investment) {
-            return res.status(404).json({ message: "Investment log not found or not in PENDING status" });
+            return res.status(404).json({ message: "투자 로그를 찾을 수 없거나 대기 상태가 아닙니다." });
         }
 
         if (action) {
             if (!amount || amount <= 0) {
-                return res.status(400).json({ message: "Amount must be greater than zero when marking as paid" });
+                return res.status(400).json({ message: "지급 처리 시 금액은 0보다 커야 합니다." });
             }
             if (!settlementRate || settlementRate <= 0) {
-                return res.status(400).json({ message: "Settlement rate must be greater than zero when marking as paid" });
+                return res.status(400).json({ message: "지급 처리 시 정산율은 0보다 커야 합니다." });
             }
 
             await prisma.$transaction(async (tx) => {
@@ -85,7 +85,7 @@ export default async function updateInvestmentLogStatus(req: Request, res: Respo
             }
         })
 
-        return res.status(200).json({ message: "Investment log status updated successfully" });
+        return res.status(200).json({ message: "투자 로그 상태가 성공적으로 업데이트되었습니다." });
     } catch (error) {
         console.log("Error updateInvestmentLogStatus:", error);
         return res.status(500).json({ message: "Internal server error" });

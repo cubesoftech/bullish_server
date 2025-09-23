@@ -11,21 +11,21 @@ interface UpdateSeriesSettlementRatesPayload {
 export default async function updateSeriesSettlementRates(req: Request, res: Response) {
     const { user } = req
     if (!user) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).json({ message: "인증되지 않았습니다." });
     }
     const { seriesId, peakSettlementRate, leanSettlementRate } = req.body as UpdateSeriesSettlementRatesPayload;
 
     if (!seriesId || seriesId.trim() === "") {
-        return res.status(400).json({ message: "Invalid series ID." });
+        return res.status(400).json({ message: "잘못된 시리즈 ID입니다." });
     }
     if (peakSettlementRate < 0 || peakSettlementRate > 100) {
-        return res.status(400).json({ message: "Invalid peak settlement rate." });
+        return res.status(400).json({ message: "잘못된 최대 정산율입니다." });
     }
     if (leanSettlementRate < 0 || leanSettlementRate > 100) {
-        return res.status(400).json({ message: "Invalid lean settlement rate." });
+        return res.status(400).json({ message: "잘못된 최소 정산율입니다." });
     }
     if (peakSettlementRate < leanSettlementRate) {
-        return res.status(400).json({ message: "Peak settlement rate must be greater than lean settlement rate." });
+        return res.status(400).json({ message: "최대 정산율은 최소 정산율보다 커야 합니다." });
     }
 
     const processedPeakSettlementRate = peakSettlementRate / 100;
@@ -38,7 +38,7 @@ export default async function updateSeriesSettlementRates(req: Request, res: Res
             }
         })
         if (!admin) {
-            return res.status(403).json({ message: "Forbidden" });
+            return res.status(401).json({ message: "인증되지 않았습니다." });
         }
         const series = await prisma.series.findUnique({
             where: {
@@ -46,7 +46,7 @@ export default async function updateSeriesSettlementRates(req: Request, res: Res
             }
         })
         if (!series) {
-            return res.status(404).json({ message: "Series not found." });
+            return res.status(404).json({ message: "시리즈를 찾을 수 없습니다." });
         }
 
         await prisma.$transaction(async (tx) => {
@@ -89,9 +89,9 @@ export default async function updateSeriesSettlementRates(req: Request, res: Res
             })
         })
 
-        return res.status(200).json({ message: "Series settlement rates updated." })
+        return res.status(200).json({ message: "시리즈 정산율이 업데이트되었습니다." })
     } catch (error) {
         console.log("Error on admin updateSeriesSettlementRates: ", error)
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

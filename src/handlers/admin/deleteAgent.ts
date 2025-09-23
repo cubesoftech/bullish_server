@@ -9,7 +9,7 @@ export default async function deleteAgent(req: Request, res: Response) {
     const { ids } = req.body as DeleteAgentPayload;
 
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
-        return res.status(400).json({ error: "Invalid ids." });
+        return res.status(400).json({ error: "잘못된 ID입니다." });
     }
 
     try {
@@ -20,9 +20,9 @@ export default async function deleteAgent(req: Request, res: Response) {
                 }
             }
         });
-        return res.status(200).json({ message: "Agent deleted successfully." });
+        return res.status(200).json({ message: "에이전트가 성공적으로 삭제되었습니다." });
     } catch (error) {
         console.error("Error deleting agent: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

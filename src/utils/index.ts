@@ -43,6 +43,10 @@ interface Investment {
     series: Series
 }
 interface Series {
+    peakSeason?: {
+        startMonth: number;
+        endMonth: number;
+    }
     periods: series_periods[];
     rate: series_rate | null;
 }
@@ -151,6 +155,7 @@ export function getInvestmentAdditionalData2(investment: Investment) {
     const monthlyProfit = investment.amount * settlementRate
     const leanMonthlyProfit = investment.amount * leanSettlementRate
     const peakMonthlyProfit = investment.amount * peakSettlementRate
+
     const estimatedValues: EstimatedValues[]
         = periods.map(period => {
             const value = monthlyProfit * period.period

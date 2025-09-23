@@ -89,6 +89,7 @@ model users {
   early_withdrawned_investment_log early_withdrawned_investment_log[]
   refresh_tokens                   refresh_tokens?
   user_change_info_log             user_change_info_log[]
+  agent_incentive_log              agent_incentive_log[]
 
   @@index([id, name, phoneNumber], map: "Users_id_name_phoneNumber_fkey")
   @@index([referrerId], map: "Users_referrerId_fkey")
@@ -312,6 +313,7 @@ model investment_log {
   createdAt                        DateTime                           @default(now())
   updatedAt                        DateTime                           @updatedAt
   note                             String                             @default("")
+  isAgentPaid                      Boolean                            @default(false)
   user                             users                              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Investment_Log_userId_fkey")
   seriesLog                        series_log                         @relation(fields: [seriesLogId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesLogId_fkey")
   series                           series                             @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesId_fkey")
@@ -322,6 +324,7 @@ model investment_log {
   extend_investment_duration_log   extend_investment_duration_log[]
   early_withdrawned_investment_log early_withdrawned_investment_log[]
   review_log                       review_log[]
+  agent_incentive_log              agent_incentive_log[]
 }
 
 model profit_log {
@@ -477,6 +480,17 @@ model user_change_info_log {
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
   user          users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "User_Change_Info_Log_userId_fkey")
+}
+
+model agent_incentive_log {
+  id              String         @id @default(cuid())
+  userId          String
+  investmentLogId String
+  amount          Int
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  user            users          @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Agent_Incentive_Log_userId_fkey")
+  investmentLog   investment_log @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Agent_Incentive_Log_investmentLogId_fkey")
 }
 
 enum series_payout_schedule {

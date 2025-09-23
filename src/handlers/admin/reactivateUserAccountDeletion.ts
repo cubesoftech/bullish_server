@@ -8,7 +8,7 @@ interface ReactivateUserAccountDeletionPayload {
 export default async function reactivateUserAccountDeletion(req: Request, res: Response) {
     const { ids } = req.body as ReactivateUserAccountDeletionPayload
     if (!Array.isArray(ids) || ids.length <= 0 || ids.some(id => typeof id !== "string")) {
-        return res.status(400).json({ message: "Invalid ids." })
+        return res.status(400).json({ message: "잘못된 ID입니다." })
     }
 
     try {
@@ -25,9 +25,9 @@ export default async function reactivateUserAccountDeletion(req: Request, res: R
             }
         })
 
-        return res.status(200).json({ message: "User account reactivated successfully." })
+        return res.status(200).json({ message: "사용자 계정이 성공적으로 재활성화되었습니다." })
     } catch (error) {
         console.log("Error on admin reactivateUserAccountDeletion: ", error)
-        return res.status(500).json({ message: "Internal server error." })
+        return res.status(500).json({ message: "내부 서버 오류." })
     }
 }

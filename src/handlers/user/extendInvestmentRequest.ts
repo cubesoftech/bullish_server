@@ -12,10 +12,10 @@ export default async function extendInvestmentRequest(req: Request, res: Respons
     const { investmentLogId, newInvestmentDuration } = req.body as ExtendInvestmentRequestPayload;
 
     if (!investmentLogId || investmentLogId.trim() === "") {
-        return res.status(400).json({ message: "Invalid investment log ID" });
+        return res.status(400).json({ message: "잘못된 투자 로그 ID입니다." });
     }
     if (!newInvestmentDuration || newInvestmentDuration <= 0 || newInvestmentDuration > 36) {
-        return res.status(400).json({ message: "Invalid duration" });
+        return res.status(400).json({ message: "잘못된 기간입니다." });
     }
 
     try {
@@ -25,10 +25,10 @@ export default async function extendInvestmentRequest(req: Request, res: Respons
             }
         });
         if (!investment) {
-            return res.status(404).json({ message: "Investment log not found" });
+            return res.status(404).json({ message: "투자 로그를 찾을 수 없습니다." });
         }
         if (newInvestmentDuration <= investment.investmentDuration) {
-            return res.status(400).json({ message: "New investment duration must be greater than current duration" });
+            return res.status(400).json({ message: "새로운 투자 기간은 현재 기간보다 길어야 합니다." });
         }
 
         const hasExistingRequest = await prisma.extend_investment_duration_log.findFirst({
@@ -38,7 +38,7 @@ export default async function extendInvestmentRequest(req: Request, res: Respons
             }
         });
         if (hasExistingRequest) {
-            return res.status(400).json({ message: "There is already a pending extension request for this investment." });
+            return res.status(400).json({ message: "이 투자에 대해 이미 대기 중인 연장 요청이 있습니다." });
         }
 
         await prisma.extend_investment_duration_log.create({
@@ -54,7 +54,7 @@ export default async function extendInvestmentRequest(req: Request, res: Respons
         })
 
         await notifyAdmin();
-        return res.status(200).json({ message: "Investment duration extension request submitted successfully" });
+        return res.status(200).json({ message: "투자 기간 연장 요청이 성공적으로 제출되었습니다." });
     } catch (error) {
         console.log("Error in extendInvestmentRequest:", error);
         return res.status(500).json({ message: "Internal server error" });

@@ -20,6 +20,7 @@ const app = express();
 const server = createServer(app);
 
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 export const io = new Server(server, {

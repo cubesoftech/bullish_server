@@ -16,7 +16,7 @@ export default async function investToSeries(req: Request, res: Response) {
     const { user } = req;
 
     if (!user) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).json({ message: "인증되지 않았습니다." });
     }
 
     const { amount, seriesId, payoutSchedule, investmentDuration } = req.body as InvestToSeriesPayload;
@@ -33,13 +33,13 @@ export default async function investToSeries(req: Request, res: Response) {
         (isNaN(investmentDuration) || !Number.isFinite(investmentDuration) || investmentDuration <= 0 || !acceptedInvestmentDurations.includes(investmentDuration))
     )
     if (!validateFields) {
-        return res.status(400).json({ message: "Invalid investment parameters" });
+        return res.status(400).json({ message: "잘못된 투자 매개변수입니다." });
     }
 
     try {
         const userInfo = await findUser(user.id);
         if (!userInfo) {
-            return res.status(400).json({ message: "Invalid phone number or password" });
+            return res.status(400).json({ message: "잘못된 전화번호 또는 비밀번호입니다." });
         }
 
         const series = await prisma.series.findFirst({
@@ -48,11 +48,11 @@ export default async function investToSeries(req: Request, res: Response) {
             }
         })
         if (!series) {
-            return res.status(404).json({ message: "Series not found" });
+            return res.status(404).json({ message: "시리즈를 찾을 수 없습니다." });
         }
 
         if (amount < series.minAmount) {
-            return res.status(400).json({ message: `Minimum investment amount is ${series.minAmount}` });
+            return res.status(400).json({ message: `최소 투자 금액은 ${series.minAmount.toLocaleString()} 입니다.` });
         }
 
         await prisma.series_log.create({
@@ -71,9 +71,9 @@ export default async function investToSeries(req: Request, res: Response) {
 
         await notifyAdmin();
 
-        return res.status(200).json({ message: "Investment processed successfully" });
+        return res.status(200).json({ message: "투자가 성공적으로 처리되었습니다." });
     } catch (e) {
         console.error("Error investing to series:", e);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

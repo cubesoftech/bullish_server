@@ -32,7 +32,7 @@ export default async function refresh(req: Request, res: Response) {
             }
         })
         if (!isValid) {
-            return res.status(403).json({ message: "Invalid or expired refresh token." });
+            return res.status(403).json({ message: "잘못되었거나 만료된 리프레시 토큰입니다." });
         }
 
         const newAccessToken = signAccessToken({ id: decoded.id });
@@ -51,6 +51,6 @@ export default async function refresh(req: Request, res: Response) {
         return res.status(200).json({ data: { accessToken: newAccessToken, refreshToken: newRefreshToken } });
     } catch (error) {
         console.error("Error refreshing token:", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

@@ -76,6 +76,6 @@ export default async function getInvestmentEarlyWithdrawalLog(req: Request, res:
         return res.status(200).json({ data: processedInquiries, total: totalRequests });
     } catch (error) {
         console.error("Error admin getInvestmentEarlyWithdrawalLog: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

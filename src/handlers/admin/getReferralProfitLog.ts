@@ -42,6 +42,6 @@ export default async function getReferralProfitLog(req: Request, res: Response) 
         return res.status(200).json({ data: processedReferralProfitLogs, total: totalReferralProfitLogs });
     } catch (error) {
         console.error("Error fetching deposit requests: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

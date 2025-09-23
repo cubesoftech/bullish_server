@@ -6,7 +6,7 @@ import { Prisma } from "@prisma/client";
 export default async function getEarlyWithdrawnedInvestment(req: Request, res: Response) {
     const { user } = req
     if (!user) {
-        return res.status(401).json({ message: "Unauthorized." });
+        return res.status(401).json({ message: "인증되지 않았습니다." });
     }
 
     const { limit, page } = req.query;
@@ -19,7 +19,7 @@ export default async function getEarlyWithdrawnedInvestment(req: Request, res: R
     try {
         const userInfo = await findUser(user.id)
         if (!userInfo) {
-            return res.status(404).json({ message: "User not found." })
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." })
         }
 
         const where: Prisma.early_withdrawned_investment_logWhereInput = {

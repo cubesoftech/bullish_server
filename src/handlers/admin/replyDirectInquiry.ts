@@ -12,7 +12,7 @@ export default async function replyDirectInquiry(req: Request, res: Response) {
     const { inquiryId, content } = req.body as ReplyDirectInquiryPayload;
 
     if (!inquiryId || inquiryId.trim() === "" || !content || content.trim() === "") {
-        return res.status(400).json({ message: "Inquiry ID and reply content are required" });
+        return res.status(400).json({ message: "문의 ID와 답변 내용은 필수입니다." });
     }
 
     try {
@@ -22,7 +22,7 @@ export default async function replyDirectInquiry(req: Request, res: Response) {
             },
         });
         if (!directInquiry) {
-            return res.status(404).json({ message: "Direct inquiry not found" });
+            return res.status(404).json({ message: "Direct 문의를 찾을 수 없습니다." });
         }
 
         await prisma.$transaction(async (tx: any) => {
@@ -51,9 +51,9 @@ export default async function replyDirectInquiry(req: Request, res: Response) {
         // send notification to receiver
         notifyOnlineUsers(directInquiry.userId)
 
-        return res.status(200).json({ message: "Direct inquiry replied successfully" });
+        return res.status(200).json({ message: "Direct 문의가 성공적으로 답변되었습니다." });
     } catch (error) {
         console.error("Error replying to direct inquiry: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

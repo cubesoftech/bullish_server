@@ -21,17 +21,17 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
         (!seriesId || seriesId.trim() === "") ||
         !acceptedStatus.includes(status)
     ) {
-        return res.status(400).json({ message: "Invalid investment and/or status." });
+        return res.status(400).json({ message: "잘못된 투자 및/또는 상태입니다." });
     }
     if (status === "COMPLETED") {
         if (
             (!peakSettlementRate || peakSettlementRate <= 0)
             || (!leanSettlementRate || leanSettlementRate <= 0)
         ) {
-            return res.status(400).json({ message: "Invalid settlement rates." });
+            return res.status(400).json({ message: "잘못된 정산율입니다." });
         }
         if (peakSettlementRate < leanSettlementRate) {
-            return res.status(400).json({ message: "Peak settlement rate must be greater than lean settlement rate." });
+            return res.status(400).json({ message: "최대 정산율은 최소 정산율보다 커야 합니다." });
         }
     }
 
@@ -56,7 +56,7 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
             }
         })
         if (!series) {
-            return res.status(404).json({ message: "Investment not found or already processed" });
+            return res.status(404).json({ message: "투자를 찾을 수 없거나 이미 처리되었습니다." });
         }
 
         const user = await prisma.users.findUnique({
@@ -65,7 +65,7 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
             }
         })
         if (!user) {
-            return res.status(404).json({ message: "User not found." });
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
         }
 
         const userTotalInvestmentAmount = await prisma.investment_log.aggregate({
@@ -154,9 +154,9 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
             // add the user on the jobs if the investment gets approved
             await distributeInvestmentProfitQueueUpsertJobScheduler(investment);
         }
-        return res.status(200).json({ message: "Investment status updated successfully" });
+        return res.status(200).json({ message: "투자 상태가 성공적으로 업데이트되었습니다." });
     } catch (error) {
         console.error("Error updating investment status:", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

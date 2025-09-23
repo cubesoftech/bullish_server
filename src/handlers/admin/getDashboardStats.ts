@@ -4,7 +4,7 @@ import { prisma } from "../../utils/prisma";
 export default async function getDashboardStats(req: Request, res: Response) {
     const { user } = req
     if (!user) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).json({ message: "인증되지 않았습니다." });
     }
 
     const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
@@ -319,6 +319,6 @@ export default async function getDashboardStats(req: Request, res: Response) {
 
     } catch (error) {
         console.error("Error fetching dashboard stats:", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

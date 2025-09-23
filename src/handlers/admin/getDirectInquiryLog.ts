@@ -50,6 +50,6 @@ export default async function getDirectInquiryLog(req: Request, res: Response) {
         return res.status(200).json({ data: processedDirectInquiries, total: totalDirectInquiries });
     } catch (error) {
         console.error("Error fetching direct inquiries: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

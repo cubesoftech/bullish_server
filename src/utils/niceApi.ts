@@ -68,6 +68,9 @@ export async function getNiceApiAccessToken() {
 }
 
 export async function getNiceEncryptedToken(req: Request, res: Response) {
+    const ua = req.headers['user-agent']?.toLowerCase() || '';
+    const isIOS = /iphone|ipad|ipod/.test(ua);
+
     try {
         const productId = "2101979031";
         const req_dtim = new Date().toISOString().replace(/[-T:]/g, "").slice(0, 14); // YYYYMMDDHHMMSS
@@ -101,10 +104,17 @@ export async function getNiceEncryptedToken(req: Request, res: Response) {
         const iv = sha256Hash.slice(sha256Hash.length - 16); // Last 16 characters for IV
         const hmac_key = sha256Hash.slice(0, 32); // First 32 characters for HMAC key
 
+        let returnUrl = ""
+        if (isIOS) {
+            returnUrl = "https://server.trusseonglobal.com/user/checkPlusCallback"
+        } else {
+            returnUrl = "https://www.trusseon.com/checkPlusCallback"
+        }
+
         const plainData = {
             sitecode: site_code,
             requestno: req_no,
-            returnurl: "https://www.trusseon.com/checkPlusCallback",
+            returnurl: returnUrl,
         }
         const jsonData = JSON.stringify(plainData)
 

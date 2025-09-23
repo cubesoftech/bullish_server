@@ -39,6 +39,7 @@ import getExtendInvestmentDurationLog from "../handlers/admin/getExtendInvestmen
 import getInvestmentEarlyWithdrawalLog from "../handlers/admin/getInvestmentEarlyWithdrawalLog";
 import getReservationLog from "../handlers/admin/getReservationLog";
 import getChangeUserInfoLog from "../handlers/admin/getChangeUserInfoLog";
+import getUserDetails from "../handlers/admin/getUserDetails";
 import generateSeriesData from "../handlers/admin/generateSeriesData";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -47,7 +48,6 @@ import createDummyUsers from "../handlers/admin/createDummyUsers";
 import refresh from "../handlers/core/refresh";
 import login from "../handlers/admin/login";
 import deleteUsers from "../handlers/admin/deleteUsers";
-import getUserDetails from "../handlers/admin/getUserDetails";
 import approveUserRequest from "../handlers/admin/approveUserRequest";
 import deleteUserRequest from "../handlers/admin/deleteUserRequest";
 import updateDepositRequestStatus from "../handlers/admin/updateDepositRequestStatus";
@@ -88,6 +88,9 @@ import replyToReservation from "../handlers/admin/replyToReservation";
 import deleteReservationLog from "../handlers/admin/deleteReservationLog";
 import deleteProfit from "../handlers/admin/deleteProfit";
 import updateChangeUserInfoStatus from "../handlers/admin/updateChangeUserInfoStatus";
+import updateNoticeCreatedAt from "../handlers/admin/updateNoticeCreatedAt";
+import getAgentDetails from "../handlers/admin/getAgentDetails";
+import updateAgentIncentiveStatus from "../handlers/admin/updateAgentIncentiveStatus";
 
 
 // ---------- ROUTER ---------- //
@@ -191,3 +194,6 @@ router.post('/replyToReservation', authenticate, replyToReservation);
 router.post('/deleteReservationLog', authenticate, deleteReservationLog);
 router.post('/deleteProfit', authenticate, deleteProfit);
 router.post('/updateChangeUserInfoStatus', authenticate, updateChangeUserInfoStatus);
+router.post('/updateNoticeCreatedAt', authenticate, updateNoticeCreatedAt);
+router.post('/getAgentDetails', authenticate, getAgentDetails);
+router.post('/updateAgentIncentiveStatus', authenticate, updateAgentIncentiveStatus);

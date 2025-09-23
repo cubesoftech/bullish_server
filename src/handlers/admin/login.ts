@@ -18,7 +18,7 @@ export default async function login(req: Request, res: Response) {
         || body.password.trim() === ""
     )
     if (!validateFields) {
-        return res.status(400).json({ message: "All fields are required" });
+        return res.status(400).json({ message: "모든 필드를 입력해야 합니다." });
     }
 
     try {
@@ -29,7 +29,7 @@ export default async function login(req: Request, res: Response) {
             }
         })
         if (!admin) {
-            return res.status(400).json({ message: "Invalid username or password" });
+            return res.status(400).json({ message: "잘못된 사용자 이름 또는 비밀번호입니다." });
         }
 
         await prisma.admin.update({
@@ -62,7 +62,7 @@ export default async function login(req: Request, res: Response) {
         })
 
         return res.status(200).json({
-            message: "Login successful",
+            message: "로그인 성공.",
             data: {
                 data: accessToken,
                 data2: refreshToken,
@@ -71,6 +71,6 @@ export default async function login(req: Request, res: Response) {
         });
     } catch (error) {
         console.error("Error logging in user:", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

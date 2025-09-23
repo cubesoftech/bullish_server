@@ -36,6 +36,6 @@ export default async function verifyTurnstile(req: Request, res: Response) {
         }
     } catch (error) {
         console.log("Error on verifyTurnstile: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

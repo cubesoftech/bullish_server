@@ -21,6 +21,6 @@ export default async function getSeriesPeakSeason(req: Request, res: Response) {
         return res.status(200).json({ data: processedSeries })
     } catch (error) {
         console.log("Error in getSeriesPeakSeason:", error);
-        return res.status(500).json({ message: "Internal server error." })
+        return res.status(500).json({ message: "내부 서버 오류." })
     }
 }

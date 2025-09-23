@@ -11,13 +11,13 @@ export default async function updateUserExtraWithdrawableBalance(req: Request, r
     const { userId, amount, type } = req.body as UpdateUserExtraWithdrawableBalancePayload;
 
     if (!userId || userId.trim() === "") {
-        return res.status(400).json({ message: "User ID is required" });
+        return res.status(400).json({ message: "사용자 ID는 필수입니다." });
     }
     if (!amount || amount <= 0 || isNaN(amount)) {
-        return res.status(400).json({ message: "Invalid amount" });
+        return res.status(400).json({ message: "잘못된 금액입니다." });
     }
     if (!type || (type !== "ADD" && type !== "SUBTRACT")) {
-        return res.status(400).json({ message: "Invalid type" });
+        return res.status(400).json({ message: "잘못된 유형" });
     }
 
     try {
@@ -27,11 +27,11 @@ export default async function updateUserExtraWithdrawableBalance(req: Request, r
             }
         });
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
         }
 
         if (type === "SUBTRACT" && user.extraWithdrawalBalance < amount) {
-            return res.status(400).json({ message: "Insufficient balance" });
+            return res.status(400).json({ message: "잔액 부족" });
         }
 
         await prisma.users.update({
@@ -49,7 +49,7 @@ export default async function updateUserExtraWithdrawableBalance(req: Request, r
             }
         });
 
-        return res.status(200).json({ message: "User extra withdrawable balance updated successfully" });
+        return res.status(200).json({ message: "사용자 추가 출금 가능 잔액이 성공적으로 업데이트되었습니다." });
     } catch (error) {
         console.error("Error updating user extra withdrawable balance:", error);
         return res.status(500).json({ message: "Internal server error" });

@@ -14,7 +14,7 @@ export default async function sendOTP(req: Request, res: Response) {
     if (
         !phoneNumber || phoneNumber.trim() === ""
     ) {
-        return res.status(400).json({ message: "Phone number is required." });
+        return res.status(400).json({ message: "전화번호는 필수입니다." });
     }
 
     try {
@@ -25,7 +25,7 @@ export default async function sendOTP(req: Request, res: Response) {
             }
         })
         if (!user) {
-            return res.status(404).json({ message: "User not found." })
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." })
         }
 
         const otp = generateRandomString(7)

@@ -4,7 +4,7 @@ import { prisma } from "../../utils/prisma";
 export default async function getRecentInvestment(req: Request, res: Response) {
     const { user } = req
     if (!user) {
-        return res.status(401).json({ message: "Unauthorized." })
+        return res.status(401).json({ message: "인증되지 않았습니다." })
     }
 
     const now = new Date();

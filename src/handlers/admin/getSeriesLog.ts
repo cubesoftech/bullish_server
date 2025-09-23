@@ -19,17 +19,17 @@ export default async function getSeriesLog(req: Request, res: Response) {
     // these names must match the filter on the frontend
     let acceptedSeriesId = ["default", "1", "2", "3", "4", "5"];
     if (!acceptedSeriesId.includes(processedSeriesId)) {
-        return res.status(400).json({ message: "Invalid series filter" });
+        return res.status(400).json({ message: "잘못된 시리즈 필터" });
     }
 
     let acceptedTypes = ["log", "details"]
     if (!acceptedTypes.includes(processedType)) {
-        return res.status(400).json({ message: "Invalid type filter" });
+        return res.status(400).json({ message: "잘못된 유형 필터" });
     }
 
     let acceptedSort = ["asc", "desc"]
     if (!acceptedSort.includes(processedSort)) {
-        return res.status(400).json({ message: "Invalid sort filter" });
+        return res.status(400).json({ message: "잘못된 정렬 필터" });
     }
 
     let where: Prisma.series_logWhereInput = {
@@ -110,6 +110,7 @@ export default async function getSeriesLog(req: Request, res: Response) {
                             }
                         },
                         rate: true,
+                        peakSeason: true,
                     }
                 },
             }
@@ -123,6 +124,10 @@ export default async function getSeriesLog(req: Request, res: Response) {
                 investmentDuration: log.investmentDuration,
                 createdAt: log.createdAt,
                 series: {
+                    peakSeason: {
+                        startMonth: log.series.peakSeason?.peakSeasonStartMonth || 0,
+                        endMonth: log.series.peakSeason?.peakSeasonEndMonth || 0,
+                    },
                     periods: log.series.periods,
                     rate: log.series.rate
                 }
@@ -153,6 +158,6 @@ export default async function getSeriesLog(req: Request, res: Response) {
         return res.status(200).json({ data: processedSeriesLog, total: totalSeriesLog });
     } catch (error) {
         console.error("Error fetching series log: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

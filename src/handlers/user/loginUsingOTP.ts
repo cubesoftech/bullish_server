@@ -36,7 +36,7 @@ export default async function loginUsingOTP(req: Request, res: Response) {
             }
         })
         if (!user) {
-            return res.status(404).json({ message: "User not found." });
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
         }
         if (!user.otp) {
             return res.status(400).json({ message: "OTP not found." });
@@ -76,7 +76,7 @@ export default async function loginUsingOTP(req: Request, res: Response) {
             })
 
             return res.status(200).json({
-                message: "Login successful",
+                message: "로그인 성공.",
                 data: {
                     ...user,
                     data: accessToken

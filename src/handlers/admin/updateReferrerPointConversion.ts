@@ -11,11 +11,11 @@ export default async function updateReferrerPointConversion(req: Request, res: R
 
     const acceptedStatuses = ["COMPLETED", "PENDING", "FAILED"];
     if (!id || typeof id !== "string" || id.trim() === "") {
-        return res.status(400).json({ message: "Invalid or missing ID" });
+        return res.status(400).json({ message: "잘못되었거나 누락된 ID입니다." });
     }
 
     if (!status || !acceptedStatuses.includes(status)) {
-        return res.status(400).json({ message: "Invalid or missing status" });
+        return res.status(400).json({ message: "잘못되었거나 누락된 상태입니다." });
     }
 
     try {
@@ -46,9 +46,9 @@ export default async function updateReferrerPointConversion(req: Request, res: R
             })
         }
 
-        return res.status(200).json({ message: "Referrer point conversion log status updated successfully" });
+        return res.status(200).json({ message: "추천인 포인트 전환 로그 상태가 성공적으로 업데이트되었습니다." });
     } catch (error) {
         console.error("Error updating referrer_point_conversion_log status:", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

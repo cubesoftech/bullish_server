@@ -17,7 +17,7 @@ export default async function getProfitLog(req: Request, res: Response) {
     // these names must match the filter on the frontend
     let acceptedSeriesId = ["default", "1", "2", "3", "4", "5"];
     if (!acceptedSeriesId.includes(processedSeriesId)) {
-        return res.status(400).json({ message: "Invalid series filter" });
+        return res.status(400).json({ message: "잘못된 시리즈 필터" });
     }
 
     let where: Prisma.profit_logWhereInput = {};
@@ -122,6 +122,6 @@ export default async function getProfitLog(req: Request, res: Response) {
         return res.status(200).json({ data: processedProfitLog, totalProfit: totalProfit._sum.profit, total: totalProfitLog });
     } catch (error) {
         console.error("Error fetching series log: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

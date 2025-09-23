@@ -16,12 +16,12 @@ export default async function createAgent(req: Request, res: Response) {
         (!name || name.trim() === "")
         || (!settlementCycle || settlementCycle.trim() === "")
     ) {
-        return res.status(400).json({ error: "All fields are required" });
+        return res.status(400).json({ error: "모든 필드를 입력해야 합니다." });
     }
 
     const acceptedSettlementCycles = ["WEEKLY", "2WEEKS", "MONTHLY"]
     if (!acceptedSettlementCycles.includes(settlementCycle.toUpperCase())) {
-        return res.status(400).json({ error: "Invalid settlement cycle" });
+        return res.status(400).json({ error: "잘못된 정산 주기입니다." });
     }
 
     try {
@@ -37,7 +37,7 @@ export default async function createAgent(req: Request, res: Response) {
             }
         });
 
-        return res.status(201).json({ message: "Agent created successfully" });
+        return res.status(201).json({ message: "에이전트가 성공적으로 생성되었습니다." });
     } catch (error) {
         console.error("Error creating agent:", error);
         return res.status(500).json({ message: "Internal server error" });

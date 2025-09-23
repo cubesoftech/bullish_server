@@ -57,6 +57,6 @@ export default async function getWithdrawInvestmentAmountLog(req: Request, res: 
         return res.status(200).json({ data: processedWithdrawals, total: totalWithdrawals });
     } catch (error) {
         console.error("Error fetching withdrawal requests: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

@@ -13,7 +13,7 @@ interface UpdateUserInfoPayload {
 export default async function updateUserInfo(req: Request, res: Response) {
     const { user } = req;
     if (!user) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).json({ message: "인증되지 않았습니다." });
     }
 
     const body = req.body as UpdateUserInfoPayload;
@@ -25,7 +25,7 @@ export default async function updateUserInfo(req: Request, res: Response) {
     const processedEmail = !body.email || body.email.trim() === "" ? "" : body.email;
 
     if (body.password.trim() === "") {
-        return res.status(400).json({ message: "All fields are required" });
+        return res.status(400).json({ message: "모든 필드를 입력해야 합니다." });
     }
 
     try {
@@ -39,13 +39,13 @@ export default async function updateUserInfo(req: Request, res: Response) {
                 }
             })
             if (emailExists) {
-                return res.status(400).json({ message: "Email already exists" });
+                return res.status(400).json({ message: "이미 존재하는 이메일입니다." });
             }
         }
 
         const userInfo = await findUser(user.id);
         if (!userInfo) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
         }
 
         await prisma.users.update({
@@ -68,7 +68,7 @@ export default async function updateUserInfo(req: Request, res: Response) {
                 }
             })
             if (hasPendingRequest) {
-                return res.status(400).json({ message: "You already have a pending change request." });
+                return res.status(400).json({ message: "이미 대기 중인 변경 요청이 있습니다." });
             }
 
             await prisma.user_change_info_log.create({
@@ -84,9 +84,9 @@ export default async function updateUserInfo(req: Request, res: Response) {
             })
         }
 
-        return res.status(200).json({ message: "User information updated successfully" });
+        return res.status(200).json({ message: "사용자 정보가 성공적으로 업데이트되었습니다." });
     } catch (error) {
         console.error("Error updating user info:", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

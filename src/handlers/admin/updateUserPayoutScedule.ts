@@ -12,10 +12,10 @@ export default async function updateUserPayoutSchedule(req: Request, res: Respon
 
     const acceptedPayoutSchedule: series_payout_schedule[] = ["WEEKLY", "MONTHLY", "QUARTERLY"];
     if (!userId || userId.trim() === "") {
-        return res.status(400).json({ message: "Invalid user ID." });
+        return res.status(400).json({ message: "잘못된 사용자 ID입니다." });
     }
     if (!payoutSchedule || !acceptedPayoutSchedule.includes(payoutSchedule as series_payout_schedule)) {
-        return res.status(400).json({ message: "Invalid payout schedule." });
+        return res.status(400).json({ message: "잘못된 지급 일정입니다." });
     }
 
     try {
@@ -25,7 +25,7 @@ export default async function updateUserPayoutSchedule(req: Request, res: Respon
             }
         })
         if (!user) {
-            return res.status(404).json({ message: "User not found." });
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
         }
 
         await prisma.users.update({
@@ -38,9 +38,9 @@ export default async function updateUserPayoutSchedule(req: Request, res: Respon
             }
         })
 
-        return res.status(200).json({ message: "User payout schedule updated successfully." })
+        return res.status(200).json({ message: "사용자 지급 일정이 성공적으로 업데이트되었습니다." })
     } catch (error) {
         console.log("Error on updateUserPayoutSchedule: ", error)
-        return res.status(500).json({ message: "Internal server error." })
+        return res.status(500).json({ message: "내부 서버 오류." })
     }
 }

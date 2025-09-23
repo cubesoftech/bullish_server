@@ -10,13 +10,13 @@ interface WithdrawInvestedAmountPayload {
 export default async function withdrawInvestedAmount(req: Request, res: Response) {
     const { user } = req
     if (!user) {
-        return res.status(401).json({ message: "Unauthorized" })
+        return res.status(401).json({ message: "인증되지 않았습니다." })
     }
     const { id } = user
     const { investmentId } = req.body as WithdrawInvestedAmountPayload;
 
     if (!investmentId || investmentId.trim() === "") {
-        return res.status(400).json({ message: "Invalid investmentId" })
+        return res.status(400).json({ message: "잘못된 투자 ID" })
     }
 
     try {
@@ -29,7 +29,7 @@ export default async function withdrawInvestedAmount(req: Request, res: Response
         })
 
         if (!userInfo) {
-            return res.status(404).json({ message: "User not found" })
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." })
         }
 
         const investment = await prisma.investment_log.findUnique({
@@ -41,7 +41,7 @@ export default async function withdrawInvestedAmount(req: Request, res: Response
         })
 
         if (!investment) {
-            return res.status(404).json({ message: "Investment not found" })
+            return res.status(404).json({ message: "투자를 찾을 수 없습니다" })
         }
 
         const hasExistingRequest = await prisma.investment_amount_withdrawal_log.findFirst({
@@ -52,7 +52,7 @@ export default async function withdrawInvestedAmount(req: Request, res: Response
         })
 
         if (hasExistingRequest) {
-            return res.status(400).json({ message: "You already have a pending withdrawal request for this investment." })
+            return res.status(400).json({ message: "투자를 찾을 수 없습니다.이 투자에 대해 이미 대기 중인 출금 요청이 있습니다." })
         }
 
         await prisma.investment_amount_withdrawal_log.create({
@@ -69,7 +69,7 @@ export default async function withdrawInvestedAmount(req: Request, res: Response
 
         await notifyAdmin();
 
-        return res.status(200).json({ message: "Withdrawal request submitted successfully" })
+        return res.status(200).json({ message: "출금 요청이 성공적으로 제출되었습니다." })
     } catch (error) {
         console.error("Error withdrawInvestedAmount:", error);
         return res.status(500).json({ message: "Internal server error" });

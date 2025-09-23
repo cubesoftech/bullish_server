@@ -118,6 +118,6 @@ export default async function getSeriesData(req: Request, res: Response) {
         })
     } catch (error) {
         console.error("Error fetching series data:", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

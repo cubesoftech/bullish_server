@@ -46,6 +46,6 @@ export default async function getReservationLog(req: Request, res: Response) {
         return res.status(200).json({ data: processedReferrers, total: totalInquiries });
     } catch (error) {
         console.error("Error fetching referrers: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

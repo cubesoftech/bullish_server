@@ -36,6 +36,6 @@ export default async function getReviews(req: Request, res: Response) {
         return res.status(200).json({ data: processedReviews, total: totalReviews });
     } catch (error) {
         console.error("Error fetching reviews: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

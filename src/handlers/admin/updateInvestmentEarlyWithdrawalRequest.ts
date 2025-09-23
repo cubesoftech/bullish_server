@@ -13,10 +13,10 @@ export default async function updateInvestmentEarlyWithdrawalRequest(req: Reques
     const acceptedStatuses: transaction_status[] = ["COMPLETED", "FAILED"];
 
     if (!requestId || requestId.trim() === "") {
-        return res.status(400).json({ message: "Invalid request ID" });
+        return res.status(400).json({ message: "잘못된 요청 ID입니다." });
     }
     if (!status || !acceptedStatuses.includes(status as transaction_status)) {
-        return res.status(400).json({ message: "Invalid status" });
+        return res.status(400).json({ message: "잘못된 상태입니다." });
     }
 
     try {
@@ -27,7 +27,7 @@ export default async function updateInvestmentEarlyWithdrawalRequest(req: Reques
             }
         });
         if (!request) {
-            return res.status(404).json({ message: "Request not found" });
+            return res.status(404).json({ message: "요청을 찾을 수 없습니다." });
         }
 
         await prisma.investment_early_withdrawal_log.update({
@@ -62,7 +62,7 @@ export default async function updateInvestmentEarlyWithdrawalRequest(req: Reques
             })
         }
 
-        return res.status(200).json({ message: "Request updated successfully" });
+        return res.status(200).json({ message: "요청이 성공적으로 업데이트되었습니다." });
     } catch (error) {
         console.error("Error updateInvestmentEarlyWithdrawalRequest:", error);
         return res.status(500).json({ message: "Internal server error" });

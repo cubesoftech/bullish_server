@@ -1,37 +1,37 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 
-interface UpdateProfitCreatedAtPayload {
-    profitId: string;
+interface UpdateNoticeCreatedAtPayload {
+    noticeId: string;
     newCreatedAt: string;
 }
 
-export default async function updateProfitCreatedAt(req: Request, res: Response) {
-    const { profitId, newCreatedAt } = req.body as UpdateProfitCreatedAtPayload;
+export default async function updateNoticeCreatedAt(req: Request, res: Response) {
+    const { noticeId, newCreatedAt } = req.body as UpdateNoticeCreatedAtPayload;
 
-    if (!profitId || profitId.trim() === "") {
-        return res.status(400).json({ message: "잘못된 수익 ID입니다." })
+    if (!noticeId || noticeId.trim() === "") {
+        return res.status(400).json({ message: "잘못된 공지 ID." })
     }
 
     if (!newCreatedAt || newCreatedAt.trim() === "") {
-        return res.status(400).json({ message: "잘못된 새로운 수익 날짜입니다." })
+        return res.status(400).json({ message: "잘못된 새로운 공지 날짜입니다." })
     }
 
     const processedNewCreatedAt = new Date(newCreatedAt)
 
     try {
-        const profit = await prisma.profit_log.findUnique({
+        const notice = await prisma.notices.findUnique({
             where: {
-                id: profitId
+                id: noticeId
             }
         })
-        if (!profit) {
-            return res.status(404).json({ message: "투자를 찾을 수 없습니다." })
+        if (!notice) {
+            return res.status(404).json({ message: "공지사항을 찾을 수 없습니다." })
         }
 
-        await prisma.profit_log.update({
+        await prisma.notices.update({
             where: {
-                id: profit.id
+                id: notice.id
             },
             data: {
                 createdAt: processedNewCreatedAt,

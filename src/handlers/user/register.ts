@@ -31,7 +31,7 @@ export default async function register(req: Request, res: Response) {
         || accountHolder.trim() === ""
     )
     if (!validateFields) {
-        return res.status(400).json({ message: "Insufficient information." });
+        return res.status(400).json({ message: "정보가 부족합니다." });
     }
 
     try {
@@ -41,7 +41,7 @@ export default async function register(req: Request, res: Response) {
             }
         })
         if (isExistingUser) {
-            res.status(400).json({ message: "User already exists" });
+            res.status(400).json({ message: "이미 존재하는 사용자입니다." });
             return;
         }
 
@@ -70,7 +70,7 @@ export default async function register(req: Request, res: Response) {
                     referrer = referrerAgent
                     referrerType = "agent"
                 } else {
-                    return res.status(400).json({ message: "Invalid referral code." });
+                    return res.status(400).json({ message: "잘못된 추천 코드입니다." });
                 }
             }
         }
@@ -120,9 +120,9 @@ export default async function register(req: Request, res: Response) {
         });
 
         await notifyAdmin();
-        return res.status(200).json({ message: "User registered successfully!" });
+        return res.status(200).json({ message: "성공적으로 회원가입되었습니다!" });
     } catch (error) {
         console.error("Error registering user:", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

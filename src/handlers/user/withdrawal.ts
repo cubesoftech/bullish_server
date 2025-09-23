@@ -9,7 +9,7 @@ export default async function withdrawal(req: Request, res: Response) {
     const { user } = req;
 
     if (!user) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).json({ message: "인증되지 않았습니다." });
     }
 
     const { amount } = req.body as TransactionPayload;
@@ -27,7 +27,7 @@ export default async function withdrawal(req: Request, res: Response) {
     try {
         const userInfo = await findUser(user.id);
         if (!userInfo) {
-            return res.status(400).json({ message: "Invalid phone number or password" });
+            return res.status(400).json({ message: "잘못된 전화번호 또는 비밀번호입니다." });
         }
 
         const hasPendingWithdrawal = await prisma.withdrawal_log.findFirst({
@@ -60,6 +60,6 @@ export default async function withdrawal(req: Request, res: Response) {
         return res.status(200).json({ message: "Withdrawal processed successfully" });
     } catch (error) {
         console.error("Error logging in withdrawal:", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

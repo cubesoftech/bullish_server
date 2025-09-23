@@ -6,7 +6,7 @@ import { generateRandomString } from "../../utils";
 export default async function logout(req: Request, res: Response) {
     const { user } = req;
     if (!user) {
-        return res.status(400).json({ message: "User not authenticated" });
+        return res.status(400).json({ message: "사용자가 인증되지 않았습니다." });
     }
 
     let ipAddress = req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress
@@ -19,7 +19,7 @@ export default async function logout(req: Request, res: Response) {
     try {
         const userInfo = await findUser(user.id);
         if (!userInfo) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
         }
 
         await prisma.$transaction(async (tx: any) => {
@@ -46,9 +46,9 @@ export default async function logout(req: Request, res: Response) {
             });
         })
 
-        return res.status(200).json({ message: "User logged out successfully" });
+        return res.status(200).json({ message: "성공적으로 로그아웃되었습니다." });
     } catch (error) {
         console.error("Error during logout: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

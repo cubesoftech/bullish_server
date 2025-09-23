@@ -4,7 +4,7 @@ import { prisma } from "../../utils/prisma";
 export default async function userInfo(req: Request, res: Response) {
     const { user } = req
     if (!user) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).json({ message: "인증되지 않았습니다." });
     }
 
     try {
@@ -15,7 +15,7 @@ export default async function userInfo(req: Request, res: Response) {
         })
 
         if (!userInfo) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
         }
 
         const processedUserInfo = {
@@ -26,6 +26,6 @@ export default async function userInfo(req: Request, res: Response) {
         return res.status(200).json({ data: processedUserInfo });
     } catch (error) {
         console.error("Error fetching user info:", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

@@ -8,7 +8,7 @@ export default async function getUserDetails(req: Request, res: Response) {
     const { id } = req.query;
 
     if (!id || typeof id !== "string" || id.trim() === "") {
-        return res.status(400).json({ message: "User ID is required" });
+        return res.status(400).json({ message: "사용자 ID는 필수입니다." });
     }
 
     try {
@@ -23,7 +23,7 @@ export default async function getUserDetails(req: Request, res: Response) {
             }
         })
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
         }
 
         const totalInvestmentAmount = await prisma.investment_log.aggregate({
@@ -68,6 +68,6 @@ export default async function getUserDetails(req: Request, res: Response) {
         return res.status(200).json({ data: processedUser });
     } catch (error) {
         console.error("Error fetching user details: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

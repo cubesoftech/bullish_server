@@ -24,7 +24,7 @@ export default async function login(req: Request, res: Response) {
         || body.password.trim() === ""
     )
     if (!validateFields) {
-        return res.status(400).json({ message: "All fields are required" });
+        return res.status(400).json({ message: "모든 필드를 입력해야 합니다." });
     }
 
     try {
@@ -39,7 +39,7 @@ export default async function login(req: Request, res: Response) {
             }
         })
         if (!user) {
-            return res.status(400).json({ message: "Invalid phone number or password" });
+            return res.status(400).json({ message: "잘못된 전화번호 또는 비밀번호입니다." });
         }
 
         const accessToken = signAccessToken({ id: user.id })
@@ -96,7 +96,7 @@ export default async function login(req: Request, res: Response) {
         })
 
         return res.status(200).json({
-            message: "Login successful",
+            message: "로그인 성공.",
             data: {
                 ...user,
                 data: accessToken,
@@ -106,6 +106,6 @@ export default async function login(req: Request, res: Response) {
         });
     } catch (error) {
         console.error("Error logging in user:", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

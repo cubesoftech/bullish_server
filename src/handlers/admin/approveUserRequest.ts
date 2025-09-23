@@ -10,7 +10,7 @@ export default async function approveUserRequest(req: Request, res: Response) {
     const { ids } = req.body as ApproveUserRequestPayload;
 
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
-        return res.status(400).json({ message: "No user IDs provided" });
+        return res.status(400).json({ message: "사용자 ID가 제공되지 않았습니다." });
     }
 
     try {
@@ -25,9 +25,9 @@ export default async function approveUserRequest(req: Request, res: Response) {
             }
         });
 
-        return res.status(200).json({ message: "Users approved successfully" });
+        return res.status(200).json({ message: "사용자가 성공적으로 승인되었습니다." });
     } catch (error) {
         console.error("Error approving users:", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

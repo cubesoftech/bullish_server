@@ -3,6 +3,8 @@ import { Router } from "express";
 // ---------- MIDDLEWARES ---------- //
 import authenticate from "../middlewares/authenticate";
 
+import checkPlusCallback from "../handlers/user/checkPlusCallback";
+
 
 // ---------- HANDLERS ---------- //
 // ---------- GET HANDLERS ---------- //
@@ -60,6 +62,8 @@ import verifyTurnstile from "../handlers/user/verifyTurnstile";
 const router = Router();
 export default router;
 
+
+router.all('/checkPlusCallback', checkPlusCallback);
 
 // ---------- GET REQUESTS ---------- //
 // ---------- UNSECURED GET REQUESTS ---------- //

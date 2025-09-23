@@ -12,7 +12,7 @@ interface ApplyConsultationPayload {
 export default async function applyConsultation(req: Request, res: Response) {
     const { user } = req;
     if (!user) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).json({ message: "인증되지 않았습니다." });
     }
 
     const body = req.body as ApplyConsultationPayload;
@@ -24,7 +24,7 @@ export default async function applyConsultation(req: Request, res: Response) {
         body.type.trim() === ""
     )
     if (!validateFields) {
-        return res.status(400).json({ message: "Please provide a type." });
+        return res.status(400).json({ message: "유형(type)을 입력해주세요." });
     }
 
     try {
@@ -32,7 +32,7 @@ export default async function applyConsultation(req: Request, res: Response) {
         const userInfo = await findUser(user.id)
 
         if (!userInfo) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
         }
 
         await prisma.reservation_log.create({
@@ -48,9 +48,9 @@ export default async function applyConsultation(req: Request, res: Response) {
 
         await notifyAdmin();
 
-        return res.status(201).json({ message: "Consultation applied successfully" });
+        return res.status(201).json({ message: "상담이 성공적으로 신청되었습니다." });
     } catch (error) {
         console.error("Error applying for consultation:", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

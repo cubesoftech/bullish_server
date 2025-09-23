@@ -11,21 +11,21 @@ interface UpdatePendingInvestmentPayload {
 export default async function updatePendingInvestment(req: Request, res: Response) {
     const { user } = req
     if (!user) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).json({ message: "인증되지 않았습니다." });
     }
     const { investmentId, leanSettlementRate, peakSettlementRate } = req.body as UpdatePendingInvestmentPayload;
 
     if (!investmentId || investmentId.trim() === "") {
-        return res.status(400).json({ message: "Invalid investment and/or status." });
+        return res.status(400).json({ message: "잘못된 투자 및/또는 상태입니다." });
     }
     if (
         (!peakSettlementRate || peakSettlementRate <= 0)
         || (!leanSettlementRate || leanSettlementRate <= 0)
     ) {
-        return res.status(400).json({ message: "Invalid settlement rates." });
+        return res.status(400).json({ message: "잘못된 정산율입니다." });
     }
     if (peakSettlementRate < leanSettlementRate) {
-        return res.status(400).json({ message: "Peak settlement rate must be greater than lean settlement rate." });
+        return res.status(400).json({ message: "최대 정산율은 최소 정산율보다 커야 합니다." });
     }
 
     const processedPeakSettlementRate = peakSettlementRate / 100;
@@ -38,7 +38,7 @@ export default async function updatePendingInvestment(req: Request, res: Respons
             }
         })
         if (!admin) {
-            return res.status(403).json({ message: "Forbidden" });
+            return res.status(401).json({ message: "인증되지 않았습니다." });
         }
 
         const investment = await prisma.investment_log.findUnique({
@@ -48,7 +48,7 @@ export default async function updatePendingInvestment(req: Request, res: Respons
             }
         })
         if (!investment) {
-            return res.status(404).json({ message: "Investment not found or already processed" });
+            return res.status(404).json({ message: "투자를 찾을 수 없거나 이미 처리되었습니다." });
         }
 
         await prisma.$transaction(async (tx) => {
@@ -76,9 +76,9 @@ export default async function updatePendingInvestment(req: Request, res: Respons
             })
         })
 
-        return res.status(200).json({ message: "Investment updated successfully." });
+        return res.status(200).json({ message: "투자가 성공적으로 업데이트되었습니다." });
     } catch (error) {
         console.log("Error on admin updatePendingInvestment: ", error)
-        return res.status(500).json({ message: "Internal server error." })
+        return res.status(500).json({ message: "내부 서버 오류." })
     }
 }

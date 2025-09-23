@@ -19,7 +19,7 @@ export default async function getWithdrawalRequests(req: Request, res: Response)
 
     let acceptedTypes = ["log", "details"]
     if (!acceptedTypes.includes(processedType)) {
-        return res.status(400).json({ message: "Invalid type filter" });
+        return res.status(400).json({ message: "잘못된 유형 필터" });
     }
 
     if (processedType === "log") {
@@ -77,6 +77,6 @@ export default async function getWithdrawalRequests(req: Request, res: Response)
         return res.status(200).json({ data: processedWithdrawals, total: totalWithdrawals });
     } catch (error) {
         console.error("Error fetching withdrawal requests: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

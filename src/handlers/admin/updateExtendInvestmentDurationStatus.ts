@@ -13,15 +13,15 @@ export default async function updateExtendInvestmentDurationStatus(req: Request,
     const { requestId, status } = req.body as UpdateExtendInvestmentDurationStatusPayload;
 
     if (!requestId || requestId.trim() === "") {
-        return res.status(400).json({ message: "Invalid request ID" });
+        return res.status(400).json({ message: "잘못된 요청 ID입니다." });
     }
     if (!status || status.trim() === "") {
-        return res.status(400).json({ message: "Status is required" });
+        return res.status(400).json({ message: "상태는 필수입니다." });
     }
 
     const acceptedStatuses: transaction_status[] = ["PENDING", "COMPLETED", "FAILED"];
     if (!acceptedStatuses.includes(status as transaction_status)) {
-        return res.status(400).json({ message: "Invalid status" });
+        return res.status(400).json({ message: "잘못된 상태입니다." });
     }
 
     try {
@@ -32,7 +32,7 @@ export default async function updateExtendInvestmentDurationStatus(req: Request,
             }
         })
         if (!request) {
-            return res.status(404).json({ message: "Request not found or not in PENDING status" });
+            return res.status(404).json({ message: "요청을 찾을 수 없거나 대기 상태가 아닙니다." });
         }
 
         await prisma.extend_investment_duration_log.update({
@@ -59,7 +59,7 @@ export default async function updateExtendInvestmentDurationStatus(req: Request,
                 }
             })
             if (!investment) {
-                return res.status(404).json({ message: "Associated investment log not found" });
+                return res.status(404).json({ message: "Associated 투자 로그를 찾을 수 없습니다." });
             }
             const { monthly, maturityDate, totalEstimatedProfit, } = getInvestmentAdditionalData({
                 userTotalInvestmentAmount: 0,
@@ -86,7 +86,7 @@ export default async function updateExtendInvestmentDurationStatus(req: Request,
             })
         }
 
-        return res.status(200).json({ message: "Request status updated successfully" });
+        return res.status(200).json({ message: "요청 상태가 성공적으로 업데이트되었습니다." });
     } catch (error) {
         console.log("Error in updateExtendInvestmentDurationStatus:", error);
         return res.status(500).json({ message: "Internal server error" });

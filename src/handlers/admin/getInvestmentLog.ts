@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma"
-import { Prisma, transaction_status } from "@prisma/client";
+import { Prisma, transaction_status, series_payout_schedule } from "@prisma/client";
 import { addDays, addMonths, differenceInMonths, endOfDay, startOfDay, subDays, subMonths } from "date-fns";
 
 export default async function getInvestmentLog(req: Request, res: Response) {
@@ -22,7 +22,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
 
     const acceptedTypes = ["default", "1", "2", "3", "4", "5", "today", "week", "expiring"]
     if (!acceptedTypes.includes(type_ as string)) {
-        return res.status(400).json({ message: "Invalid type filter" });
+        return res.status(400).json({ message: "잘못된 유형 필터" });
     }
     const now = new Date();
 
@@ -122,18 +122,21 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                     },
                     OR: [
                         ...weekly.map(date => ({
+                            payoutSchedule: series_payout_schedule["WEEKLY"],
                             createdAt: {
                                 gte: startOfDay(date),
                                 lte: endOfDay(date),
                             }
                         })),
                         ...monthly.map(date => ({
+                            payoutSchedule: series_payout_schedule["MONTHLY"],
                             createdAt: {
                                 gte: startOfDay(date),
                                 lte: endOfDay(date),
                             }
                         })),
                         ...quarterly.map(date => ({
+                            payoutSchedule: series_payout_schedule["QUARTERLY"],
                             createdAt: {
                                 gte: startOfDay(date),
                                 lte: endOfDay(date),
@@ -160,20 +163,26 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                 where = {
                     ...where,
                     status: "PENDING",
+                    createdAt: {
+                        not: now,
+                    },
                     OR: [
                         ...weekly.map(date => ({
+                            payoutSchedule: series_payout_schedule["WEEKLY"],
                             createdAt: {
                                 gte: startOfDay(date),
                                 lte: endOfDay(date),
                             }
                         })),
                         ...monthly.map(date => ({
+                            payoutSchedule: series_payout_schedule["MONTHLY"],
                             createdAt: {
                                 gte: startOfDay(date),
                                 lte: endOfDay(date),
                             }
                         })),
                         ...quarterly.map(date => ({
+                            payoutSchedule: series_payout_schedule["QUARTERLY"],
                             createdAt: {
                                 gte: startOfDay(date),
                                 lte: endOfDay(date),
@@ -263,10 +272,11 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                     const peakSeasonStartMonth = investment.series.peakSeason?.peakSeasonStartMonth
                     const peakSeasonEndMonth = investment.series.peakSeason?.peakSeasonEndMonth
                     const isOnPeak = currentMonth >= peakSeasonStartMonth! && currentMonth <= peakSeasonEndMonth!
-                    const monthly = (investment.amount * ((isOnPeak ? investment.peakSettlementRate : investment.leanSettlementRate) / 100)) * (1 - 0.154) //monthly profit deduction 15.4% tax
+                    const settlementRate = isOnPeak ? investment.peakSettlementRate : investment.leanSettlementRate;
+                    const monthly = (investment.amount * settlementRate) * (1 - 0.154) //monthly profit deduction 15.4% tax
 
                     if (investment.payoutSchedule === "WEEKLY") {
-                        profit = (monthly * (85 / 100)) / 4.3; //85% of monthly is divided by 4.3
+                        profit = (monthly * 0.85) / 4.3; //85% of monthly is divided by 4.3
                         if (lastProfit && lastProfit.createdAt >= subDays(now, 7)) {
                             isPaid = "COMPLETED"
                         }
@@ -278,7 +288,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                         }
                     }
                     if (investment.payoutSchedule === "QUARTERLY") {
-                        profit = (monthly * (105 / 100)) * 3;
+                        profit = (monthly * 1.05) * 3;
                         if (lastProfit && lastProfit.createdAt >= subMonths(now, 3)) {
                             isPaid = "COMPLETED"
                         }
@@ -295,7 +305,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                         leanSettlementRate: investment.leanSettlementRate * 100,
                         isExpiring,
                         maturityDate,
-                        profit,
+                        profit: parseFloat(profit.toFixed(2)),
                         user: {
                             ...investment.user,
                             baseSettlementRate: investment.user.baseSettlementRate * 100,
@@ -308,6 +318,6 @@ export default async function getInvestmentLog(req: Request, res: Response) {
         return res.status(200).json({ data: processedInvestmentLogs, total: totalInvestmentLog });
     } catch (error) {
         console.error("Error fetching investment log: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

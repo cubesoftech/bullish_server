@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma"
-import { getInvestmentAdditionalData2 } from "../../utils";
 import { Prisma } from "@prisma/client";
 
 export default async function getChangeUserInfoLog(req: Request, res: Response) {
@@ -58,6 +57,6 @@ export default async function getChangeUserInfoLog(req: Request, res: Response) 
         return res.status(200).json({ data: processedDeletedUsers, total: totalDeletedUsers });
     } catch (error) {
         console.error("Error fetching series log: ", error);
-        return res.status(500).json({ message: "Internal server error." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }
