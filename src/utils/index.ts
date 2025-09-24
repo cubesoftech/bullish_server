@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { prisma } from "./prisma";
 import { series_payout_schedule, series_periods, series_rate } from '@prisma/client';
-import { addMonths } from 'date-fns';
+import { addMonths, addWeeks } from 'date-fns';
 
 export function generateRandomString(length: number): string {
     return crypto.randomUUID().slice(0, length);
@@ -164,23 +164,42 @@ export function getInvestmentAdditionalData2(investment: Investment) {
                 const maturityDate = addMonths(investment.createdAt, period.period);
                 let profit = 0;
 
-                for (let i = investment.createdAt; i <= maturityDate; i = addMonths(i, 1)) {
-                    const currentMonth = i.getMonth() + 1; // getMonth is zero-based
+                if (investment.payoutSchedule === "WEEKLY") {
+                    for (let i = investment.createdAt; i <= maturityDate; i = addWeeks(i, 1)) {
+                        const currentMonth = i.getMonth() + 1; // getMonth is zero-based
 
-                    const isOnPeakSeason = currentMonth >= (investment.series.peakSeason?.startMonth || 1) && currentMonth <= (investment.series.peakSeason?.endMonth || 12);
+                        const isOnPeakSeason = currentMonth >= (investment.series.peakSeason?.startMonth || 1) && currentMonth <= (investment.series.peakSeason?.endMonth || 12);
 
-                    let profitForThisMonth = 0
-                    const monthlyProfit = investment.amount * (isOnPeakSeason ? peakSettlementRate : leanSettlementRate)
+                        const monthlyProfit = investment.amount * (isOnPeakSeason ? peakSettlementRate : leanSettlementRate)
 
-                    if (investment.payoutSchedule === "WEEKLY") {
-                        profitForThisMonth = (monthlyProfit * 0.85) / 4.3;
-                    } else if (investment.payoutSchedule === "MONTHLY") {
-                        profitForThisMonth = monthlyProfit
-                    } else if (investment.payoutSchedule === "QUARTERLY") {
-                        profitForThisMonth = (monthlyProfit * 1.05) * 3
+                        const profitForThisWeek = (monthlyProfit * 0.85) / 4.3;
+
+                        profit += profitForThisWeek
                     }
+                } else if (investment.payoutSchedule === "MONTHLY") {
+                    for (let i = investment.createdAt; i <= maturityDate; i = addMonths(i, 1)) {
+                        const currentMonth = i.getMonth() + 1; // getMonth is zero-based
 
-                    profit += profitForThisMonth
+                        const isOnPeakSeason = currentMonth >= (investment.series.peakSeason?.startMonth || 1) && currentMonth <= (investment.series.peakSeason?.endMonth || 12);
+
+                        const monthlyProfit = investment.amount * (isOnPeakSeason ? peakSettlementRate : leanSettlementRate)
+
+                        const profitForThisMonth = monthlyProfit
+
+                        profit += profitForThisMonth
+                    }
+                } else if (investment.payoutSchedule === "QUARTERLY") {
+                    for (let i = investment.createdAt; i <= maturityDate; i = addMonths(i, 3)) {
+                        const currentMonth = i.getMonth() + 1; // getMonth is zero-based
+
+                        const isOnPeakSeason = currentMonth >= (investment.series.peakSeason?.startMonth || 1) && currentMonth <= (investment.series.peakSeason?.endMonth || 12);
+
+                        const monthlyProfit = investment.amount * (isOnPeakSeason ? peakSettlementRate : leanSettlementRate)
+
+                        const profitForThisQuarter = (monthlyProfit * 1.05) * 3
+
+                        profit += profitForThisQuarter
+                    }
                 }
 
                 return {
@@ -192,7 +211,7 @@ export function getInvestmentAdditionalData2(investment: Investment) {
 
     const lastPeriod = investment.investmentDuration!;
     const maturityDate = addMonths(investment.createdAt, lastPeriod);
-    const totalEstimatedProfit = estimatedValues[estimatedValues.length - 1]
+    const totalEstimatedProfit = estimatedValues[estimatedValues.length - 1].afterTax
 
     return {
         monthly: monthlyProfit,

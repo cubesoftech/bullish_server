@@ -52,8 +52,6 @@ export default async function getChangeUserInfoLog(req: Request, res: Response) 
 
         const totalDeletedUsers = await prisma.user_change_info_log.count({ where })
 
-        console.log("processedDeletedUsers", processedDeletedUsers);
-
         return res.status(200).json({ data: processedDeletedUsers, total: totalDeletedUsers });
     } catch (error) {
         console.error("Error fetching series log: ", error);
