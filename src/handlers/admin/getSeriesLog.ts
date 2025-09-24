@@ -118,7 +118,7 @@ export default async function getSeriesLog(req: Request, res: Response) {
 
         const fiveSecondsAgo = new Date(Date.now() - 1000 * 30);
         const processedSeriesLog = seriesLog.map(log => {
-            const { monthly, leanMonthlyProfit, peakMonthlyProfit, estimatedValues, settlementRate } = getInvestmentAdditionalData2({
+            const { monthly, estimatedValues, settlementRate } = getInvestmentAdditionalData2({
                 // amount is the user's total investment
                 amount: log.amount,
                 investmentDuration: log.investmentDuration,

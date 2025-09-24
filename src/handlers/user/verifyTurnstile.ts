@@ -8,7 +8,6 @@ interface VerifyTurnstilePayload {
 
 export default async function verifyTurnstile(req: Request, res: Response) {
     const { token } = req.body as VerifyTurnstilePayload;
-    console.log("token: ", token)
     if (!token) {
         return res.status(400).json({ message: "Missing token" });
     }

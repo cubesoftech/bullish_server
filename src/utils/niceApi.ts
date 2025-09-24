@@ -178,7 +178,6 @@ export async function decodeNiceEncryptedData(req: Request, res: Response) {
         dec_data += decipher.final("utf8");
 
         const parsedData: Record<string, string> = JSON.parse(dec_data);
-        console.log("parsed data:", parsedData);
 
         const decodedData: Record<string, string> = { ...parsedData };
 
