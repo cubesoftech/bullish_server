@@ -21,12 +21,26 @@ export default async function getAgentDetails(req: Request, res: Response) {
                 referredUsers: {
                     include: {
                         investment_log: {
+                            where: {
+                                series: {
+                                    seriesId: {
+                                        not: 1
+                                    }
+                                }
+                            },
                             include: {
-                                series: true,
+                                series: {
+                                    include: {
+                                        rate: true,
+                                        periods: true,
+                                        peakSeason: true,
+                                    }
+                                },
+                                user: true,
                             },
                             orderBy: {
                                 createdAt: 'desc'
-                            }
+                            },
                         }
                     }
                 }
@@ -47,6 +61,11 @@ export default async function getAgentDetails(req: Request, res: Response) {
                     settlementRate: investment.settlementRate * 100,
                     peakSettlementRate: investment.peakSettlementRate * 100,
                     leanSettlementRate: investment.leanSettlementRate * 100,
+                    user: {
+                        ...investment.user,
+                        referrerPoints: Number(investment.user.referrerPoints),
+                        baseSettlementRate: Number(investment.user.baseSettlementRate) * 100,
+                    }
                 }))
             }))
         }

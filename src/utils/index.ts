@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { prisma } from "./prisma";
-import { series_periods, series_rate } from '@prisma/client';
+import { series_payout_schedule, series_periods, series_rate } from '@prisma/client';
 import { addMonths } from 'date-fns';
 
 export function generateRandomString(length: number): string {
@@ -39,6 +39,7 @@ export function getEnvirontmentVariable(key: string) {
 interface Investment {
     amount: number;
     investmentDuration?: number;
+    payoutSchedule?: series_payout_schedule;
     createdAt: Date;
     series: Series
 }
@@ -157,18 +158,41 @@ export function getInvestmentAdditionalData2(investment: Investment) {
     const peakMonthlyProfit = investment.amount * peakSettlementRate
 
     const estimatedValues: EstimatedValues[]
-        = periods.map(period => {
-            const value = monthlyProfit * period.period
-            return {
-                duration: period.period + "개월",
-                value,
-                afterTax: value * (1 - 0.154),
-            }
-        });
+        = periods
+            .filter(period => period.period <= (investment.investmentDuration || 3))
+            .map(period => {
+                const maturityDate = addMonths(investment.createdAt, period.period);
+                let profit = 0;
+
+                for (let i = investment.createdAt; i <= maturityDate; i = addMonths(i, 1)) {
+                    const currentMonth = i.getMonth() + 1; // getMonth is zero-based
+
+                    const isOnPeakSeason = currentMonth >= (investment.series.peakSeason?.startMonth || 1) && currentMonth <= (investment.series.peakSeason?.endMonth || 12);
+
+                    let profitForThisMonth = 0
+                    const monthlyProfit = investment.amount * (isOnPeakSeason ? peakSettlementRate : leanSettlementRate)
+
+                    if (investment.payoutSchedule === "WEEKLY") {
+                        profitForThisMonth = (monthlyProfit * 0.85) / 4.3;
+                    } else if (investment.payoutSchedule === "MONTHLY") {
+                        profitForThisMonth = monthlyProfit
+                    } else if (investment.payoutSchedule === "QUARTERLY") {
+                        profitForThisMonth = (monthlyProfit * 1.05) * 3
+                    }
+
+                    profit += profitForThisMonth
+                }
+
+                return {
+                    duration: period.period + "개월",
+                    value: profit,
+                    afterTax: profit * (1 - 0.154),
+                }
+            });
 
     const lastPeriod = investment.investmentDuration!;
     const maturityDate = addMonths(investment.createdAt, lastPeriod);
-    const totalEstimatedProfit = (monthlyProfit * lastPeriod) * (1 - 0.154)
+    const totalEstimatedProfit = estimatedValues[estimatedValues.length - 1]
 
     return {
         monthly: monthlyProfit,

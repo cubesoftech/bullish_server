@@ -122,6 +122,7 @@ export default async function getSeriesLog(req: Request, res: Response) {
                 // amount is the user's total investment
                 amount: log.amount,
                 investmentDuration: log.investmentDuration,
+                payoutSchedule: log.payoutSchedule,
                 createdAt: log.createdAt,
                 series: {
                     peakSeason: {
