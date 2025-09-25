@@ -1,19 +1,19 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
-import { distributeInvestmentProfitQueueUpsertJobScheduler } from "../../services/distributeInvestmentProfit";
 import { generateRandomString, getInvestmentAdditionalData } from "../../utils";
 import { distributeMonthlyReferrerRewardQueueUpsertJobScheduler } from "../../services/distributeMonthyReferrerReward";
-import { distributeMonthlySettlementRateQueueUpsertJobScheduler } from "../../services/distributeMonthlySettlementRate";
 
 interface UpdateInvestmentPayload {
     seriesId: string;
     status: string;
     peakSettlementRate: number;
     leanSettlementRate: number;
+    isFixSettlementRate: boolean;
+    isSeniorInvestor: boolean;
 }
 
 export default async function updateSeriesStatus(req: Request, res: Response) {
-    const { seriesId, status, peakSettlementRate, leanSettlementRate } = req.body as UpdateInvestmentPayload;
+    const { seriesId, status, peakSettlementRate, leanSettlementRate, isFixSettlementRate, isSeniorInvestor } = req.body as UpdateInvestmentPayload;
 
     const acceptedStatus = ["COMPLETED", "FAILED"];
 
@@ -102,9 +102,7 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
             const processedPeakSettlementRate = peakSettlementRate / 100; // convert from percent to decimal
             const processedLeanSettlementRate = leanSettlementRate / 100; // convert from percent to decimal
 
-            const seriesLeanSettlementRate = series.series.leanSettlementRate; // convert from percent to decimal
-            const seriesPeakSettlementRate = series.series.peakSettlementRate; // convert from percent to decimal
-            const investment = await prisma.investment_log.create({
+            await prisma.investment_log.create({
                 data: {
                     id: generateRandomString(7),
                     userId: series.userId,
@@ -119,6 +117,8 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                     investmentDuration: series.investmentDuration,
                     maturityDate,
                     totalExpectedProfit: totalEstimatedProfit,
+                    isFixSettlementRate,
+                    isSeniorInvestor,
                 }
             })
 
@@ -126,19 +126,6 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
             const { investorReferrerId, referrerId } = user
             // only run if referred by user
             if (referrerId) {
-                if (!investorReferrerId) {
-                    // if hindi pa naka set and investorReferrerId then set it 
-                    await prisma.users.update({
-                        where: {
-                            id: user.id
-                        },
-                        data: {
-                            investorReferrerId: referrerId,
-                            updatedAt: new Date()
-                        }
-                    })
-                }
-
                 // get the referrer info
                 const referrer = await prisma.users.findUnique({
                     where: {
@@ -150,6 +137,29 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                 })
 
                 if (referrer) {
+
+                    if (!investorReferrerId) {
+                        await prisma.$transaction(async (tx) => {
+                            await tx.users.update({
+                                where: {
+                                    id: user.id
+                                },
+                                data: {
+                                    investorReferrerId: referrer.id,
+                                    updatedAt: new Date()
+                                }
+                            })
+                            await tx.referred_investors_log.create({
+                                data: {
+                                    id: generateRandomString(7),
+                                    referrerId: referrer.id,
+                                    referredInvestorId: user.id,
+                                    createdAt: new Date(),
+                                    updatedAt: new Date(),
+                                }
+                            })
+                        })
+                    }
 
                     if (referrer.referredInvestors.length <= 20) {
                         // if already has investorReferrerId, skip
@@ -177,15 +187,6 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                                         updatedAt: new Date()
                                     }
                                 })
-                                await tx.referred_investors_log.create({
-                                    data: {
-                                        id: generateRandomString(7),
-                                        referrerId: referrer.id,
-                                        referredInvestorId: user.id,
-                                        createdAt: new Date(),
-                                        updatedAt: new Date(),
-                                    }
-                                })
                             })
                         }
                     } else {
@@ -194,18 +195,6 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                                 userId: referrer.id
                             }
                         })
-
-                        if (!investorReferrerId) {
-                            await prisma.referred_investors_log.create({
-                                data: {
-                                    id: generateRandomString(7),
-                                    referrerId: referrer.id,
-                                    referredInvestorId: user.id,
-                                    createdAt: new Date(),
-                                    updatedAt: new Date(),
-                                }
-                            })
-                        }
 
                         if (!referrerAlreadyReachedLimit) {
                             await prisma.user_reached_referral_limit_log.create({

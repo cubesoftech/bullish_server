@@ -66,7 +66,9 @@ export default async function updateSeriesSettlementRates(req: Request, res: Res
                     status: "PENDING",
                     amount: {
                         lt: 100_000_000 //only update for investments < 100M
-                    }
+                    },
+                    isFixSettlementRate: false,
+                    isSeniorInvestor: false,
                 },
                 data: {
                     peakSettlementRate: processedPeakSettlementRate,

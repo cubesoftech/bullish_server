@@ -185,23 +185,25 @@ model series_log {
 }
 
 model series {
-  id                  String                 @id @default(cuid())
-  seriesId            Int
-  name                String
-  region              String
-  minAmount           Int
-  peakSettlementRate  Float                  @default(0)
-  leanSettlementRate  Float                  @default(0)
-  createdAt           DateTime               @default(now())
-  updatedAt           DateTime               @updatedAt
-  payoutSchedule      series_payout_schedule @default(MONTHLY)
-  series_log          series_log[]
-  periods             series_periods[]
-  rate                series_rate?
-  peakSeason          series_peak_season?
-  profit_log          profit_log[]
-  investment_log      investment_log[]
-  settlement_rate_log settlement_rate_log[]
+  id                       String                 @id @default(cuid())
+  seriesId                 Int
+  name                     String
+  region                   String
+  minAmount                Int
+  peakSettlementRate       Float                  @default(0)
+  leanSettlementRate       Float                  @default(0)
+  seniorAdditionalLeanRate Float                  @default(0)
+  seniorAdditionalPeakRate Float                  @default(0)
+  createdAt                DateTime               @default(now())
+  updatedAt                DateTime               @updatedAt
+  payoutSchedule           series_payout_schedule @default(MONTHLY)
+  series_log               series_log[]
+  periods                  series_periods[]
+  rate                     series_rate?
+  peakSeason               series_peak_season?
+  profit_log               profit_log[]
+  investment_log           investment_log[]
+  settlement_rate_log      settlement_rate_log[]
 }
 
 model series_periods {
@@ -316,6 +318,8 @@ model investment_log {
   updatedAt                        DateTime                           @updatedAt
   note                             String                             @default("")
   isAgentPaid                      Boolean                            @default(false)
+  isFixSettlementRate              Boolean                            @default(false)
+  isSeniorInvestor                 Boolean                            @default(false)
   user                             users                              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Investment_Log_userId_fkey")
   seriesLog                        series_log                         @relation(fields: [seriesLogId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesLogId_fkey")
   series                           series                             @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesId_fkey")

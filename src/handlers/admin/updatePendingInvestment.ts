@@ -6,6 +6,8 @@ interface UpdatePendingInvestmentPayload {
     investmentId: string;
     peakSettlementRate: number;
     leanSettlementRate: number;
+    isFixSettlementRate: boolean;
+    isSeniorInvestor: boolean;
 }
 
 export default async function updatePendingInvestment(req: Request, res: Response) {
@@ -13,7 +15,7 @@ export default async function updatePendingInvestment(req: Request, res: Respons
     if (!user) {
         return res.status(401).json({ message: "인증되지 않았습니다." });
     }
-    const { investmentId, leanSettlementRate, peakSettlementRate } = req.body as UpdatePendingInvestmentPayload;
+    const { investmentId, leanSettlementRate, peakSettlementRate, isFixSettlementRate, isSeniorInvestor } = req.body as UpdatePendingInvestmentPayload;
 
     if (!investmentId || investmentId.trim() === "") {
         return res.status(400).json({ message: "잘못된 투자 및/또는 상태입니다." });
@@ -59,6 +61,8 @@ export default async function updatePendingInvestment(req: Request, res: Respons
                 data: {
                     peakSettlementRate: processedPeakSettlementRate,
                     leanSettlementRate: processedLeanSettlementRate,
+                    isFixSettlementRate,
+                    isSeniorInvestor,
                     updatedAt: new Date(),
                 }
             })

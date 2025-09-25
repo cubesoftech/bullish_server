@@ -91,6 +91,7 @@ import updateChangeUserInfoStatus from "../handlers/admin/updateChangeUserInfoSt
 import updateNoticeCreatedAt from "../handlers/admin/updateNoticeCreatedAt";
 import getAgentDetails from "../handlers/admin/getAgentDetails";
 import updateAgentIncentiveStatus from "../handlers/admin/updateAgentIncentiveStatus";
+import updateSeniorInvestorsAdditionalRates from "../handlers/admin/updateSeniorInvestorsAdditionalRates";
 
 
 // ---------- ROUTER ---------- //
@@ -197,3 +198,4 @@ router.post('/updateChangeUserInfoStatus', authenticate, updateChangeUserInfoSta
 router.post('/updateNoticeCreatedAt', authenticate, updateNoticeCreatedAt);
 router.post('/getAgentDetails', authenticate, getAgentDetails);
 router.post('/updateAgentIncentiveStatus', authenticate, updateAgentIncentiveStatus);
+router.post('/updateSeniorInvestorsAdditionalRates', authenticate, updateSeniorInvestorsAdditionalRates);

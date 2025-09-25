@@ -16,6 +16,8 @@ export default async function getSeriesPeakSeason(req: Request, res: Response) {
             ...s,
             peakSettlementRate: s.peakSettlementRate * 100,
             leanSettlementRate: s.leanSettlementRate * 100,
+            seniorAdditionalPeakRate: s.seniorAdditionalPeakRate * 100,
+            seniorAdditionalLeanRate: s.seniorAdditionalLeanRate * 100,
         }))
 
         return res.status(200).json({ data: processedSeries })

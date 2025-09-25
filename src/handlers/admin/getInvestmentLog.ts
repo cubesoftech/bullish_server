@@ -20,7 +20,7 @@ export default async function getInvestmentLog(req: Request, res: Response) {
     const processedSearchType = searchType && acceptedSearchTypes.includes(searchType as string) ? searchType as string : "logs"
 
 
-    const acceptedTypes = ["default", "1", "2", "3", "4", "5", "today", "week", "expiring"]
+    const acceptedTypes = ["default", "1", "2", "3", "4", "5", "today", "week", "expiring", "fix settlement", "senior investor"]
     if (!acceptedTypes.includes(type_ as string)) {
         return res.status(400).json({ message: "잘못된 유형 필터" });
     }
@@ -206,6 +206,28 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                 }
                 break;
             }
+            case "fix settlement": {
+                where = {
+                    ...where,
+                    status: "PENDING",
+                    isFixSettlementRate: true,
+                }
+                orderBy = {
+                    createdAt: "desc"
+                }
+                break;
+            }
+            case "senior investor": {
+                where = {
+                    ...where,
+                    status: "PENDING",
+                    isSeniorInvestor: true
+                }
+                orderBy = {
+                    createdAt: "desc"
+                }
+                break;
+            }
             default: {
                 where = {
                     ...where,
@@ -267,12 +289,18 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                         isExpiring = true
                     }
 
+                    const seniorPeakSettlementRate = investment.series.seniorAdditionalPeakRate + investment.peakSettlementRate;
+                    const seniorLeanSettlementRate = investment.series.seniorAdditionalLeanRate + investment.leanSettlementRate;
+
+                    const processedPeakSettlementRate = investment.isSeniorInvestor ? seniorPeakSettlementRate : investment.peakSettlementRate
+                    const processedLeanSettlementRate = investment.isSeniorInvestor ? seniorLeanSettlementRate : investment.leanSettlementRate
+
                     let profit = 0;
                     const currentMonth = now.getMonth() + 1; // getMonth() returns 0-11
                     const peakSeasonStartMonth = investment.series.peakSeason?.peakSeasonStartMonth
                     const peakSeasonEndMonth = investment.series.peakSeason?.peakSeasonEndMonth
                     const isOnPeak = currentMonth >= peakSeasonStartMonth! && currentMonth <= peakSeasonEndMonth!
-                    const settlementRate = isOnPeak ? investment.peakSettlementRate : investment.leanSettlementRate;
+                    const settlementRate = isOnPeak ? processedPeakSettlementRate : processedLeanSettlementRate;
                     const monthly = (investment.amount * settlementRate) * (1 - 0.154) //monthly profit deduction 15.4% tax
 
                     if (investment.payoutSchedule === "WEEKLY") {
@@ -301,8 +329,8 @@ export default async function getInvestmentLog(req: Request, res: Response) {
                         isPaid,
                         isOnPeak,
                         settlementRate: investment.settlementRate * 100,
-                        peakSettlementRate: investment.peakSettlementRate * 100,
-                        leanSettlementRate: investment.leanSettlementRate * 100,
+                        peakSettlementRate: processedPeakSettlementRate * 100,
+                        leanSettlementRate: processedLeanSettlementRate * 100,
                         isExpiring,
                         maturityDate,
                         profit: parseFloat(profit.toFixed(2)),
