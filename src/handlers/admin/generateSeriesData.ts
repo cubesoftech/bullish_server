@@ -59,7 +59,7 @@ export default async function generateSeriesData(req: Request, res: Response) {
     try {
         const series = await prisma.series.count();
         if (series > 0) {
-            return res.status(400).json({ error: "Series already exists" });
+            return res.status(400).json({ message: "Series already exists" });
         }
 
         await prisma.$transaction(seriesData.map((series) =>
@@ -104,6 +104,6 @@ export default async function generateSeriesData(req: Request, res: Response) {
         return res.status(200).json({ message: "Series created successfully" });
     } catch (err) {
         console.error("Error creating series:", err);
-        return res.status(500).json({ error: "내부 서버 오류." });
+        return res.status(500).json({ message: "내부 서버 오류." });
     }
 }

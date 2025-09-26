@@ -9,7 +9,7 @@ export default async function deleteNotice(req: Request, res: Response) {
     const { ids } = req.body as DeleteNoticePayload;
 
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
-        return res.status(400).json({ error: "잘못된 요청 데이터입니다." });
+        return res.status(400).json({ message: "잘못된 요청 데이터입니다." });
     }
 
     try {

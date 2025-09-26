@@ -49,6 +49,6 @@ export default async function getReferrerPointConversionLog(req: Request, res: R
         return res.status(200).json({ data: processedReferrerPointConversionLog, total: totalReferrerPointConversionLog })
     } catch (error) {
         console.log("Error on getReferrerPointLog: ", error)
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }

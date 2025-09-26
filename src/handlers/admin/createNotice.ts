@@ -14,7 +14,7 @@ export default async function createNotice(req: Request, res: Response) {
         (!body.title || body.title.trim() === "") ||
         (!body.content || body.content.trim() === "")
     ) {
-        return res.status(400).json({ error: "제목과 내용은 필수입니다." });
+        return res.status(400).json({ message: "제목과 내용은 필수입니다." });
     }
 
     try {

@@ -54,6 +54,6 @@ export default async function getEndedInvestment(req: Request, res: Response) {
         return res.status(200).json({ data: processedEndedInvestments, total: totalEndedInvestments })
     } catch (error) {
         console.log("Error on getEndedInvestments: ", error)
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }

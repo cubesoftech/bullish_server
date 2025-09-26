@@ -81,6 +81,6 @@ export default async function getNotificationCount(req: Request, res: Response) 
         return res.status(200).json({ data });
     } catch (error) {
         console.log("Error in admin getNotificationCount: ", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }

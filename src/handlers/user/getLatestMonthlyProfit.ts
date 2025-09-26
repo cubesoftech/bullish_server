@@ -29,6 +29,6 @@ export default async function getLatestMonthlyProfit(req: Request, res: Response
         return res.status(200).json({ data: monthlyProfit });
     } catch (error) {
         console.log("Error on getLastMonthlyProfit: ", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }

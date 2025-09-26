@@ -42,6 +42,6 @@ export default async function getUserInvestmentSummary(req: Request, res: Respon
         });
     } catch (error) {
         console.log("Error on getUserInvestmentSummary: ", error)
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }

@@ -89,6 +89,6 @@ export default async function updateExtendInvestmentDurationStatus(req: Request,
         return res.status(200).json({ message: "요청 상태가 성공적으로 업데이트되었습니다." });
     } catch (error) {
         console.log("Error in updateExtendInvestmentDurationStatus:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }

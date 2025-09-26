@@ -68,6 +68,6 @@ export default async function createDirectInquiry(req: Request, res: Response) {
         return res.status(200).json({ message: "쪽지가 성공적으로 전송되었습니다." })
     } catch (error) {
         console.log("Error on admin createDirectInquiry: ", error)
-        return res.status(500).json({ message: "Internal server error" })
+        return res.status(500).json({ message: "내부 서버 오류" })
     }
 }

@@ -52,6 +52,6 @@ export default async function getProfitLog(req: Request, res: Response) {
         return res.status(200).json({ data: processedProfitLog, total: totalProfitLog })
     } catch (error) {
         console.log("Error on getProfitLog: ", error)
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }

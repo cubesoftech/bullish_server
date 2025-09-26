@@ -36,6 +36,6 @@ export default async function updateAdminNote(req: Request, res: Response) {
         return res.status(200).json({ message: "노트가 성공적으로 업데이트되었습니다." })
     } catch (error) {
         console.error("Error on admin updateAdminNote: ", error)
-        return res.status(500).json({ message: "Internal server error" })
+        return res.status(500).json({ message: "내부 서버 오류" })
     }
 }

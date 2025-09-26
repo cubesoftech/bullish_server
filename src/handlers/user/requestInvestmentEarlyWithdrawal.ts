@@ -66,7 +66,7 @@ export default async function requestInvestmentEarlyWithdrawal(req: Request, res
         return res.status(200).json({ message: "조기 출금 요청이 성공적으로 제출되었습니다." });
     } catch (error) {
         console.error("Error requestInvestmentEarlyWithdrawal:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 
 }

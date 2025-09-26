@@ -88,6 +88,6 @@ export default async function updateInvestmentLogStatus(req: Request, res: Respo
         return res.status(200).json({ message: "투자 로그 상태가 성공적으로 업데이트되었습니다." });
     } catch (error) {
         console.log("Error updateInvestmentLogStatus:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }

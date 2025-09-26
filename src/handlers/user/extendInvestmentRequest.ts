@@ -57,6 +57,6 @@ export default async function extendInvestmentRequest(req: Request, res: Respons
         return res.status(200).json({ message: "투자 기간 연장 요청이 성공적으로 제출되었습니다." });
     } catch (error) {
         console.log("Error in extendInvestmentRequest:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }

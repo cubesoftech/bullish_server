@@ -66,6 +66,6 @@ export default async function sendOTP(req: Request, res: Response) {
         return res.status(200).json({ message: `OTP sent to ${maskedEmail}` });
     } catch (error) {
         console.error("Error sending OTP: ", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }

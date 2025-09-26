@@ -90,6 +90,6 @@ export default async function getOngoingInvestment(req: Request, res: Response) 
         return res.status(200).json({ data: processedOngoingInvestments, total: totalOngoingInvestments })
     } catch (error) {
         console.log("Error on getOngoingInvestment: ", error)
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }

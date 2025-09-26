@@ -61,6 +61,6 @@ export default async function getMonthlySettlementProfit(req: Request, res: Resp
         return res.status(200).json({ data: depositsByYear });
     } catch (error) {
         console.error("Error fetching monthly deposit:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }

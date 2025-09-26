@@ -17,15 +17,15 @@ export default async function updateAgent(req: Request, res: Response) {
         return res.status(400).json({ message: "에이전트 ID는 필수입니다." });
     }
     if (!name || name.trim() === "") {
-        return res.status(400).json({ error: "잘못된 이름입니다." });
+        return res.status(400).json({ message: "잘못된 이름입니다." });
     }
     if (!settlementCycle || settlementCycle.trim() === "") {
-        return res.status(400).json({ error: "잘못된 정산 주기입니다." });
+        return res.status(400).json({ message: "잘못된 정산 주기입니다." });
     }
 
     const acceptedSettlementCycles = ["WEEKLY", "2WEEKS", "MONTHLY"];
     if (!acceptedSettlementCycles.includes(settlementCycle.toUpperCase())) {
-        return res.status(400).json({ error: "잘못된 정산 주기입니다." });
+        return res.status(400).json({ message: "잘못된 정산 주기입니다." });
     }
 
     try {

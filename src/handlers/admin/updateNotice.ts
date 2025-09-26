@@ -15,7 +15,7 @@ export default async function updateNotice(req: Request, res: Response) {
         (!body.title || body.title.trim() === "") ||
         (!body.content || body.content.trim() === "")
     ) {
-        return res.status(400).json({ error: "ID, 제목, 내용은 필수입니다." });
+        return res.status(400).json({ message: "ID, 제목, 내용은 필수입니다." });
     }
 
     try {

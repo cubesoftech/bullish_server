@@ -1,8 +1,8 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 
 // ---------- MIDDLEWARES ---------- //
 import authenticate from "../middlewares/authenticate";
-
+import upload from "../middlewares/upload";
 
 // ---------- HANDLERS ---------- //
 // ---------- GET HANDLERS ---------- //
@@ -40,6 +40,7 @@ import getInvestmentEarlyWithdrawalLog from "../handlers/admin/getInvestmentEarl
 import getReservationLog from "../handlers/admin/getReservationLog";
 import getChangeUserInfoLog from "../handlers/admin/getChangeUserInfoLog";
 import getUserDetails from "../handlers/admin/getUserDetails";
+import getPopupImages from "../handlers/admin/getPopupImages";
 import generateSeriesData from "../handlers/admin/generateSeriesData";
 import createDummyUsers from "../handlers/admin/createDummyUsers";
 
@@ -92,6 +93,8 @@ import updateNoticeCreatedAt from "../handlers/admin/updateNoticeCreatedAt";
 import getAgentDetails from "../handlers/admin/getAgentDetails";
 import updateAgentIncentiveStatus from "../handlers/admin/updateAgentIncentiveStatus";
 import updateSeniorInvestorsAdditionalRates from "../handlers/admin/updateSeniorInvestorsAdditionalRates";
+import uploadPopupImage from "../handlers/admin/uploadPopupImage";
+import deletePopupImage from "../handlers/admin/deletePopupImage";
 
 
 // ---------- ROUTER ---------- //
@@ -100,45 +103,53 @@ export default router;
 
 
 // ---------- GET REQUESTS ---------- //
+const getRequests = [
+    { endpoint: "getDashboardStats", middlewares: [authenticate], controller: getDashboardStats },
+    { endpoint: "getUsers", middlewares: [authenticate], controller: getUsers },
+    { endpoint: "getUserDetails", middlewares: [authenticate], controller: getUserDetails },
+    { endpoint: "getPendingUsers", middlewares: [authenticate], controller: getPendingUsers },
+    { endpoint: "getDepositRequests", middlewares: [authenticate], controller: getDepositRequests },
+    { endpoint: "getWithdrawalRequests", middlewares: [authenticate], controller: getWithdrawalRequests },
+    { endpoint: "getSeriesLog", middlewares: [authenticate], controller: getSeriesLog },
+    { endpoint: "getNotice", middlewares: [authenticate], controller: getNotice },
+    { endpoint: "getSeriesPeakSeason", middlewares: [authenticate], controller: getSeriesPeakSeason },
+    { endpoint: "getInvestmentLog", middlewares: [authenticate], controller: getInvestmentLog },
+    { endpoint: "getProfitLog", middlewares: [authenticate], controller: getProfitLog },
+    { endpoint: "getActivityLog", middlewares: [authenticate], controller: getActivityLog },
+    { endpoint: "getReferrers", middlewares: [authenticate], controller: getReferrers },
+    { endpoint: "getInquiry", middlewares: [authenticate], controller: getInquiry },
+    { endpoint: "getDirectInquiryLog", middlewares: [authenticate], controller: getDirectInquiryLog },
+    { endpoint: "getDirectInquiryMessages", middlewares: [authenticate], controller: getDirectInquiryMessages },
+    { endpoint: "getSuggestedUsers", middlewares: [authenticate], controller: getSuggestedUsers },
+    { endpoint: "getReviewLog", middlewares: [authenticate], controller: getReviewLog },
+    { endpoint: "getReferrerPointConversionLog", middlewares: [authenticate], controller: getReferrerPointConversionLog },
+    { endpoint: "getAgents", middlewares: [authenticate], controller: getAgents },
+    { endpoint: "getReferralProfitLog", middlewares: [authenticate], controller: getReferralProfitLog },
+    { endpoint: "getMonthlyDeposits", middlewares: [authenticate], controller: getMonthlyDeposit },
+    { endpoint: "getMonthlyWithdrawals", middlewares: [authenticate], controller: getMonthlyWithdrawals },
+    { endpoint: "getMonthlySettlementProfit", middlewares: [authenticate], controller: getMonthlySettlementProfit },
+    { endpoint: "getNotificationCount", middlewares: [authenticate], controller: getNotificationCount },
+    { endpoint: "checkDirectionInquiry", middlewares: [authenticate], controller: checkDirectionInquiry },
+    { endpoint: "getDeletedUsers", middlewares: [authenticate], controller: getDeletedUsers },
+    { endpoint: "getUserDeletionRequests", middlewares: [authenticate], controller: getUserDeletionRequests },
+    { endpoint: "getWithdrawExtraBalanceRequestLog", middlewares: [authenticate], controller: getWithdrawExtraBalanceRequestLog },
+    { endpoint: "getWithdrawInvestmentAmountLog", middlewares: [authenticate], controller: getWithdrawInvestmentAmountLog },
+    { endpoint: "getExtendInvestmentDurationLog", middlewares: [authenticate], controller: getExtendInvestmentDurationLog },
+    { endpoint: "getInvestmentEarlyWithdrawalLog", middlewares: [authenticate], controller: getInvestmentEarlyWithdrawalLog },
+    { endpoint: "getReservationLog", middlewares: [authenticate], controller: getReservationLog },
+    { endpoint: "getChangeUserInfoLog", middlewares: [authenticate], controller: getChangeUserInfoLog },
+    { endpoint: "getPopupImages", middlewares: [authenticate], controller: getPopupImages },
+]
 router.get('/', (req, res) => {
     res.send('Admin...');
 });
-router.get("/getDashboardStats", authenticate, getDashboardStats);
-router.get("/getUsers", authenticate, getUsers);
-router.get("/getUserDetails", authenticate, getUserDetails);
-router.get("/getPendingUsers", authenticate, getPendingUsers);
-router.get("/getDepositRequests", authenticate, getDepositRequests);
-router.get("/getWithdrawalRequests", authenticate, getWithdrawalRequests);
-router.get("/getSeriesLog", authenticate, getSeriesLog);
-router.get("/getNotice", authenticate, getNotice);
-router.get("/getSeriesPeakSeason", authenticate, getSeriesPeakSeason);
-router.get("/getInvestmentLog", authenticate, getInvestmentLog);
-router.get("/getProfitLog", authenticate, getProfitLog);
-router.get("/getActivityLog", authenticate, getActivityLog);
-router.get("/getReferrers", authenticate, getReferrers);
-router.get("/getInquiry", authenticate, getInquiry);
-router.get("/getDirectInquiryLog", authenticate, getDirectInquiryLog);
-router.get("/getDirectInquiryMessages", authenticate, getDirectInquiryMessages);
-router.get("/getSuggestedUsers", authenticate, getSuggestedUsers);
-router.get("/getReviewLog", authenticate, getReviewLog);
-router.get("/getReferrerPointConversionLog", authenticate, getReferrerPointConversionLog);
-router.get("/getAgents", authenticate, getAgents);
-router.get("/getReferralProfitLog", authenticate, getReferralProfitLog);
-router.get("/getMonthlyDeposits", authenticate, getMonthlyDeposit);
-router.get("/getMonthlyWithdrawals", authenticate, getMonthlyWithdrawals);
-router.get("/getMonthlySettlementProfit", authenticate, getMonthlySettlementProfit);
-router.get("/getNotificationCount", authenticate, getNotificationCount);
-router.get("/checkDirectionInquiry", authenticate, checkDirectionInquiry);
-router.get("/getDeletedUsers", authenticate, getDeletedUsers);
-router.get("/getUserDeletionRequests", authenticate, getUserDeletionRequests);
-router.get("/getWithdrawExtraBalanceRequestLog", authenticate, getWithdrawExtraBalanceRequestLog);
-router.get("/getWithdrawInvestmentAmountLog", authenticate, getWithdrawInvestmentAmountLog);
-router.get("/getExtendInvestmentDurationLog", authenticate, getExtendInvestmentDurationLog);
-router.get("/getInvestmentEarlyWithdrawalLog", authenticate, getInvestmentEarlyWithdrawalLog);
-router.get("/getReservationLog", authenticate, getReservationLog);
-router.get("/getChangeUserInfoLog", authenticate, getChangeUserInfoLog);
+{
+    getRequests.map(request => {
+        const { endpoint, controller, middlewares } = request;
 
-
+        return router.get(`/${endpoint}`, ...middlewares, controller);
+    })
+}
 // commented out for now, as it is not used in the current context
 // use only to generate series data
 // ---------- NOTE ---------- //
@@ -152,50 +163,61 @@ router.get("/getChangeUserInfoLog", authenticate, getChangeUserInfoLog);
 
 
 // ---------- POST REQUESTS ---------- //
-router.post('/refresh', refresh);
-router.post('/login', login);
-router.post('/deleteUsers', authenticate, deleteUsers);
-router.post('/approveUserRequest', authenticate, approveUserRequest);
-router.post('/deleteUserRequest', authenticate, deleteUserRequest);
-router.post('/updateDepositRequestStatus', authenticate, updateDepositRequestStatus);
-router.post('/updateWithdrawalRequestStatus', authenticate, updateWithdrawalRequestStatus);
-router.post('/createNotice', authenticate, createNotice);
-router.post('/updateNotice', authenticate, updateNotice);
-router.post('/deleteNotice', authenticate, deleteNotice);
-router.post('/deleteActivityLog', authenticate, deleteActivityLog);
-router.post('/createInquiry', authenticate, createInquiry);
-router.post('/replyInquiry', authenticate, replyInquiry);
-router.post('/deleteInquiry', authenticate, deleteInquiry);
-router.post('/updateSeriesStatus', authenticate, updateSeriesStatus);
-router.post('/replyDirectInquiry', authenticate, replyDirectInquiry);
-router.post('/updateSeriesPeakSeason', authenticate, updateSeriesPeakSeason);
-router.post('/updateReviewStatus', authenticate, updateReviewStatus);
-router.post('/updateReferrerPointConversion', authenticate, updateReferrerPointConversion);
-router.post('/updateAdminNote', authenticate, updateAdminNote);
-router.post('/updateAdminSummary', authenticate, updateAdminSummary);
-router.post('/createAgent', authenticate, createAgent);
-router.post('/updateAgent', authenticate, updateAgent);
-router.post('/deleteAgent', authenticate, deleteAgent);
-router.post('/updateUserPayoutSchedule', authenticate, updateUserPayoutSchedule);
-router.post('/updatePendingInvestment', authenticate, updatePendingInvestment);
-router.post('/updateSeriesSettlementRates', authenticate, updateSeriesSettlementRates);
-router.post('/recalculateInvestmentProfit', authenticate, recalculateInvestmentProfit);
-router.post('/createDirectInquiry', authenticate, createDirectInquiry);
-router.post('/reactivateUserAccountDeletion', authenticate, reactivateUserAccountDeletion);
-router.post('/updateUserDeletionRequestStatus', authenticate, updateUserDeletionRequestStatus);
-router.post('/updateWithdrawExtraBalanceRequestStatus', authenticate, updateWithdrawExtraBalanceRequestStatus);
-router.post('/updateWithdrawInvestedAmountStatus', authenticate, updateWithdrawInvestedAmountStatus);
-router.post('/updateUserExtraWithdrawableBalance', authenticate, updateUserExtraWithdrawableBalance);
-router.post('/updateInvestmentCreatedAt', authenticate, updateInvestmentCreatedAt);
-router.post('/updateProfitCreatedAt', authenticate, updateProfitCreatedAt);
-router.post('/updateExtendInvestmentDurationStatus', authenticate, updateExtendInvestmentDurationStatus);
-router.post('/updateInvestmentEarlyWithdrawalRequest', authenticate, updateInvestmentEarlyWithdrawalRequest);
-router.post('/updateInvestmentLogStatus', authenticate, updateInvestmentLogStatus);
-router.post('/replyToReservation', authenticate, replyToReservation);
-router.post('/deleteReservationLog', authenticate, deleteReservationLog);
-router.post('/deleteProfit', authenticate, deleteProfit);
-router.post('/updateChangeUserInfoStatus', authenticate, updateChangeUserInfoStatus);
-router.post('/updateNoticeCreatedAt', authenticate, updateNoticeCreatedAt);
-router.post('/getAgentDetails', authenticate, getAgentDetails);
-router.post('/updateAgentIncentiveStatus', authenticate, updateAgentIncentiveStatus);
-router.post('/updateSeniorInvestorsAdditionalRates', authenticate, updateSeniorInvestorsAdditionalRates);
+const postRequests = [
+    { endpoint: "refresh", middlewares: [], controller: refresh },
+    { endpoint: "login", middlewares: [], controller: login },
+    { endpoint: "deleteUsers", middlewares: [authenticate], controller: deleteUsers },
+    { endpoint: "approveUserRequest", middlewares: [authenticate], controller: approveUserRequest },
+    { endpoint: "deleteUserRequest", middlewares: [authenticate], controller: deleteUserRequest },
+    { endpoint: "updateDepositRequestStatus", middlewares: [authenticate], controller: updateDepositRequestStatus },
+    { endpoint: "updateWithdrawalRequestStatus", middlewares: [authenticate], controller: updateWithdrawalRequestStatus },
+    { endpoint: "createNotice", middlewares: [authenticate], controller: createNotice },
+    { endpoint: "updateNotice", middlewares: [authenticate], controller: updateNotice },
+    { endpoint: "deleteNotice", middlewares: [authenticate], controller: deleteNotice },
+    { endpoint: "deleteActivityLog", middlewares: [authenticate], controller: deleteActivityLog },
+    { endpoint: "createInquiry", middlewares: [authenticate], controller: createInquiry },
+    { endpoint: "replyInquiry", middlewares: [authenticate], controller: replyInquiry },
+    { endpoint: "deleteInquiry", middlewares: [authenticate], controller: deleteInquiry },
+    { endpoint: "updateSeriesStatus", middlewares: [authenticate], controller: updateSeriesStatus },
+    { endpoint: "replyDirectInquiry", middlewares: [authenticate], controller: replyDirectInquiry },
+    { endpoint: "updateSeriesPeakSeason", middlewares: [authenticate], controller: updateSeriesPeakSeason },
+    { endpoint: "updateReviewStatus", middlewares: [authenticate], controller: updateReviewStatus },
+    { endpoint: "updateReferrerPointConversion", middlewares: [authenticate], controller: updateReferrerPointConversion },
+    { endpoint: "updateAdminNote", middlewares: [authenticate], controller: updateAdminNote },
+    { endpoint: "updateAdminSummary", middlewares: [authenticate], controller: updateAdminSummary },
+    { endpoint: "createAgent", middlewares: [authenticate], controller: createAgent },
+    { endpoint: "updateAgent", middlewares: [authenticate], controller: updateAgent },
+    { endpoint: "deleteAgent", middlewares: [authenticate], controller: deleteAgent },
+    { endpoint: "updateUserPayoutSchedule", middlewares: [authenticate], controller: updateUserPayoutSchedule },
+    { endpoint: "updatePendingInvestment", middlewares: [authenticate], controller: updatePendingInvestment },
+    { endpoint: "updateSeriesSettlementRates", middlewares: [authenticate], controller: updateSeriesSettlementRates },
+    { endpoint: "recalculateInvestmentProfit", middlewares: [authenticate], controller: recalculateInvestmentProfit },
+    { endpoint: "createDirectInquiry", middlewares: [authenticate], controller: createDirectInquiry },
+    { endpoint: "reactivateUserAccountDeletion", middlewares: [authenticate], controller: reactivateUserAccountDeletion },
+    { endpoint: "updateUserDeletionRequestStatus", middlewares: [authenticate], controller: updateUserDeletionRequestStatus },
+    { endpoint: "updateWithdrawExtraBalanceRequestStatus", middlewares: [authenticate], controller: updateWithdrawExtraBalanceRequestStatus },
+    { endpoint: "updateWithdrawInvestedAmountStatus", middlewares: [authenticate], controller: updateWithdrawInvestedAmountStatus },
+    { endpoint: "updateUserExtraWithdrawableBalance", middlewares: [authenticate], controller: updateUserExtraWithdrawableBalance },
+    { endpoint: "updateInvestmentCreatedAt", middlewares: [authenticate], controller: updateInvestmentCreatedAt },
+    { endpoint: "updateProfitCreatedAt", middlewares: [authenticate], controller: updateProfitCreatedAt },
+    { endpoint: "updateExtendInvestmentDurationStatus", middlewares: [authenticate], controller: updateExtendInvestmentDurationStatus },
+    { endpoint: "updateInvestmentEarlyWithdrawalRequest", middlewares: [authenticate], controller: updateInvestmentEarlyWithdrawalRequest },
+    { endpoint: "updateInvestmentLogStatus", middlewares: [authenticate], controller: updateInvestmentLogStatus },
+    { endpoint: "replyToReservation", middlewares: [authenticate], controller: replyToReservation },
+    { endpoint: "deleteReservationLog", middlewares: [authenticate], controller: deleteReservationLog },
+    { endpoint: "deleteProfit", middlewares: [authenticate], controller: deleteProfit },
+    { endpoint: "updateChangeUserInfoStatus", middlewares: [authenticate], controller: updateChangeUserInfoStatus },
+    { endpoint: "updateNoticeCreatedAt", middlewares: [authenticate], controller: updateNoticeCreatedAt },
+    { endpoint: "getAgentDetails", middlewares: [authenticate], controller: getAgentDetails },
+    { endpoint: "updateAgentIncentiveStatus", middlewares: [authenticate], controller: updateAgentIncentiveStatus },
+    { endpoint: "updateSeniorInvestorsAdditionalRates", middlewares: [authenticate], controller: updateSeniorInvestorsAdditionalRates },
+    { endpoint: "uploadPopupImage", middlewares: [authenticate, upload.single("image")], controller: uploadPopupImage },
+    { endpoint: "deletePopupImage", middlewares: [authenticate], controller: deletePopupImage },
+]
+{
+    postRequests.map(request => {
+        const { endpoint, middlewares, controller } = request
+
+        return router.post(`/${endpoint}`, ...middlewares, controller);
+    })
+}

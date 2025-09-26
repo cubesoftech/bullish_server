@@ -55,6 +55,6 @@ export default async function withdrawExtraBalance(req: Request, res: Response) 
         return res.status(200).json({ message: "출금이 완료되었습니다", newBalance: userInfo.extraWithdrawalBalance - amount });
     } catch (error) {
         console.error("Error withdrawExtraBalance:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }

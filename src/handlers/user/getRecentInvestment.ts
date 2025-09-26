@@ -35,6 +35,6 @@ export default async function getRecentInvestment(req: Request, res: Response) {
 
     } catch (error) {
         console.log("Error on user getRecentInvestment: ", error)
-        return res.status(500).json({ message: "Internal server error" })
+        return res.status(500).json({ message: "내부 서버 오류" })
     }
 }

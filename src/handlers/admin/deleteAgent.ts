@@ -9,7 +9,7 @@ export default async function deleteAgent(req: Request, res: Response) {
     const { ids } = req.body as DeleteAgentPayload;
 
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
-        return res.status(400).json({ error: "잘못된 ID입니다." });
+        return res.status(400).json({ message: "잘못된 ID입니다." });
     }
 
     try {

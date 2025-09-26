@@ -29,6 +29,7 @@ import getDepositLog from "../handlers/user/getDepositLog";
 import getWithdrawalLog from "../handlers/user/getWithdrawalLog";
 import getEarlyWithdrawnedInvestment from "../handlers/user/getEarlyWithdrawnedInvestment";
 import getReservationLog from "../handlers/user/getReservationLog";
+import getPopupImages from "../handlers/user/getPopupImage";
 
 // ---------- NICE API ---------- //
 import { getNiceEncryptedToken } from "../utils/niceApi";
@@ -74,6 +75,7 @@ router.get('/getReviews', getReviews);
 router.get('/getSeriesData', getSeriesData);
 router.get('/getNotices', getNotices);
 router.get('/getNiceEncryptedToken', getNiceEncryptedToken);
+router.get('/getPopupImages', getPopupImages);
 // ---------- SECURED GET REQUESTS ---------- //
 router.get('/logout', authenticate, logout);
 router.get('/userInfo', authenticate, userInfo)

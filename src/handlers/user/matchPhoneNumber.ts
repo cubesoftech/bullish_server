@@ -31,6 +31,6 @@ export default async function matchPhoneNumber(req: Request, res: Response) {
         return res.status(200).json({ message: "전화번호가 일치합니다." });
     } catch (error) {
         console.error("Error getPhoneNumber:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "내부 서버 오류" });
     }
 }
