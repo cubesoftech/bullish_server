@@ -95,6 +95,9 @@ import updateAgentIncentiveStatus from "../handlers/admin/updateAgentIncentiveSt
 import updateSeniorInvestorsAdditionalRates from "../handlers/admin/updateSeniorInvestorsAdditionalRates";
 import uploadPopupImage from "../handlers/admin/uploadPopupImage";
 import deletePopupImage from "../handlers/admin/deletePopupImage";
+import createDummyReviews from "../handlers/admin/createDummyReviews";
+import updatePopupCreationDate from "../handlers/admin/updatePopupCreationDate";
+import deleteReview from "../handlers/admin/deleteReview";
 
 
 // ---------- ROUTER ---------- //
@@ -213,6 +216,9 @@ const postRequests = [
     { endpoint: "updateSeniorInvestorsAdditionalRates", middlewares: [authenticate], controller: updateSeniorInvestorsAdditionalRates },
     { endpoint: "uploadPopupImage", middlewares: [authenticate, upload.single("image")], controller: uploadPopupImage },
     { endpoint: "deletePopupImage", middlewares: [authenticate], controller: deletePopupImage },
+    { endpoint: "createDummyReviews", middlewares: [authenticate], controller: createDummyReviews },
+    { endpoint: "updatePopupCreationDate", middlewares: [authenticate], controller: updatePopupCreationDate },
+    { endpoint: "deleteReview", middlewares: [authenticate], controller: deleteReview },
 ]
 {
     postRequests.map(request => {

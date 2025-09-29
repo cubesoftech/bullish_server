@@ -29,7 +29,7 @@ export default async function getReviews(req: Request, res: Response) {
             ...review,
             user: {
                 ...review.user,
-                referrerPoints: Number(review.user.referrerPoints),
+                referrerPoints: Number(review.user?.referrerPoints ?? 0),
             }
         }))
 

@@ -71,7 +71,6 @@ model users {
   deposit_log                      deposit_log[]
   inquiry_log                      inquiry_log[]
   reservation_log                  reservation_log[]
-  review_log                       review_log[]
   series_log                       series_log[]
   withdrawal_log                   withdrawal_log[]
   direct_inquiry                   direct_inquiry?
@@ -92,6 +91,7 @@ model users {
   agent_incentive_log              agent_incentive_log[]
   user_reached_referral_limit_log  user_reached_referral_limit_log[]
   referred_investors_log           referred_investors_log[]
+  review_log                       review_log[]
 
   @@index([id, name, phoneNumber], map: "Users_id_name_phoneNumber_fkey")
   @@index([referrerId], map: "Users_referrerId_fkey")
@@ -151,7 +151,9 @@ model inquiry_log {
 model review_log {
   id              String             @id @default(cuid())
   investmentLogId String?
-  userId          String
+  userId          String?
+  name            String?
+  gender          String?
   rating          Int
   series          Int
   review          String
@@ -160,7 +162,7 @@ model review_log {
   status          transaction_status @default(PENDING)
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
-  user            users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Review_Log_userId_fkey")
+  user            users?             @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Review_Log_userId_fkey")
   investmentLog   investment_log?    @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Review_Log_investmentLogId_fkey")
 
   @@index([userId], map: "Review_Log_userId_fkey")

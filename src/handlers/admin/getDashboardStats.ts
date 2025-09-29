@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
+import { endOfDay, endOfMonth, startOfDay, startOfMonth } from "date-fns";
 
 export default async function getDashboardStats(req: Request, res: Response) {
     const { user } = req
@@ -282,6 +283,54 @@ export default async function getDashboardStats(req: Request, res: Response) {
             }
         })
 
+        const totalInvestmentToday = await prisma.investment_log.aggregate({
+            where: {
+                createdAt: {
+                    gte: startOfDay(new Date()),
+                    lt: endOfDay(new Date())
+                }
+            },
+            _sum: {
+                amount: true,
+            }
+        })
+        const totalInvestmentThisMonth = await prisma.investment_log.aggregate({
+            where: {
+                createdAt: {
+                    gte: startOfMonth(new Date()),
+                    lt: endOfMonth(new Date())
+                }
+            },
+            _sum: {
+                amount: true,
+            }
+        })
+        const totalInvestmentAmount = await prisma.investment_log.aggregate({
+            _sum: {
+                amount: true
+            }
+        })
+
+        const withdrawnedPrincipalAmount = await prisma.investment_amount_withdrawal_log.aggregate({
+            where: {
+                status: "COMPLETED"
+            },
+            _sum: {
+                amount: true,
+            }
+        })
+
+        const totalDistributedProfit = await prisma.profit_log.aggregate({
+            _sum: {
+                profit: true,
+            }
+        })
+        const totalPrincipalAmount = await prisma.investment_log.aggregate({
+            _sum: {
+                amount: true,
+            }
+        })
+
         return res.status(200).json({
             data: {
                 totalPendingInvestments,
@@ -314,6 +363,13 @@ export default async function getDashboardStats(req: Request, res: Response) {
 
                 extendInvestmentRequests: processedExtendInvestmentRequests,
                 earlyWithdrawalRequests: processedEarlyWithdrawal,
+
+                totalInvestmentToday: totalInvestmentToday._sum.amount || 0,
+                totalInvestmentThisMonth: totalInvestmentThisMonth._sum.amount || 0,
+                totalInvestmentAmount: totalInvestmentAmount._sum.amount || 0,
+
+                totalWithdrawnedPrincipalAmount: withdrawnedPrincipalAmount._sum.amount || 0,
+                totalWithdrawnedSettlementAndPrincipalAmount: (totalDistributedProfit._sum.profit || 0) + (totalPrincipalAmount._sum.amount || 0)
             }
         })
 
