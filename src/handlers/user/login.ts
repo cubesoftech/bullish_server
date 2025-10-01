@@ -28,6 +28,16 @@ export default async function login(req: Request, res: Response) {
     }
 
     try {
+        const blockedIpAddressRecord = await prisma.blocked_ip.findUnique({
+            where: {
+                ipAddress: ipAddress
+            }
+        })
+        if (blockedIpAddressRecord && blockedIpAddressRecord.blockedUntil > new Date()) {
+            const minutesRemaining = Math.ceil((blockedIpAddressRecord.blockedUntil.getTime() - new Date().getTime()) / (60 * 1000));
+            return res.status(400).json({ message: "너무 많은 로그인 시도. 잠시 후 다시 시도하세요.", data: minutesRemaining });
+        }
+
         const user = await prisma.users.findFirst({
             where: {
                 ...body,

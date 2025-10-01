@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { generateRandomString } from "../../utils";
-import { findUser } from "../../utils";
-import { notifyAdmin } from "../core/socketConnection";
 
 interface CreateDummyReviewsPayload {
     name: string;
@@ -19,17 +17,14 @@ export default async function createDummyReviews(req: Request, res: Response) {
     const body = req.body as CreateDummyReviewsPayload;
 
     // Validate required fields
-    const validateFields = !(
-        // check if any field is missing or invalid
+    if (
         !body.name || body.name.trim() === "" ||
         !body.gender || body.gender.trim() === "" ||
-        !body.rating || !body.series || !body.review || !body.investedAmount || !body.profit ||
-        typeof body.rating !== "number" || typeof body.series !== "number" || typeof body.review !== "string" || typeof body.investedAmount !== "number" || typeof body.profit !== "number" ||
-        isNaN(body.rating) || isNaN(body.series) || isNaN(body.investedAmount) || isNaN(body.profit) ||
-        body.review.trim() === ""
-    )
-    if (!validateFields) {
-        console.log("fields", body);
+        !body.rating || body.series < 1 || body.series > 5 ||
+        !body.review || body.review.trim() === "" ||
+        !body.investedAmount || body.investedAmount < 0 ||
+        !body.profit || body.profit < 0
+    ) {
         return res.status(400).json({ message: "잘못된 필드입니다." });
     }
 
@@ -50,8 +45,6 @@ export default async function createDummyReviews(req: Request, res: Response) {
                 updatedAt: new Date(),
             }
         });
-
-        await notifyAdmin();
 
         return res.status(200).json({ message: "리뷰가 성공적으로 생성되었습니다." });
     } catch (error) {

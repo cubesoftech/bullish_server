@@ -99,6 +99,7 @@ import createDummyReviews from "../handlers/admin/createDummyReviews";
 import updatePopupCreationDate from "../handlers/admin/updatePopupCreationDate";
 import deleteReview from "../handlers/admin/deleteReview";
 import updateReviewCreatedAt from "../handlers/admin/updateReviewCreatedAt";
+import updateDummyReview from "../handlers/admin/updateDummyReview";
 
 
 // ---------- ROUTER ---------- //
@@ -221,6 +222,7 @@ const postRequests = [
     { endpoint: "updatePopupCreationDate", middlewares: [authenticate], controller: updatePopupCreationDate },
     { endpoint: "deleteReview", middlewares: [authenticate], controller: deleteReview },
     { endpoint: "updateReviewCreatedAt", middlewares: [authenticate], controller: updateReviewCreatedAt },
+    { endpoint: "updateDummyReview", middlewares: [authenticate], controller: updateDummyReview },
 ]
 {
     postRequests.map(({ endpoint, middlewares, controller }) => {

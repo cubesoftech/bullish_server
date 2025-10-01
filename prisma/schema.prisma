@@ -531,6 +531,14 @@ model popups {
   updatedAt DateTime @updatedAt
 }
 
+model blocked_ip {
+  id           String   @id @default(cuid())
+  ipAddress    String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  blockedUntil DateTime
+}
+
 enum series_payout_schedule {
   WEEKLY
   MONTHLY
