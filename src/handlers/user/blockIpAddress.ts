@@ -35,8 +35,8 @@ export default async function blockIpAddress(req: Request, res: Response) {
                     updatedAt: now,
                 },
                 update: {
-                    // blockedUntil: addMinutes(now, 10), //10 mins on production
-                    blockedUntil: addMinutes(now, 2), // use 2 mins for testing
+                    blockedUntil: addMinutes(now, 10), //10 mins on production
+                    // blockedUntil: addMinutes(now, 2), // use 2 mins for testing
                     updatedAt: now,
                 }
             })
