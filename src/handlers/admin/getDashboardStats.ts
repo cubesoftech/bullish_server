@@ -285,6 +285,9 @@ export default async function getDashboardStats(req: Request, res: Response) {
 
         const totalInvestmentToday = await prisma.investment_log.aggregate({
             where: {
+                status: {
+                    not: "FAILED"
+                },
                 createdAt: {
                     gte: startOfDay(new Date()),
                     lt: endOfDay(new Date())
@@ -296,6 +299,9 @@ export default async function getDashboardStats(req: Request, res: Response) {
         })
         const totalInvestmentThisMonth = await prisma.investment_log.aggregate({
             where: {
+                status: {
+                    not: "FAILED"
+                },
                 createdAt: {
                     gte: startOfMonth(new Date()),
                     lt: endOfMonth(new Date())
@@ -306,6 +312,11 @@ export default async function getDashboardStats(req: Request, res: Response) {
             }
         })
         const totalInvestmentAmount = await prisma.investment_log.aggregate({
+            where: {
+                status: {
+                    not: "FAILED"
+                },
+            },
             _sum: {
                 amount: true
             }
