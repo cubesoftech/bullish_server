@@ -8,6 +8,7 @@
 # server with the `prisma dev` CLI command, when not choosing any non-default ports or settings. The API key, unlike the 
 # one found in a remote Prisma Postgres URL, does not contain any sensitive information.
 
+NODE_ENV=production
 PORT=8010
 
 JWT_ACCESS_SECRET=44a7fa1b61aaf30f1a2142e758e0b1d3508a9cf39186a67a1fb2e39c1ab0083f

@@ -14,6 +14,7 @@ import { initDistributeInvestmentProfit } from './services/distributeInvestmentP
 import { initDistributeMonthlyReferrerReward } from './services/distributeMonthyReferrerReward';
 import { initDistributeMonthlySettlementRate } from './services/distributeMonthlySettlementRate';
 import { getEnvirontmentVariable } from './utils';
+import { env } from 'node:process';
 
 const port = getEnvirontmentVariable("PORT") || 8010;
 const app = express();
@@ -53,5 +54,7 @@ io.on("connection", socketConnection);
 
 server.listen(port, () => {
     console.log(`Time started: ${new Date().toISOString()}`);
-    console.log(`Server running on http://localhost:${port}`);
+    if (getEnvirontmentVariable("NODE_ENV") !== "production") {
+        console.log(`Server running on http://localhost:${port}`);
+    }
 })

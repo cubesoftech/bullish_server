@@ -164,6 +164,25 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                     if (referrer.referredInvestors.length <= 20) {
                         // if already has investorReferrerId, skip
                         if (!investorReferrerId) {
+
+                            if (referrer.referredInvestors.length === 19) {
+                                await prisma.users.update({
+                                    where: {
+                                        id: referrer.id
+                                    },
+                                    data: {
+                                        referrerPoints: {
+                                            increment: 2_000_000 // give 2,000,000 points for reaching 20 referrals
+                                        },
+                                        updatedAt: new Date(),
+                                    }
+                                })
+                            }
+
+                            // 0.1% of the referred user's investment amount as referrer point
+                            const dividend = 0.1 / 100;
+                            const referrerReferralPoints = series.amount * dividend;
+
                             await prisma.$transaction(async (tx) => {
                                 await tx.monthly_referrer_profit_log.create({
                                     data: {
@@ -182,7 +201,10 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                                     },
                                     data: {
                                         baseSettlementRate: {
-                                            increment: 0.1 / 100 //increment by 0.1%
+                                            increment: dividend
+                                        },
+                                        referrerPoints: {
+                                            increment: referrerReferralPoints
                                         },
                                         updatedAt: new Date()
                                     }
