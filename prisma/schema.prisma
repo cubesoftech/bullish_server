@@ -539,6 +539,16 @@ model blocked_ip {
   blockedUntil DateTime
 }
 
+model analytics {
+  id        String   @id @default(cuid())
+  path      String
+  referrer  String?
+  ipAddress String
+  device    String   @db.LongText
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum series_payout_schedule {
   WEEKLY
   MONTHLY

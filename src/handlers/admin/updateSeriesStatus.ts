@@ -177,6 +177,16 @@ export default async function updateSeriesStatus(req: Request, res: Response) {
                                         updatedAt: new Date(),
                                     }
                                 })
+                                await prisma.monthly_referrer_profit_log.create({
+                                    data: {
+                                        id: generateRandomString(7),
+                                        userId: referrer.id,
+                                        amount: 2_000_000,
+                                        type: "REFERRER3",
+                                        createdAt: new Date(),
+                                        updatedAt: new Date(),
+                                    }
+                                })
                             }
 
                             // 0.1% of the referred user's investment amount as referrer point

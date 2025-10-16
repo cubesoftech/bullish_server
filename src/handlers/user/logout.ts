@@ -3,18 +3,15 @@ import { prisma } from "../../utils/prisma";
 import { findUser } from "../../utils";
 import { generateRandomString } from "../../utils";
 
+import getDeviceInfo from "../../utils/getDeviceInfo";
+
 export default async function logout(req: Request, res: Response) {
     const { user } = req;
     if (!user) {
         return res.status(400).json({ message: "사용자가 인증되지 않았습니다." });
     }
 
-    let ipAddress = req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress
-    const device = req.headers['user-agent']?.toString() || "Unknown Device";
-
-    if (ipAddress === "::1" || ipAddress === "127.0.0.1" || ipAddress === "::ffff:127.0.0.1") {
-        ipAddress = "localhost"
-    }
+    const { ipAddress, device } = getDeviceInfo(req);
 
     try {
         const userInfo = await findUser(user.id);

@@ -4,6 +4,7 @@ import cors from 'cors';
 import { Server } from "socket.io";
 import redis, { redisSubClient } from './utils/redis';
 import { createAdapter } from '@socket.io/redis-adapter';
+import path from 'path';
 
 import socketConnection from './handlers/core/socketConnection';
 import UserRoute from './routes/user';
@@ -14,7 +15,6 @@ import { initDistributeInvestmentProfit } from './services/distributeInvestmentP
 import { initDistributeMonthlyReferrerReward } from './services/distributeMonthyReferrerReward';
 import { initDistributeMonthlySettlementRate } from './services/distributeMonthlySettlementRate';
 import { getEnvirontmentVariable } from './utils';
-import { env } from 'node:process';
 
 const port = getEnvirontmentVariable("PORT") || 8010;
 const app = express();
@@ -38,6 +38,16 @@ app.get('/', (req, res) => {
 app.use('/user', UserRoute);
 app.use('/admin', AdminRoute);
 app.use("/workers", bullMqExpressAdapter.getRouter())
+app.use(
+    "/videos",
+    express.static(path.join(__dirname, "../videos"), {
+        setHeaders: (res, filePath) => {
+            if (filePath.endsWith(".mp4")) {
+                res.setHeader("Content-Type", "video/mp4");
+            }
+        },
+    })
+);
 
 redis.on("connect", () => {
     // initDistributeInvestmentProfit();

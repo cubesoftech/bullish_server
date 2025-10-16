@@ -37,15 +37,33 @@ export default async function getReferrerPointLog(req: Request, res: Response) {
         });
         const totalReferrerPointLog = await prisma.monthly_referrer_profit_log.count({ where })
 
-        const processedReferrerPointLog = referrerPointLog.map(log => ({
-            ...log,
-            amount: log.type === "REFERRER1" ? log.amount * 100 : log.amount,
-            user: {
-                ...log.user,
-                baseSettlementRate: Number(log.user.baseSettlementRate) * 100,
-                referrerPoints: Number(log.user.referrerPoints)
-            }
-        }))
+        const processedReferrerPointLog = await Promise.all(
+            referrerPointLog.map(async (log) => {
+                let referredUser: any = {}
+                if (log.referredUserId) {
+                    referredUser = await prisma.users.findUnique({
+                        where: {
+                            id: log.referredUserId
+                        }
+                    })
+                    referredUser = {
+                        ...referredUser,
+                        baseSettlementRate: Number(referredUser?.baseSettlementRate) * 100,
+                        referrerPoints: Number(referredUser?.referrerPoints)
+                    }
+                }
+                return {
+                    ...log,
+                    amount: log.type === "REFERRER1" ? log.amount * 100 : log.amount,
+                    user: {
+                        ...log.user,
+                        baseSettlementRate: Number(log.user.baseSettlementRate) * 100,
+                        referrerPoints: Number(log.user.referrerPoints)
+                    },
+                    referredUser,
+                }
+            })
+        )
 
         return res.status(200).json({ data: processedReferrerPointLog, total: totalReferrerPointLog })
     } catch (error) {

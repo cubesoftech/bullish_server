@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
 import { signAccessToken, signRefreshToken } from "../../utils/token";
 import { generateRandomString } from "../../utils";
+import getDeviceInfo from "../../utils/getDeviceInfo";
 
 interface LoginPayload {
     phoneNumber: string;
@@ -11,12 +12,7 @@ interface LoginPayload {
 export default async function login(req: Request, res: Response) {
     const body = req.body as LoginPayload;
 
-    let ipAddress = req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress
-    const device = req.headers['user-agent']?.toString() || "Unknown Device";
-
-    if (ipAddress === "::1" || ipAddress === "127.0.0.1" || ipAddress === "::ffff:127.0.0.1") {
-        ipAddress = "localhost"
-    }
+    const { ipAddress, device } = getDeviceInfo(req);
 
     // Validate required fields
     const validateFields = !(

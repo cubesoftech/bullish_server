@@ -59,6 +59,7 @@ import extendInvestmentRequest from "../handlers/user/extendInvestmentRequest";
 import requestInvestmentEarlyWithdrawal from "../handlers/user/requestInvestmentEarlyWithdrawal";
 import verifyTurnstile from "../handlers/user/verifyTurnstile";
 import blockIpAddress from "../handlers/user/blockIpAddress";
+import updateAnalytics from "../handlers/user/updateAnalytics";
 
 // ---------- ROUTER ---------- //
 const router = Router();
@@ -108,6 +109,7 @@ router.post('/loginUsingOTP', loginUsingOTP)
 router.post('/decodeNiceEncryptedData', decodeNiceEncryptedData);
 router.post('/verifyTurnstile', verifyTurnstile);
 router.post('/blockIpAddress', blockIpAddress);
+router.post('/updateAnalytics', updateAnalytics)
 // ---------- SECURED POST REQUESTS ---------- //
 router.post('/deposit', authenticate, deposit)
 router.post('/withdrawal', authenticate, withdrawal)
