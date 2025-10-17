@@ -25,8 +25,8 @@ export default async function updateAnalytics(req: Request, res: Response) {
                 updatedAt: date,
             }
         })
-        return res.status(200).json({ message: "성공" });
 
+        return res.status(200).json({ message: "성공" });
     } catch (error) {
         console.log("Error on updateAnalytics:", error);
         return res.status(500).json({ message: "내부 서버 오류" });

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma";
-import { endOfDay, endOfMonth, isBefore, startOfDay, startOfMonth, subDays } from "date-fns";
+import { addDays, endOfDay, endOfMonth, isBefore, startOfDay, startOfMonth, subDays } from "date-fns";
 
 interface UserPageAnalytics {
     date: Date;
@@ -31,11 +31,15 @@ export default async function getDashboardStats(req: Request, res: Response) {
         return res.status(401).json({ message: "인증되지 않았습니다." });
     }
     try {
+        // ---------- UNUSED DATA ---------- //
+        // const { depositToday, withdrawalToday, settlementProfitToday } = await getTransactionsToday();
+        // const { depositThisMonth, withdrawalThisMonth, settlementProfitThisMonth } = await getTransactionsThisMonth();
+        // const { totalDepositRequests, totalWithdrawalRequests } = await getTransactionsRequests();
+
+
+        // ---------- USED DATA ---------- //
         const { totalUsers, signedUpToday, totalPendingUsers } = await getUsers();
-        const { depositToday, withdrawalToday, settlementProfitToday } = await getTransactionsToday();
-        const { depositThisMonth, withdrawalThisMonth, settlementProfitThisMonth } = await getTransactionsThisMonth();
-        const { totalDepositAmount, totalWithdrawalAmount, totalSettlementProfit } = await getTransactionsTotal();
-        const { totalDepositRequests, totalWithdrawalRequests } = await getTransactionsRequests();
+        const { totalSettlementProfit } = await getTransactionsTotal();
         const { recentReviews, newInquiries, recentNotices, recentActivityLogs } = await getRecentDatas();
         const { settlementProfits } = await getSettlementProfits();
         const { expiringInvestments } = await getExpiringInvestments();
@@ -55,8 +59,8 @@ export default async function getDashboardStats(req: Request, res: Response) {
             totalUsers,
             signedUpToday,
             settlementProfits,
-            totalDepositRequests,
-            totalWithdrawalRequests,
+            totalDepositRequests: 0,
+            totalWithdrawalRequests: 0,
             expiringInvestments,
             totalPendingUsers,
             newInquiries,
@@ -66,16 +70,16 @@ export default async function getDashboardStats(req: Request, res: Response) {
             summary: admin?.summary || "",
             note: admin?.note || "",
             // daily
-            depositToday: depositToday._sum.amount || 0,
-            withdrawalToday: withdrawalToday._sum.amount || 0,
-            settlementProfitToday: settlementProfitToday._sum.profit || 0,
+            depositToday: 0,
+            withdrawalToday: 0,
+            settlementProfitToday: 0,
             // monthly
-            depositThisMonth: depositThisMonth._sum.amount || 0,
-            withdrawalThisMonth: withdrawalThisMonth._sum.amount || 0,
-            settlementProfitThisMonth: settlementProfitThisMonth._sum.profit || 0,
+            depositThisMonth: 0,
+            withdrawalThisMonth: 0,
+            settlementProfitThisMonth: 0,
             // total 
-            totalDepositAmount: totalDepositAmount._sum.amount || 0,
-            totalWithdrawalAmount: totalWithdrawalAmount._sum.amount || 0,
+            totalDepositAmount: 0,
+            totalWithdrawalAmount: 0,
             totalSettlementProfit: totalSettlementProfit._sum.profit || 0,
 
             extendInvestmentRequests: processedExtendInvestmentRequests,
@@ -197,29 +201,31 @@ const getTransactionsThisMonth = async () => {
     return { depositThisMonth, withdrawalThisMonth, settlementProfitThisMonth }
 }
 const getTransactionsTotal = async () => {
-    const totalDepositAmount = await prisma.deposit_log.aggregate({
-        where: {
-            status: "COMPLETED",
-        },
-        _sum: {
-            amount: true,
-        },
-    })
-    const totalWithdrawalAmount = await prisma.withdrawal_log.aggregate({
-        where: {
-            status: "COMPLETED",
-        },
-        _sum: {
-            amount: true,
-        },
-    });
+    // ---------- UNUSED DATA ---------- //
+    // const totalDepositAmount = await prisma.deposit_log.aggregate({
+    //     where: {
+    //         status: "COMPLETED",
+    //     },
+    //     _sum: {
+    //         amount: true,
+    //     },
+    // })
+    // const totalWithdrawalAmount = await prisma.withdrawal_log.aggregate({
+    //     where: {
+    //         status: "COMPLETED",
+    //     },
+    //     _sum: {
+    //         amount: true,
+    //     },
+    // });
+    // ---------- USED DATA ---------- //
     const totalSettlementProfit = await prisma.profit_log.aggregate({
         _sum: {
             profit: true,
         },
     })
 
-    return { totalDepositAmount, totalWithdrawalAmount, totalSettlementProfit }
+    return { totalSettlementProfit }
 }
 const getTransactionsRequests = async () => {
     const totalDepositRequests = await prisma.deposit_log.count()
@@ -495,7 +501,8 @@ const getUserPageAnalytics = async () => {
     const firstAnalyticsLogCreatedAt = firstAnalyticsLog[0].createdAt
     const startDate = isBefore(firstAnalyticsLogCreatedAt, sevenDaysAgo) ? sevenDaysAgo : firstAnalyticsLogCreatedAt;
 
-    for (let date = now; date >= startDate; date = subDays(date, 1)) {
+    // i don't know why but this for loop works only until yesterday when i use date <= now so i added one more day to make it work until today
+    for (let date = startDate; date <= addDays(now, 1); date = addDays(date, 1)) {
         const [pageViewsToday, uniqueVisitorsToday, topPagesToday] = await Promise.all([
             prisma.analytics.count({
                 where: {
@@ -544,8 +551,6 @@ const getUserPageAnalytics = async () => {
             }))
         })
     }
-
-    userPageAnalytics.reverse();
 
     return { userPageAnalytics }
 }
