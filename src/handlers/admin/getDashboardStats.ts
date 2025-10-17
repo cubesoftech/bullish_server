@@ -23,35 +23,60 @@ const endOfToday = endOfDay(now);
 const startOfThisMonth = startOfMonth(now);
 const endOfThisMonth = endOfMonth(now);
 
-
-
 export default async function getDashboardStats(req: Request, res: Response) {
     const { user } = req
     if (!user) {
         return res.status(401).json({ message: "인증되지 않았습니다." });
     }
     try {
-        // ---------- UNUSED DATA ---------- //
-        // const { depositToday, withdrawalToday, settlementProfitToday } = await getTransactionsToday();
-        // const { depositThisMonth, withdrawalThisMonth, settlementProfitThisMonth } = await getTransactionsThisMonth();
-        // const { totalDepositRequests, totalWithdrawalRequests } = await getTransactionsRequests();
+        const [
+            users,
+            recentDatas,
+            settlementProfitsData,
+            expiringInvestmentsData,
+            extendInvestmentRequests,
+            earlyWithdrawal,
+            adminData,
+            totalInvestment,
+            totalInvestmentByPeriod,
+            userPageAnalyticsData,
+            aggregatedData
+        ] = await Promise.all([
+            // users
+            getUsers(),
+            // recentDatas
+            getRecentDatas(),
+            // settlementProfits
+            getSettlementProfits(),
+            // expiringInvestments
+            getExpiringInvestments(),
+            // extendInvestmentRequests
+            getExtendedInvestmentRequests(),
+            // earlyWithdrawal
+            getEarlyWithdrawal(),
+            // adminData
+            getAdmin(user.id),
+            // totalInvestment
+            getTotalInvestment(),
+            // totalInvestmentByPeriod
+            getTotalInvestmentByPeriod(),
+            // userPageAnalyticsData
+            getUserPageAnalytics(),
+            // aggregatedData
+            getAggregatedData()
+        ]);
 
-
-        // ---------- USED DATA ---------- //
-        const { totalUsers, signedUpToday, totalPendingUsers } = await getUsers();
-        const { totalSettlementProfit } = await getTransactionsTotal();
-        const { recentReviews, newInquiries, recentNotices, recentActivityLogs } = await getRecentDatas();
-        const { settlementProfits } = await getSettlementProfits();
-        const { expiringInvestments } = await getExpiringInvestments();
-        const { processedExtendInvestmentRequests } = await getExtendedInvestmentRequests();
-        const { processedEarlyWithdrawal } = await getEarlyWithdrawal();
-        const { admin } = await getAdmin(user.id);
-        const { totalPendingInvestments, totalCompletedInvestments } = await getTotalInvestment();
-        const { totalInvestmentToday, totalInvestmentThisMonth, totalInvestmentAmount } = await getTotalInvestmentByPeriod();
-        const { withdrawnedPrincipalAmount } = await getWithdrawnedPrincipalAmount();
-        const { totalDistributedProfit } = await getTotalDistributedProfit();
-        const { totalPrincipalAmount } = await getTotalPrincipalAmount();
-        const { userPageAnalytics } = await getUserPageAnalytics();
+        const { settlementProfits } = settlementProfitsData;
+        const { expiringInvestments } = expiringInvestmentsData;
+        const { totalUsers, signedUpToday, totalPendingUsers } = users;
+        const { recentReviews, newInquiries, recentNotices, recentActivityLogs } = recentDatas;
+        const { processedExtendInvestmentRequests } = extendInvestmentRequests;
+        const { processedEarlyWithdrawal } = earlyWithdrawal;
+        const { admin } = adminData;
+        const { totalPendingInvestments, totalCompletedInvestments } = totalInvestment;
+        const { totalInvestmentToday, totalInvestmentThisMonth, totalInvestmentAmount } = totalInvestmentByPeriod;
+        const { userPageAnalytics } = userPageAnalyticsData;
+        const { totalSettlementProfit, withdrawnedPrincipalAmount, totalDistributedProfit, totalPrincipalAmount } = aggregatedData;
 
         const data = {
             totalPendingInvestments,
@@ -121,117 +146,6 @@ const getUsers = async () => {
     });
 
     return { totalUsers, signedUpToday, totalPendingUsers };
-}
-const getTransactionsToday = async () => {
-    const depositToday = await prisma.deposit_log.aggregate({
-        where: {
-            createdAt: {
-                gte: startOfToday,
-                lt: endOfToday,
-            },
-            status: "COMPLETED"
-        },
-        _sum: {
-            amount: true,
-        }
-    })
-    const withdrawalToday = await prisma.withdrawal_log.aggregate({
-        where: {
-            createdAt: {
-                gte: startOfToday,
-                lt: endOfToday,
-            },
-            status: "COMPLETED"
-        },
-        _sum: {
-            amount: true,
-        }
-    })
-    const settlementProfitToday = await prisma.profit_log.aggregate({
-        where: {
-            createdAt: {
-                gte: startOfToday,
-                lt: endOfToday,
-            },
-        },
-        _sum: {
-            profit: true,
-        }
-    })
-
-    return { depositToday, withdrawalToday, settlementProfitToday }
-}
-const getTransactionsThisMonth = async () => {
-    const depositThisMonth = await prisma.deposit_log.aggregate({
-        where: {
-            createdAt: {
-                gte: startOfThisMonth,
-                lt: endOfThisMonth,
-            },
-            status: "COMPLETED"
-        },
-        _sum: {
-            amount: true,
-        }
-    })
-    const withdrawalThisMonth = await prisma.withdrawal_log.aggregate({
-        where: {
-            createdAt: {
-                gte: startOfThisMonth,
-                lt: endOfThisMonth,
-            },
-            status: "COMPLETED"
-        },
-        _sum: {
-            amount: true,
-        }
-    })
-    const settlementProfitThisMonth = await prisma.profit_log.aggregate({
-        where: {
-            createdAt: {
-                gte: startOfThisMonth,
-                lt: endOfThisMonth,
-            },
-        },
-        _sum: {
-            profit: true,
-        }
-    })
-
-    return { depositThisMonth, withdrawalThisMonth, settlementProfitThisMonth }
-}
-const getTransactionsTotal = async () => {
-    // ---------- UNUSED DATA ---------- //
-    // const totalDepositAmount = await prisma.deposit_log.aggregate({
-    //     where: {
-    //         status: "COMPLETED",
-    //     },
-    //     _sum: {
-    //         amount: true,
-    //     },
-    // })
-    // const totalWithdrawalAmount = await prisma.withdrawal_log.aggregate({
-    //     where: {
-    //         status: "COMPLETED",
-    //     },
-    //     _sum: {
-    //         amount: true,
-    //     },
-    // });
-    // ---------- USED DATA ---------- //
-    const totalSettlementProfit = await prisma.profit_log.aggregate({
-        _sum: {
-            profit: true,
-        },
-    })
-
-    return { totalSettlementProfit }
-}
-const getTransactionsRequests = async () => {
-    const totalDepositRequests = await prisma.deposit_log.count()
-    const totalWithdrawalRequests = await prisma.withdrawal_log.count();
-
-    return { totalDepositRequests, totalWithdrawalRequests }
 }
 const getRecentDatas = async () => {
     const recentReviews = await prisma.review_log.findMany({
@@ -455,35 +369,6 @@ const getTotalInvestmentByPeriod = async () => {
 
     return { totalInvestmentToday, totalInvestmentThisMonth, totalInvestmentAmount }
 }
-const getWithdrawnedPrincipalAmount = async () => {
-    const withdrawnedPrincipalAmount = await prisma.investment_amount_withdrawal_log.aggregate({
-        where: {
-            status: "COMPLETED"
-        },
-        _sum: {
-            amount: true,
-        }
-    })
-
-    return { withdrawnedPrincipalAmount }
-}
-const getTotalDistributedProfit = async () => {
-    const totalDistributedProfit = await prisma.profit_log.aggregate({
-        _sum: {
-            profit: true,
-        }
-    })
-
-    return { totalDistributedProfit }
-}
-const getTotalPrincipalAmount = async () => {
-    const totalPrincipalAmount = await prisma.investment_log.aggregate({
-        _sum: {
-            amount: true,
-        }
-    })
-    return { totalPrincipalAmount }
-}
 const getUserPageAnalytics = async () => {
     const firstAnalyticsLog = await prisma.analytics.findMany({
         orderBy: {
@@ -501,8 +386,7 @@ const getUserPageAnalytics = async () => {
     const firstAnalyticsLogCreatedAt = firstAnalyticsLog[0].createdAt
     const startDate = isBefore(firstAnalyticsLogCreatedAt, sevenDaysAgo) ? sevenDaysAgo : firstAnalyticsLogCreatedAt;
 
-    // i don't know why but this for loop works only until yesterday when i use date <= now so i added one more day to make it work until today
-    for (let date = startDate; date <= addDays(now, 1); date = addDays(date, 1)) {
+    for (let date = startDate; date <= now; date = addDays(date, 1)) {
         const [pageViewsToday, uniqueVisitorsToday, topPagesToday] = await Promise.all([
             prisma.analytics.count({
                 where: {
@@ -553,4 +437,42 @@ const getUserPageAnalytics = async () => {
     }
 
     return { userPageAnalytics }
+}
+const getAggregatedData = async () => {
+    const [
+        totalSettlementProfit,
+        totalPrincipalAmount,
+        totalDistributedProfit,
+        withdrawnedPrincipalAmount,
+    ] = await prisma.$transaction([
+        // totalSettlementProfit
+        prisma.profit_log.aggregate({
+            _sum: {
+                profit: true,
+            },
+        }),
+        // totalPrincipalAmount
+        prisma.investment_log.aggregate({
+            _sum: {
+                amount: true,
+            }
+        }),
+        // totalDistributedProfit
+        prisma.profit_log.aggregate({
+            _sum: {
+                profit: true,
+            }
+        }),
+        // withdrawnedPrincipalAmount
+        prisma.investment_amount_withdrawal_log.aggregate({
+            where: {
+                status: "COMPLETED"
+            },
+            _sum: {
+                amount: true,
+            }
+        })
+    ])
+
+    return { totalSettlementProfit, totalPrincipalAmount, totalDistributedProfit, withdrawnedPrincipalAmount }
 }
