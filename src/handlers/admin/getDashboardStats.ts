@@ -120,7 +120,6 @@ export default async function getDashboardStats(req: Request, res: Response) {
             userPageAnalytics
         }
 
-
         return res.status(200).json({ data })
 
     } catch (error) {
@@ -386,7 +385,7 @@ const getUserPageAnalytics = async () => {
     const firstAnalyticsLogCreatedAt = firstAnalyticsLog[0].createdAt
     const startDate = isBefore(firstAnalyticsLogCreatedAt, sevenDaysAgo) ? sevenDaysAgo : firstAnalyticsLogCreatedAt;
 
-    for (let date = startDate; date <= now; date = addDays(date, 1)) {
+    for (let date = startOfDay(startDate); date <= now; date = addDays(date, 1)) {
         const [pageViewsToday, uniqueVisitorsToday, topPagesToday] = await Promise.all([
             prisma.analytics.count({
                 where: {
