@@ -15,7 +15,14 @@ export default async function getDirectInquiryMessages(req: Request, res: Respon
 
 
     try {
-        const userInfo = await findUser(user.id);
+        const userInfo = await prisma.users.findUnique({
+            where: {
+                id: user.id
+            },
+            select: {
+                id: true
+            }
+        });
         if (!userInfo) {
             return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
         }

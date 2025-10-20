@@ -55,6 +55,7 @@ export default async function createDirectInquiry(req: Request, res: Response) {
                     create: {
                         id: generateRandomString(7),
                         senderId: admin.id,
+                        receiverId: userInfo.id,
                         content,
                         createdAt: new Date(),
                         updatedAt: new Date()
@@ -63,7 +64,7 @@ export default async function createDirectInquiry(req: Request, res: Response) {
             }
         })
 
-        notifyOnlineUsers(user.id)
+        await notifyOnlineUsers(userInfo.id)
 
         return res.status(200).json({ message: "쪽지가 성공적으로 전송되었습니다." })
     } catch (error) {
