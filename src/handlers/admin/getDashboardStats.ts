@@ -61,7 +61,7 @@ export default async function getDashboardStats(req: Request, res: Response) {
             // totalInvestmentByPeriod
             getTotalInvestmentByPeriod(),
             // userPageAnalyticsData
-            getUserPageAnalytics(),
+            getUserPageAnalytics(req),
             // aggregatedData
             getAggregatedData()
         ]);
@@ -368,7 +368,10 @@ const getTotalInvestmentByPeriod = async () => {
 
     return { totalInvestmentToday, totalInvestmentThisMonth, totalInvestmentAmount }
 }
-const getUserPageAnalytics = async () => {
+const getUserPageAnalytics = async (req: Request) => {
+    const { endDate } = req.query;
+    const endDateV2 = endDate ? new Date(endDate as string) : new Date();
+
     const firstAnalyticsLog = await prisma.analytics.findMany({
         orderBy: {
             createdAt: "asc"
@@ -382,10 +385,13 @@ const getUserPageAnalytics = async () => {
         userPageAnalytics = []
     }
 
-    const firstAnalyticsLogCreatedAt = firstAnalyticsLog[0].createdAt
-    const startDate = isBefore(firstAnalyticsLogCreatedAt, sevenDaysAgo) ? sevenDaysAgo : firstAnalyticsLogCreatedAt;
+    const processedEndDate = endOfDay(endDateV2)
+    const processedSevenDaysAgo = subDays(processedEndDate, 6);
 
-    for (let date = startOfDay(startDate); date <= now; date = addDays(date, 1)) {
+    const firstAnalyticsLogCreatedAt = firstAnalyticsLog[0].createdAt
+    const startDate = isBefore(firstAnalyticsLogCreatedAt, processedSevenDaysAgo) ? processedSevenDaysAgo : firstAnalyticsLogCreatedAt;
+
+    for (let date = startOfDay(startDate); date <= processedEndDate; date = addDays(date, 1)) {
         const [pageViewsToday, uniqueVisitorsToday, topPagesToday] = await Promise.all([
             prisma.analytics.count({
                 where: {
