@@ -110,12 +110,12 @@ router.post('/decodeNiceEncryptedData', decodeNiceEncryptedData);
 router.post('/verifyTurnstile', verifyTurnstile);
 router.post('/blockIpAddress', blockIpAddress);
 router.post('/updateAnalytics', updateAnalytics)
+router.post('/createInquiry', createInquiry)
 // ---------- SECURED POST REQUESTS ---------- //
 router.post('/deposit', authenticate, deposit)
 router.post('/withdrawal', authenticate, withdrawal)
 router.post('/updateUserInfo', authenticate, updateUserInfo)
 router.post('/applyConsultation', authenticate, applyConsultation)
-router.post('/createInquiry', authenticate, createInquiry)
 router.post('/createReview', authenticate, createReview)
 router.post('/investToSeries', authenticate, investToSeries)
 router.post('/replyDirectInquiry', authenticate, replyDirectInquiry)

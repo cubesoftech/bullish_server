@@ -136,14 +136,16 @@ model reservation_log {
 }
 
 model inquiry_log {
-  id        String   @id @default(cuid())
-  content   String
-  userId    String
-  reply     String
-  isReplied Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Inquiries_userId_fkey")
+  id          String   @id @default(cuid())
+  content     String
+  userId      String?
+  name        String?
+  phoneNumber String?
+  reply       String
+  isReplied   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        users?   @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Inquiries_userId_fkey")
 
   @@index([userId], map: "Inquiries_userId_fkey")
 }

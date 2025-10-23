@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../utils/prisma"
+import { Prisma } from "@prisma/client";
 
 export default async function getInquiry(req: Request, res: Response) {
     const { page, limit, search } = req.query;
@@ -7,15 +8,24 @@ export default async function getInquiry(req: Request, res: Response) {
     const processedPage = parseInt(page as string) || 1;
     const processedLimit = parseInt(limit as string) || 10;
 
-    let where: any = {}
+    let where: Prisma.inquiry_logWhereInput = {}
 
     if (search) {
         where = {
-            user: {
-                name: {
-                    contains: search as string,
+            OR: [
+                {
+                    name: {
+                        contains: search as string,
+                    }
+                },
+                {
+                    user: {
+                        name: {
+                            contains: search as string,
+                        }
+                    }
                 }
-            }
+            ]
         }
     }
     try {
@@ -34,10 +44,10 @@ export default async function getInquiry(req: Request, res: Response) {
 
         const processedInquiries = inquiries.map(inquiry => ({
             ...inquiry,
-            user: {
+            user: inquiry.user ? {
                 ...inquiry.user,
                 referrerPoints: Number(inquiry.user.referrerPoints),
-            }
+            } : {}
         }))
 
         return res.status(200).json({ data: processedInquiries, total: totalInquiries });

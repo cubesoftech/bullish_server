@@ -37,10 +37,10 @@ export default async function getInquiries(req: Request, res: Response) {
 
         const processedInquiries = inquiries.map(inquiry => ({
             ...inquiry,
-            user: {
+            user: inquiry.user ? {
                 ...inquiry.user,
                 referrerPoints: Number(inquiry.user.referrerPoints)
-            }
+            } : {}
         }))
 
         return res.status(200).json({ data: processedInquiries, total: totalInquiries });
