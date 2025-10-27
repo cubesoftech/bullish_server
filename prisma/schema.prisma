@@ -7,558 +7,376 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model admin {
-  id                  String                @id @default(cuid())
-  email               String
-  password            String
-  status              Boolean               @default(false)
-  lastLogin           DateTime              @default(now())
-  lastLogout          DateTime              @default(now())
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  note                String                @default("")
-  summary             String                @default("")
-  settlement_rate_log settlement_rate_log[]
-  refresh_tokens      refresh_tokens?
-}
-
 model agents {
-  id                 String   @id @default(cuid())
-  name               String
-  commissionRate     Float    @default(0)
-  subCommissionLimit Float    @default(0)
-  settlementCycle    String //weekly or monthly
-  totalCommission    Int      @default(0)
-  note               String   @default("")
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  referredUsers      users[]
+  id             String       @id @unique @default(cuid())
+  masteragentsId String
+  memberId       String
+  referralCode   String
+  royalty        Int
+  masteragents   masteragents @relation(fields: [masteragentsId], references: [id], onDelete: Cascade)
+  members        members[]
+
+  @@index([masteragentsId], map: "agents_masteragentsId_fkey")
 }
 
 model users {
-  id                               String                             @id @default(cuid())
-  phoneNumber                      String
-  password                         String
-  name                             String
-  birthDate                        String
-  gender                           String
-  status                           Boolean
-  email                            String                             @default("")
-  bank                             String                             @default("")
-  accountNumber                    String                             @default("")
-  accountHolder                    String                             @default("")
-  balance                          Int                                @default(0)
-  createdAt                        DateTime                           @default(now())
-  updatedAt                        DateTime                           @updatedAt
-  lastLogin                        DateTime                           @default(now())
-  lastLogout                       DateTime                           @default(now())
-  lastDevice                       String                             @db.LongText
-  lastIpAddress                    String                             @default("")
-  isDeleted                        Boolean                            @default(false)
-  extraWithdrawalBalance           Int                                @default(0)
-  referrerId                       String?
-  referrer                         users?                             @relation("Referrer", fields: [referrerId], references: [id], map: "Users_referrerId_fkey")
-  referredUsers                    users[]                            @relation("Referrer")
-  baseSettlementRate               Float                              @default(0)
-  referrerPoints                   BigInt                             @default(0)
-  investorReferrerId               String?
-  investorReferrer                 users?                             @relation("InvestorReferrer", fields: [investorReferrerId], references: [id], map: "Users_investorReferrerId_fkey")
-  referredInvestors                users[]                            @relation("InvestorReferrer")
-  referrerAgentId                  String?
-  referrerAgent                    agents?                            @relation(fields: [referrerAgentId], references: [id], map: "Users_referrerAgentId_fkey")
-  payoutSchedule                   series_payout_schedule             @default(MONTHLY)
-  activity_log                     activity_log[]
-  deposit_log                      deposit_log[]
-  inquiry_log                      inquiry_log[]
-  reservation_log                  reservation_log[]
-  series_log                       series_log[]
-  withdrawal_log                   withdrawal_log[]
-  direct_inquiry                   direct_inquiry?
-  otp                              otp?
-  investment_log                   investment_log[]
-  profit_log                       profit_log[]
-  monthly_profit_log               monthly_profit_log[]
-  monthly_referrer_profit_log      monthly_referrer_profit_log[]
-  referrer_point_conversion_log    referrer_point_conversion_log[]
-  user_deletion_request            user_deletion_request[]
-  investment_amount_withdrawal_log investment_amount_withdrawal_log[]
-  withdraw_extra_balance_log       withdraw_extra_balance_log[]
-  investment_early_withdrawal_log  investment_early_withdrawal_log[]
-  extend_investment_duration_log   extend_investment_duration_log[]
-  early_withdrawned_investment_log early_withdrawned_investment_log[]
-  refresh_tokens                   refresh_tokens?
-  user_change_info_log             user_change_info_log[]
-  agent_incentive_log              agent_incentive_log[]
-  user_reached_referral_limit_log  user_reached_referral_limit_log[]
-  referred_investors_log           referred_investors_log[]
-  review_log                       review_log[]
-
-  @@index([id, name, phoneNumber], map: "Users_id_name_phoneNumber_fkey")
-  @@index([referrerId], map: "Users_referrerId_fkey")
-  @@index([investorReferrerId], map: "Users_investorReferrerId_fkey")
+  id             String     @id @default(cuid())
+  password       String?
+  name           String?
+  email          String?    @unique
+  email_verified DateTime?
+  image          String?
+  accounts       accounts[]
+  sessions       sessions[]
 }
 
-model deposit_log {
-  id        String             @id @default(cuid())
-  userId    String
+model accounts {
+  id                  String  @id
+  user_id             String
+  type                String
+  provider            String  @unique
+  provider_account_id String  @unique
+  refresh_token       String? @db.Text
+  access_token        String? @db.Text
+  expires_at          Int?
+  token_type          String?
+  scope               String?
+  id_token            String? @db.Text
+  session_state       String?
+  users               users   @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "Accounts_user_id_fkey")
+
+  @@index([user_id], map: "Accounts_user_id_fkey")
+}
+
+model agents_withdrawals {
+  id        String                    @id @unique
   amount    Int
-  status    transaction_status @default(PENDING)
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-  user      users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Deposit_Log_userId_fkey")
+  status    agents_withdrawals_status
+  role      agents_withdrawals_role
+  createdAt DateTime                  @default(now())
+  updatedAt DateTime
+  membersId String?
+  members   members?                  @relation(fields: [membersId], references: [id], onDelete: Cascade)
 
-  @@index([userId], map: "Deposit_Log_userId_fkey")
+  @@index([membersId], map: "agents_withdrawals_membersId_fkey")
 }
 
-model withdrawal_log {
-  id        String             @id @default(cuid())
-  userId    String
-  amount    Int
-  status    transaction_status @default(PENDING)
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-  user      users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Withdrawal_Log_userId_fkey")
-
-  @@index([userId], map: "Withdrawal_Log_userId_fkey")
-}
-
-model reservation_log {
-  id        String   @id @default(cuid())
-  userId    String
-  type      String
-  content   String
-  reply     String   @default("")
+model announcement {
+  id        String   @id
+  title     String
+  content   String   @db.VarChar(5000)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Reservation_userId_fkey")
-
-  @@index([userId], map: "Reservation_userId_fkey")
+  updatedAt DateTime
 }
 
-model inquiry_log {
-  id          String   @id @default(cuid())
-  content     String
-  userId      String?
-  name        String?
-  phoneNumber String?
-  reply       String
-  isReplied   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        users?   @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Inquiries_userId_fkey")
-
-  @@index([userId], map: "Inquiries_userId_fkey")
+model bank {
+  id   String @id @unique
+  name String @unique
 }
 
-model review_log {
-  id              String             @id @default(cuid())
-  investmentLogId String?
-  userId          String?
-  name            String?
-  gender          String?
-  rating          Int
-  series          Int
-  review          String
-  investedAmount  Int
-  profit          Int
-  status          transaction_status @default(PENDING)
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  user            users?             @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Review_Log_userId_fkey")
-  investmentLog   investment_log?    @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Review_Log_investmentLogId_fkey")
-
-  @@index([userId], map: "Review_Log_userId_fkey")
+model inject_setting {
+  id         String   @id
+  status     Boolean
+  createdAt  DateTime @default(now())
+  userId     String
+  multiplier Int
 }
 
-model series_log {
-  id                 String                 @id @default(cuid())
-  userId             String
-  seriesId           String
-  amount             Int
-  payoutSchedule     series_payout_schedule @default(MONTHLY)
-  investmentDuration Int                    @default(0) //in months 
-  status             transaction_status     @default(PENDING)
-  createdAt          DateTime               @default(now())
-  updatedAt          DateTime               @updatedAt
-  series             series                 @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Series_Log_seriesId_fkey")
-  user               users                  @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Series_Log_userId_fkey")
-  investment_log     investment_log?
+model inquiries {
+  id              String   @id
+  title           String
+  content         String   @db.VarChar(5000)
+  answer          String   @db.VarChar(5000)
+  memberId        String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime
+  alreadyAnswered Boolean  @default(false)
+  membersId       String?
+  members         members? @relation(fields: [membersId], references: [id], onDelete: Cascade, map: "Inquiries_membersId_fkey")
 
-  @@index([seriesId], map: "Series_Log_seriesId_fkey")
-  @@index([userId], map: "Series_Log_userId_fkey")
+  @@index([membersId], map: "Inquiries_membersId_fkey")
 }
 
-model series {
-  id                       String                 @id @default(cuid())
-  seriesId                 Int
-  name                     String
-  region                   String
-  minAmount                Int
-  peakSettlementRate       Float                  @default(0)
-  leanSettlementRate       Float                  @default(0)
-  seniorAdditionalLeanRate Float                  @default(0)
-  seniorAdditionalPeakRate Float                  @default(0)
-  createdAt                DateTime               @default(now())
-  updatedAt                DateTime               @updatedAt
-  payoutSchedule           series_payout_schedule @default(MONTHLY)
-  series_log               series_log[]
-  periods                  series_periods[]
-  rate                     series_rate?
-  peakSeason               series_peak_season?
-  profit_log               profit_log[]
-  investment_log           investment_log[]
-  settlement_rate_log      settlement_rate_log[]
+model masteragents {
+  id           String   @id @unique
+  memberId     String
+  referralCode String?
+  royalty      Int
+  agents       agents[]
 }
 
-model series_periods {
-  id        String   @id @default(cuid())
-  seriesId  String
-  period    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  series    series   @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Series_Periods_seriesId_fkey")
-
-  @@index([seriesId], map: "Series_Periods_seriesId_fkey")
+model member_login_logs {
+  id          String    @id
+  membersID   String    @unique
+  lastSignIn  DateTime?
+  lastSignOut DateTime?
+  members     members   @relation(fields: [membersID], references: [id], onDelete: Cascade, map: "Member_Login_Logs_fkey")
 }
 
-model series_rate {
-  id        String   @id @default(cuid())
-  seriesId  String   @unique
-  minRate   Float
-  maxRate   Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  series    series   @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Series_Rate_seriesId_fkey")
+model members {
+  id                    String                  @id @unique
+  email                 String
+  role                  members_role            @default(USER)
+  name                  String?
+  password              String?
+  confirmpassword       String?
+  nickname              String?
+  birthdate             String?
+  phonenumber           String?
+  accountholder         String?
+  accountnumber         String?
+  bank                  String?
+  referrer              String?
+  balance               Int?                    @default(0)
+  agentsId              String?
+  createdAt             DateTime?               @default(now())
+  status                Boolean                 @default(false)
+  multiplier            Int?                    @default(0)
+  lastOnline            DateTime?               @default(now())
+  force                 Boolean                 @default(false)
+  switchBet             Boolean                 @default(false)
+  maxBet                Boolean                 @default(false)
+  clearToDeposit        Boolean?                @default(false)
+  clearToWithdraw       Boolean?                @default(false)
+  eurusd_trade          members_eurusd_trade    @default(eurusd)
+  gold_trade            members_gold_trade      @default(gold)
+  nasdaq_trade          members_nasdaq_trade    @default(nasdaq)
+  nvda_trade            members_nvda_trade      @default(nvda)
+  pltr_trade            members_pltr_trade      @default(pltr)
+  tsla_trade            members_tsla_trade      @default(tsla)
+  eur_trade             String?                 @default("")
+  jpy_trade             String?                 @default("")
+  krw_trade             String?                 @default("")
+  agents_withdrawals    agents_withdrawals[]
+  inquiries             inquiries[]
+  member_login_logs     member_login_logs?
+  agents                agents?                 @relation(fields: [agentsId], references: [id])
+  membertrades          membertrades[]
+  transaction           transaction[]
+  transaction_approvals transaction_approvals[]
+
+  @@index([agentsId], map: "members_agentsId_fkey")
 }
 
-model series_peak_season {
-  id                   String   @id @default(cuid())
-  seriesID             String   @unique
-  peakSeasonStartMonth Int
-  peakSeasonEndMonth   Int
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  series               series   @relation(fields: [seriesID], references: [id], onDelete: Cascade, map: "Series_Peak_Season_seriesID_fkey")
+model membertrades {
+  id               String            @id @unique
+  timeExecuted     DateTime          @default(now())
+  trade            Boolean
+  tradeAmount      Int
+  tradePNL         Int
+  membersId        String
+  type             membertrades_type
+  remainingBalance Int?
+  origTradeAmount  Int?
+  members          members           @relation(fields: [membersId], references: [id], onDelete: Cascade, map: "MemberTrades_membersId_fkey")
+
+  @@index([membersId], map: "MemberTrades_membersId_fkey")
 }
 
-model notices {
-  id           String   @id @default(cuid())
-  noticeNumber Int      @unique @default(autoincrement())
-  title        String
-  content      String   @db.LongText
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+model recenttrades {
+  id           String            @id @unique
+  type         recenttrades_type
+  tradinghours DateTime
+  result       Boolean
 }
 
-model activity_log {
-  id        String   @id @default(cuid())
-  userId    String
-  ipAddress String
-  activity  String
-  device    String   @db.LongText
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Activity_Log_userId_fkey")
+model sessions {
+  id            String   @id
+  session_token String   @unique
+  user_id       String
+  expires       DateTime
+  users         users    @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "Sessions_user_id_fkey")
 
-  @@index([userId], map: "Activity_Log_userId_fkey")
+  @@index([user_id], map: "sessions_user_id_fkey")
 }
 
-model direct_inquiry {
-  id                    String                    @id @default(cuid())
-  userId                String                    @unique
-  isUserReplied         Boolean                   @default(false)
-  isAdminReplied        Boolean                   @default(false)
-  createdAt             DateTime                  @default(now())
-  updatedAt             DateTime                  @updatedAt
-  user                  users                     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Direct_Inquiry_userId_fkey")
-  directInquiryMessages direct_inquiry_messages[]
-
-  @@index([userId], map: "Direct_Inquiry_userId_fkey")
+model sitesettings {
+  id            String  @id
+  returnOnWin   Float
+  oneMinLock    Int
+  twoMinLock    Int
+  fiveMinLock   Int
+  eurusd        Boolean
+  gold          Boolean
+  nasdaq        Boolean
+  nvda          Boolean
+  pltr          Boolean
+  tsla          Boolean
+  minimumAmount Int
+  maintenance   Boolean @default(false)
 }
 
-model direct_inquiry_messages {
-  id              String         @id @default(cuid())
-  directInquiryId String
-  senderId        String?
-  receiverId      String?
-  content         String
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  directInquiry   direct_inquiry @relation(fields: [directInquiryId], references: [id], onDelete: Cascade, map: "Direct_Inquiry_Messages_directInquiryId_fkey")
+model transaction {
+  id          String             @id @unique
+  type        transaction_type
+  amount      Int
+  status      transaction_status
+  description String
+  membersId   String
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime
+  hasReplied  Boolean?           @default(false)
+  reply       String?
+  members     members            @relation(fields: [membersId], references: [id], onDelete: Cascade, map: "Transaction_membersId_fkey")
 
-  @@index([directInquiryId], map: "Direct_Inquiry_Messages_directInquiryId_fkey")
-  @@index([senderId], map: "Direct_Inquiry_Messages_senderId_fkey")
-  @@index([receiverId], map: "Direct_Inquiry_Messages_receiverId_fkey")
+  @@index([membersId], map: "Transaction_membersId_fkey")
 }
 
-model otp {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  otp       String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Otp_userId_fkey")
+model transaction_approvals {
+  id          String                       @id
+  membersID   String
+  reply       String?
+  status      transaction_approvals_status
+  dateCreated DateTime
+  dateUpdated DateTime
+  type        transaction_approvals_type
+  members     members                      @relation(fields: [membersID], references: [id], onDelete: Cascade, map: "Transaction_Approvals_fkey")
+
+  @@index([membersID], map: "Transaction_Approvals_fkey")
 }
 
-// dito papasok lahat ng mga approved investments
-model investment_log {
-  id                               String                             @id @default(cuid())
-  userId                           String
-  seriesLogId                      String                             @unique
-  seriesId                         String
-  amount                           Int
-  monthly                          Float
-  payoutSchedule                   series_payout_schedule             @default(MONTHLY)
-  investmentDuration               Int                                @default(0) //in months
-  settlementRate                   Float
-  peakSettlementRate               Float                              @default(0)
-  leanSettlementRate               Float                              @default(0)
-  maturityDate                     DateTime
-  totalProfit                      Int                                @default(0)
-  totalExpectedProfit              Int                                @default(0)
-  status                           transaction_status                 @default(PENDING)
-  createdAt                        DateTime                           @default(now())
-  updatedAt                        DateTime                           @updatedAt
-  note                             String                             @default("")
-  isAgentPaid                      Boolean                            @default(false)
-  isFixSettlementRate              Boolean                            @default(false)
-  isSeniorInvestor                 Boolean                            @default(false)
-  user                             users                              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Investment_Log_userId_fkey")
-  seriesLog                        series_log                         @relation(fields: [seriesLogId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesLogId_fkey")
-  series                           series                             @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Investment_Log_seriesId_fkey")
-  profit_log                       profit_log[]
-  settlement_rate_log              settlement_rate_log[]
-  investment_amount_withdrawal_log investment_amount_withdrawal_log[]
-  investment_early_withdrawal_log  investment_early_withdrawal_log[]
-  extend_investment_duration_log   extend_investment_duration_log[]
-  early_withdrawned_investment_log early_withdrawned_investment_log[]
-  review_log                       review_log[]
-  agent_incentive_log              agent_incentive_log[]
+model verificationtokens {
+  identifier String   @unique
+  token      String   @unique
+  expires    DateTime
 }
 
-model profit_log {
-  id              String         @id @default(cuid())
-  userId          String
-  investmentLogId String
-  seriesId        String
-  profit          Float
-  settlementRate  Float
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  user            users          @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Profit_Log_userId_fkey")
-  investmentLog   investment_log @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Profit_Log_investmentLogId_fkey")
-  series          series         @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Profit_Log_seriesId_fkey")
+enum recenttrades_type {
+  nasdaq_1_min
+  nasdaq_2_mins
+  nasdaq_5_mins
+  gold_1_min
+  gold_2_mins
+  gold_5_mins
+  eurusd_1_min
+  eurusd_2_mins
+  eurusd_5_mins
+  pltr_1_min
+  pltr_2_mins
+  pltr_5_mins
+  tsla_1_min
+  tsla_2_mins
+  tsla_5_mins
+  nvda_1_min
+  nvda_2_mins
+  nvda_5_mins
 }
 
-model monthly_profit_log {
-  id        String   @id @default(cuid())
-  userId    String
-  amount    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Monthly_Profit_Log_userId_fkey")
+enum transaction_type {
+  deposit
+  withdrawal
 }
 
-model monthly_referrer_profit_log {
-  id             String   @id @default(cuid())
-  userId         String
-  amount         Float
-  type           String
-  referredUserId String? //only for referred user less than or equal to 20
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  user           users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Monthly_Referrer_Profit_Log_userId_fkey")
+enum agents_withdrawals_status {
+  pending
+  completed
+  failed
+  TBA
 }
 
-model referrer_point_conversion_log {
-  id        String             @id @default(cuid())
-  userId    String
-  amount    Float
-  status    transaction_status @default(PENDING)
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-  user      users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Referrer_Point_Conversion_Log_userId_fkey")
+enum members_role {
+  ADMIN
+  MASTER_AGENT
+  AGENT
+  USER
 }
 
-model settlement_rate_log {
-  id                 String          @id @default(cuid())
-  adminId            String
-  seriesId           String? //for SERIES type
-  seriesSeriesId     Int? //for SERIES type(to easily identify series)
-  investmentId       String? //for INDIVIDUAL type
-  peakSettlementRate Float
-  leanSettlementRate Float
-  type               String
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
-  admins             admin           @relation(fields: [adminId], references: [id], onDelete: Cascade, map: "Settlement_Rate_Log_adminId_fkey")
-  series             series?         @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "Settlement_Rate_Log_seriesId_fkey")
-  investment         investment_log? @relation(fields: [investmentId], references: [id], onDelete: Cascade, map: "Settlement_Rate_Log_investmentId_fkey")
-}
-
-model nice_api_tokens {
-  id          String   @id @default(cuid())
-  accessToken String
-  expiresAt   DateTime
-  createdAt   DateTime @default(now())
-}
-
-model user_deletion_request {
-  id        String             @id @default(cuid())
-  userId    String
-  status    transaction_status @default(PENDING)
-  user      users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "User_Deletion_Request_userId_fkey")
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-}
-
-model investment_amount_withdrawal_log {
-  id              String             @id @default(cuid())
-  userId          String
-  investmentLogId String
-  amount          Int
-  approvedAmount  Int                @default(0)
-  status          transaction_status @default(PENDING)
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  user            users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Investment_Investment_Amount_Withdrawal_Log_userId_fkey")
-  investmentLog   investment_log     @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Investment_Investment_Amount_Withdrawal_Log_investmentLogId_fkey")
-}
-
-model withdraw_extra_balance_log {
-  id             String             @id @default(cuid())
-  userId         String
-  amount         Int
-  approvedAmount Int                @default(0)
-  status         transaction_status @default(PENDING)
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  user           users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Withdraw_Extra_Balance_Log_userId_fkey")
-}
-
-model investment_early_withdrawal_log {
-  id              String             @id @default(cuid())
-  userId          String
-  investmentLogId String
-  status          transaction_status @default(PENDING)
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  user            users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Investment_Early_Withdrawal_Log_userId_fkey")
-  investmentLog   investment_log     @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Investment_Early_Withdrawal_Log_investmentLogId_fkey")
-}
-
-model extend_investment_duration_log {
-  id              String             @id @default(cuid())
-  userId          String
-  investmentLogId String
-  newDuration     Int
-  status          transaction_status @default(PENDING)
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  user            users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Extend_Investment_Duration_Log_userId_fkey")
-  investmentLog   investment_log     @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Extend_Investment_Duration_Log_investmentLogId_fkey")
-}
-
-model early_withdrawned_investment_log {
-  id              String         @id @default(cuid())
-  userId          String
-  investmentLogId String
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  user            users          @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Early_Withdrawned_Investment_Log_userId_fkey")
-  investmentLog   investment_log @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Early_Withdrawned_Investment_Log_investmentLogId_fkey")
-}
-
-model refresh_tokens {
-  id        String   @id @default(cuid())
-  userId    String?  @unique
-  adminId   String?  @unique
-  token     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      users?   @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Access_Tokens_userId_fkey")
-  admin     admin?   @relation(fields: [adminId], references: [id], onDelete: Cascade, map: "Access_Tokens_adminId_fkey")
-}
-
-model user_change_info_log {
-  id            String             @id @default(cuid())
-  userId        String
-  bank          String
-  accountNumber String
-  accountHolder String
-  status        transaction_status @default(PENDING)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  user          users              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "User_Change_Info_Log_userId_fkey")
-}
-
-model agent_incentive_log {
-  id              String         @id @default(cuid())
-  userId          String
-  investmentLogId String
-  amount          Int
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  user            users          @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Agent_Incentive_Log_userId_fkey")
-  investmentLog   investment_log @relation(fields: [investmentLogId], references: [id], onDelete: Cascade, map: "Agent_Incentive_Log_investmentLogId_fkey")
-}
-
-// for user who reached referral limit of 20 users
-model user_reached_referral_limit_log {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "User_Reached_Referral_Limit_Log_userId_fkey")
-}
-
-model referred_investors_log {
-  id                 String   @id @default(cuid())
-  referrerId         String
-  referredInvestorId String
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  referrer           users    @relation(fields: [referrerId], references: [id], onDelete: Cascade, map: "Referred_Investors_Log_referrerId_fkey")
-}
-
-model popups {
-  id        String   @id @default(cuid())
-  secureUrl String
-  publicId  String
-  title     String?
-  desc      String?  @db.Text
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model blocked_ip {
-  id           String   @id @default(cuid())
-  ipAddress    String   @unique
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  blockedUntil DateTime
-}
-
-model analytics {
-  id        String   @id @default(cuid())
-  path      String
-  referrer  String?
-  ipAddress String
-  device    String   @db.LongText
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-enum series_payout_schedule {
-  WEEKLY
-  MONTHLY
-  QUARTERLY
+enum agents_withdrawals_role {
+  ADMIN
+  MASTER_AGENT
+  AGENT
+  USER
 }
 
 enum transaction_status {
-  COMPLETED
-  PENDING
-  FAILED
+  pending
+  completed
+  failed
+  TBA
+}
+
+enum transaction_approvals_status {
+  pending
+  accepted
+  rejected
+}
+
+enum membertrades_type {
+  nasdaq_1_min
+  nasdaq_2_mins
+  nasdaq_5_mins
+  gold_1_min
+  gold_2_mins
+  gold_5_mins
+  eurusd_1_min
+  eurusd_2_mins
+  eurusd_5_mins
+  pltr_1_min
+  pltr_2_mins
+  pltr_5_mins
+  tsla_1_min
+  tsla_2_mins
+  tsla_5_mins
+  nvda_1_min
+  nvda_2_mins
+  nvda_5_mins
+}
+
+enum transaction_approvals_type {
+  deposit
+  withdrawal
+}
+
+enum members_eurusd_trade {
+  nasdaq
+  gold
+  eurusd
+  pltr
+  tsla
+  nvda
+}
+
+enum members_gold_trade {
+  nasdaq
+  gold
+  eurusd
+  pltr
+  tsla
+  nvda
+}
+
+enum members_nasdaq_trade {
+  nasdaq
+  gold
+  eurusd
+  pltr
+  tsla
+  nvda
+}
+
+enum members_nvda_trade {
+  nasdaq
+  gold
+  eurusd
+  pltr
+  tsla
+  nvda
+}
+
+enum members_pltr_trade {
+  nasdaq
+  gold
+  eurusd
+  pltr
+  tsla
+  nvda
+}
+
+enum members_tsla_trade {
+  nasdaq
+  gold
+  eurusd
+  pltr
+  tsla
+  nvda
 }
