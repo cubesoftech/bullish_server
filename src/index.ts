@@ -3,15 +3,19 @@ import { createServer } from 'node:http';
 import cors from 'cors';
 import { Server } from "socket.io"
 
+import userRoute from "./routes/user"
+
 import { getEnvirontmentVariable } from './helpers';
 import initializeExecuteTradeJob from './jobs/executeTrade';
 import socketConnection from './controllers/core/socketConnection';
 import error from './middlewares/error';
 
+
 const port = getEnvirontmentVariable('PORT') || 4000;
 const app = express();
 const server = createServer(app);
 
+app.use(cors());
 app.use(express.json());
 
 export const io = new Server(server, {
@@ -24,6 +28,8 @@ export const io = new Server(server, {
 app.get('/', (req, res) => {
     res.send('Running...');
 })
+
+app.use("/user", userRoute)
 
 // custom error middleware
 app.use(error)

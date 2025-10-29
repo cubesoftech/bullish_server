@@ -16,6 +16,8 @@ export default async function login(req: Request, res: Response, next: NextFunct
         return res.status(400).json({ message: "Invalid email or password" });
     }
 
+    const now = new Date();
+
     try {
         const user = await prisma.members.findFirst({
             where: {
@@ -31,36 +33,45 @@ export default async function login(req: Request, res: Response, next: NextFunct
             })
         }
 
-        const loginLog = await prisma.member_login_logs.findFirst({
-            where: {
-                membersID: user.id,
-            }
-        })
-
-        if (loginLog) {
-            await prisma.member_login_logs.update({
-                where: {
-                    id: loginLog.id,
-                },
-                data: {
-                    lastSignIn: new Date()
-                }
-            })
-        } else {
-            await prisma.member_login_logs.create({
-                data: {
-                    id: generateRandomString(7),
-                    membersID: user.id,
-                    lastSignIn: new Date(),
-                }
-            })
-        }
-
         const accessToken = signAccessToken({ id: user.id })
         const refreshToken = signRefreshToken({ id: user.id })
 
+        await prisma.$transaction(async (tx) => {
+            await tx.member_login_logs.upsert({
+                where: {
+                    membersID: user.id
+                },
+                update: {
+                    lastSignIn: now,
+                },
+                create: {
+                    id: generateRandomString(7),
+                    membersID: user.id,
+                    lastSignIn: now,
+                }
+            })
+            await tx.refresh_tokens.upsert({
+                where: {
+                    memberId: user.id
+                },
+                create: {
+                    id: generateRandomString(7),
+                    token: refreshToken,
+                    memberId: user.id,
+                    createdAt: now,
+                    updatedAt: now,
+                },
+                update: {
+                    token: refreshToken,
+                    updatedAt: now,
+                }
+            })
+        })
+
+
         return res.status(200).json({
-            message: "Login successfully.", data: {
+            message: "Login successfully.",
+            data: {
                 data1: accessToken,
                 data2: refreshToken,
             }

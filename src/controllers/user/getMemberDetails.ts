@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import prisma from "../../helpers/prisma";
 import { getUserData } from "../../helpers";
 
-export default async function getBalance(req: Request, res: Response, next: NextFunction) {
+export default async function getMemberDetails(req: Request, res: Response, next: NextFunction) {
     const { user } = req
     if (!user) {
         return next({
@@ -13,10 +13,7 @@ export default async function getBalance(req: Request, res: Response, next: Next
 
     try {
         const member = await getUserData({
-            userId: user.id,
-            select: {
-                balance: true
-            }
+            userId: user.id
         })
 
         if (!member) {
@@ -26,11 +23,17 @@ export default async function getBalance(req: Request, res: Response, next: Next
             })
         }
 
+        const processedMemberDetails = {
+            ...member,
+            password: "",
+            confirmpassword: "",
+        }
+
         return res.status(200).json({
-            balance: member.balance || 0
+            data: processedMemberDetails
         })
     } catch (error) {
-        console.log("Error user | getBalance:", error);
+        console.log("Error user | getMemberDetails:", error);
         return next()
     }
 }

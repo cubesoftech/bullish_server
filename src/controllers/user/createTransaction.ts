@@ -129,8 +129,10 @@ export default async function createTransaction(req: Request, res: Response, nex
             });
         }
 
+        const message = (type === "deposit" ? "Deposit" : "Withdrawal") + " successful.";
+
         return res.status(200).json({
-            message: "Deposit successful"
+            message
         })
     } catch (error) {
         console.log("Error user | createTransaction:", error);

@@ -108,13 +108,13 @@ const nasdaqTrades = async () => {
             tradinghours: "desc",
         },
     });
-    const min_2 = await prisma.recenttrades.findMany({
+    const min_3 = await prisma.recenttrades.findMany({
         where: {
             tradinghours: {
                 //greater then current tiime
                 gte: new Date(),
             },
-            type: "nasdaq_2_mins",
+            type: "nasdaq_3_mins",
         },
         take: 100,
         orderBy: {
@@ -134,7 +134,7 @@ const nasdaqTrades = async () => {
             tradinghours: "desc",
         },
     });
-    return { "1_min": min_1, "3_min": min_2, "5_min": min_5 };
+    return { "1_min": min_1, "3_min": min_3, "5_min": min_5 };
 };
 const goldTrades = async () => {
     const min_1 = await prisma.recenttrades.findMany({
@@ -150,13 +150,13 @@ const goldTrades = async () => {
             tradinghours: "desc",
         },
     });
-    const min_2 = await prisma.recenttrades.findMany({
+    const min_3 = await prisma.recenttrades.findMany({
         where: {
             tradinghours: {
                 //greater then current tiime
                 gte: new Date(),
             },
-            type: "gold_2_mins",
+            type: "gold_3_mins",
         },
         take: 100,
         orderBy: {
@@ -176,7 +176,7 @@ const goldTrades = async () => {
             tradinghours: "desc",
         },
     });
-    return { "1_min": min_1, "3_min": min_2, "5_min": min_5 };
+    return { "1_min": min_1, "3_min": min_3, "5_min": min_5 };
 };
 const eurusdTrades = async () => {
     const min_1 = await prisma.recenttrades.findMany({
@@ -192,13 +192,13 @@ const eurusdTrades = async () => {
             tradinghours: "desc",
         },
     });
-    const min_2 = await prisma.recenttrades.findMany({
+    const min_3 = await prisma.recenttrades.findMany({
         where: {
             tradinghours: {
                 //greater then current tiime
                 gte: new Date(),
             },
-            type: "eurusd_2_mins",
+            type: "eurusd_3_mins",
         },
         take: 100,
         orderBy: {
@@ -218,7 +218,7 @@ const eurusdTrades = async () => {
             tradinghours: "desc",
         },
     });
-    return { "1_min": min_1, "3_min": min_2, "5_min": min_5 };
+    return { "1_min": min_1, "3_min": min_3, "5_min": min_5 };
 };
 const pltrTrades = async () => {
     const min_1 = await prisma.recenttrades.findMany({
@@ -234,13 +234,13 @@ const pltrTrades = async () => {
             tradinghours: "desc",
         },
     });
-    const min_2 = await prisma.recenttrades.findMany({
+    const min_3 = await prisma.recenttrades.findMany({
         where: {
             tradinghours: {
                 //greater then current tiime
                 gte: new Date(),
             },
-            type: "pltr_2_mins",
+            type: "pltr_3_mins",
         },
         take: 100,
         orderBy: {
@@ -260,7 +260,7 @@ const pltrTrades = async () => {
             tradinghours: "desc",
         },
     });
-    return { "1_min": min_1, "3_min": min_2, "5_min": min_5 };
+    return { "1_min": min_1, "3_min": min_3, "5_min": min_5 };
 };
 const tslaTrades = async () => {
     const min_1 = await prisma.recenttrades.findMany({
@@ -276,13 +276,13 @@ const tslaTrades = async () => {
             tradinghours: "desc",
         },
     });
-    const min_2 = await prisma.recenttrades.findMany({
+    const min_3 = await prisma.recenttrades.findMany({
         where: {
             tradinghours: {
                 //greater then current tiime
                 gte: new Date(),
             },
-            type: "tsla_2_mins",
+            type: "tsla_3_mins",
         },
         take: 100,
         orderBy: {
@@ -302,7 +302,7 @@ const tslaTrades = async () => {
             tradinghours: "desc",
         },
     });
-    return { "1_min": min_1, "3_min": min_2, "5_min": min_5 };
+    return { "1_min": min_1, "3_min": min_3, "5_min": min_5 };
 };
 const nvdaTrades = async () => {
     const min_1 = await prisma.recenttrades.findMany({
@@ -318,13 +318,13 @@ const nvdaTrades = async () => {
             tradinghours: "desc",
         },
     });
-    const min_2 = await prisma.recenttrades.findMany({
+    const min_3 = await prisma.recenttrades.findMany({
         where: {
             tradinghours: {
                 //greater then current tiime
                 gte: new Date(),
             },
-            type: "nvda_2_mins",
+            type: "nvda_3_mins",
         },
         take: 100,
         orderBy: {
@@ -344,7 +344,7 @@ const nvdaTrades = async () => {
             tradinghours: "desc",
         },
     });
-    return { "1_min": min_1, "3_min": min_2, "5_min": min_5 };
+    return { "1_min": min_1, "3_min": min_3, "5_min": min_5 };
 };
 
 // -------------------- CHANGES FUNCTIONS -------------------- //

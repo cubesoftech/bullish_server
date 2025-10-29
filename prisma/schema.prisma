@@ -144,9 +144,6 @@ model members {
   nvda_trade            members_nvda_trade      @default(nvda)
   pltr_trade            members_pltr_trade      @default(pltr)
   tsla_trade            members_tsla_trade      @default(tsla)
-  eur_trade             String?                 @default("")
-  jpy_trade             String?                 @default("")
-  krw_trade             String?                 @default("")
   agents_withdrawals    agents_withdrawals[]
   inquiries             inquiries[]
   member_login_logs     member_login_logs?
@@ -154,6 +151,7 @@ model members {
   membertrades          membertrades[]
   transaction           transaction[]
   transaction_approvals transaction_approvals[]
+  refresh_tokens        refresh_tokens?
 
   @@index([agentsId], map: "members_agentsId_fkey")
 }
@@ -194,7 +192,7 @@ model sitesettings {
   id            String  @id
   returnOnWin   Float
   oneMinLock    Int
-  twoMinLock    Int
+  threeMinLock  Int
   fiveMinLock   Int
   eurusd        Boolean
   gold          Boolean
@@ -241,24 +239,33 @@ model verificationtokens {
   expires    DateTime
 }
 
+model refresh_tokens {
+  id        String   @id @default(cuid())
+  memberId  String   @unique
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  members   members  @relation(fields: [memberId], references: [id], onDelete: Cascade, map: "Refresh_Tokens_MemberId_fkey")
+}
+
 enum recenttrades_type {
   nasdaq_1_min
-  nasdaq_2_mins
+  nasdaq_3_mins
   nasdaq_5_mins
   gold_1_min
-  gold_2_mins
+  gold_3_mins
   gold_5_mins
   eurusd_1_min
-  eurusd_2_mins
+  eurusd_3_mins
   eurusd_5_mins
   pltr_1_min
-  pltr_2_mins
+  pltr_3_mins
   pltr_5_mins
   tsla_1_min
-  tsla_2_mins
+  tsla_3_mins
   tsla_5_mins
   nvda_1_min
-  nvda_2_mins
+  nvda_3_mins
   nvda_5_mins
 }
 
@@ -303,22 +310,22 @@ enum transaction_approvals_status {
 
 enum membertrades_type {
   nasdaq_1_min
-  nasdaq_2_mins
+  nasdaq_3_mins
   nasdaq_5_mins
   gold_1_min
-  gold_2_mins
+  gold_3_mins
   gold_5_mins
   eurusd_1_min
-  eurusd_2_mins
+  eurusd_3_mins
   eurusd_5_mins
   pltr_1_min
-  pltr_2_mins
+  pltr_3_mins
   pltr_5_mins
   tsla_1_min
-  tsla_2_mins
+  tsla_3_mins
   tsla_5_mins
   nvda_1_min
-  nvda_2_mins
+  nvda_3_mins
   nvda_5_mins
 }
 
