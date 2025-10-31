@@ -28,6 +28,7 @@ import login from "../controllers/user/login";
 import logout from "../controllers/user/logout";
 import register from "../controllers/user/register";
 import updateInfo from "../controllers/user/updateInfo";
+import createInquiry from "../controllers/user/createInquiry";
 
 
 // ---------- ROUTER ---------- //
@@ -66,3 +67,4 @@ router.post('/createTransaction', authenticate, createTransaction);
 router.post('/executeTrade', authenticate, executeTrade);
 router.post('/logout', authenticate, logout);
 router.post('/updateInfo', authenticate, updateInfo);
+router.post('/createInquiry', authenticate, createInquiry);

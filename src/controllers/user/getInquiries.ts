@@ -17,7 +17,8 @@ export default async function getInquiries(req: Request, res: Response, next: Ne
     const processedPage = parseInt(page as string) || 1
 
     const where: Prisma.inquiriesWhereInput = {
-        memberId: user.id
+        memberId: user.id,
+        alreadyAnswered: true,
     }
 
     try {
