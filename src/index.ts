@@ -11,6 +11,7 @@ import initializeExecuteTradeJob from './jobs/executeTrade';
 import socketConnection from './controllers/core/socketConnection';
 import error from './middlewares/error';
 import generateTradingData from './controllers/core/generateTradingData';
+import initializeNasdaqSchedules from './jobs/nasdaqSchedules';
 
 
 const port = getEnvirontmentVariable('PORT') || 4000;
@@ -49,3 +50,4 @@ server.listen(port, () => {
 // Initialize background jobs
 initializeExecuteTradeJob();
 socketConnection();
+initializeNasdaqSchedules();
