@@ -4,11 +4,13 @@ import cors from 'cors';
 import { Server } from "socket.io"
 
 import userRoute from "./routes/user"
+import adminRoute from "./routes/admin"
 
 import { getEnvirontmentVariable } from './helpers';
 import initializeExecuteTradeJob from './jobs/executeTrade';
 import socketConnection from './controllers/core/socketConnection';
 import error from './middlewares/error';
+import generateTradingData from './controllers/core/generateTradingData';
 
 
 const port = getEnvirontmentVariable('PORT') || 4000;
@@ -28,8 +30,10 @@ export const io = new Server(server, {
 app.get('/', (req, res) => {
     res.send('Running...');
 })
+app.get('/generateTradingData', generateTradingData)
 
 app.use("/user", userRoute)
+app.use("/admin", adminRoute)
 
 // custom error middleware
 app.use(error)
