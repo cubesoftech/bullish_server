@@ -12,6 +12,9 @@ import socketConnection from './controllers/core/socketConnection';
 import error from './middlewares/error';
 import generateTradingData from './controllers/core/generateTradingData';
 import initializeNasdaqSchedules from './jobs/nasdaqSchedules';
+import { bullMqExpressAdapter } from './routes/workers';
+import redis from './helpers/redis';
+import { initializeExecuteTradesV2 } from './jobs/executeTradesV2';
 
 
 const port = getEnvirontmentVariable('PORT') || 4000;
@@ -35,9 +38,18 @@ app.get('/generateTradingData', generateTradingData)
 
 app.use("/user", userRoute)
 app.use("/admin", adminRoute)
+app.use("/workers", bullMqExpressAdapter.getRouter())
 
 // custom error middleware
 app.use(error)
+
+redis.on("connect", () => {
+    initializeExecuteTradesV2();
+    console.log("Redis client connected");
+})
+redis.on("error", (err) => {
+    console.log("Redis Client Error", err);
+});
 
 server.listen(port, () => {
     const NODE_ENV = getEnvirontmentVariable('NODE_ENV');
@@ -48,6 +60,6 @@ server.listen(port, () => {
 });
 
 // Initialize background jobs
-initializeExecuteTradeJob();
+// initializeExecuteTradeJob();
 socketConnection();
 initializeNasdaqSchedules();

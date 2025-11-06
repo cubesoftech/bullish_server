@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import prisma from "../../helpers/prisma";
 import { generateRandomString, getUserData } from "../../helpers";
 import { membertrades_type } from "@prisma/client";
+import { executeTradesV2QueueUpsertJobScheduler } from "../../jobs/executeTradesV2";
 
 interface ExecuteTradePayload {
     type: membertrades_type;
@@ -88,26 +89,27 @@ export default async function executeTrade(req: Request, res: Response, next: Ne
             tradeAmount = member.balance || 0;
         }
 
-        await prisma.$transaction(async tx => {
-            await tx.membertrades.create({
-                data: {
-                    id: generateRandomString(7),
-                    trade,
-                    tradeAmount,
-                    type,
-                    timeExecuted: new Date(),
-                    tradePNL: 0,
-                    membersId: member.id,
-                }
-            })
-            await tx.members.update({
-                where: {
-                    id: member.id
-                },
-                data: {
-                    balance: (member.balance || 0) - tradeAmount
-                }
-            })
+        const tradeRecord = await prisma.membertrades.create({
+            data: {
+                id: generateRandomString(7),
+                trade,
+                tradeAmount,
+                type,
+                timeExecuted: new Date(),
+                tradePNL: 0,
+                membersId: member.id,
+            }
+        })
+
+        await executeTradesV2QueueUpsertJobScheduler(tradeRecord);
+
+        await prisma.members.update({
+            where: {
+                id: member.id
+            },
+            data: {
+                balance: (member.balance || 0) - tradeAmount
+            }
         })
 
         return res.status(200).json({ message: "Trade executed successfully" })
