@@ -1,6 +1,5 @@
 import { AuthPayload } from "../../utils/interface";
 import "express-serve-static-core";
-import { File } from "multer"
 
 export { };
 

@@ -18,6 +18,7 @@ import getTradeData from "../controllers/user/getTradeData";
 import getTradeHistory from "../controllers/user/getTradeHistory";
 import getTransactions from "../controllers/user/getTransactions";
 import getUserStats from "../controllers/user/getUserStats";
+import getDefaultStock from "../controllers/user/getDefaultStock";
 
 
 // ---------- POST CONTROLLERS ---------- //
@@ -54,6 +55,7 @@ router.get('/getTradeData', authenticate, getTradeData);
 router.get('/getTradeHistory', authenticate, getTradeHistory);
 router.get('/getTransactions', authenticate, getTransactions);
 router.get('/getUserStats', authenticate, getUserStats);
+router.get('/getDefaultStock', authenticate, getDefaultStock);
 
 
 // ---------- POST REQUESTS ---------- //
